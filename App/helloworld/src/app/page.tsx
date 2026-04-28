@@ -6,6 +6,7 @@ export default function Home() {
       <div>Aaron Zeile</div>
       <div>Nathan Skinner</div>
       <div>Austin Nguyen</div>
+      <div>Riley Arthur</div>
     </div>
   );
 }
