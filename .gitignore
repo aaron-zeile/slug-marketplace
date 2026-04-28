@@ -1,0 +1,170 @@
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+jspm_packages/
+bower_components/
+ 
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+.env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+ 
+# Ruby / Bundler
+vendor/bundle
+.bundle/
+ 
+ 
+# =============================================================================
+# BUILD OUTPUT
+# =============================================================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+*.tsbuildinfo
+.turbo/
+ 
+ 
+# =============================================================================
+# ENVIRONMENT & SECRETS
+# =============================================================================
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.cert
+secrets/
+**/secrets/
+ 
+ 
+# =============================================================================
+# LOGS
+# =============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log.*
+ 
+ 
+# =============================================================================
+# TESTING & COVERAGE
+# =============================================================================
+coverage/
+**/coverage/
+.nyc_output/
+*.lcov
+.jest-cache/
+test-results/
+playwright-report/
+cypress/videos/
+cypress/screenshots/
+ 
+ 
+# =============================================================================
+# CACHES
+# =============================================================================
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.prettiercache
+.npm/
+.yarn/cache
+.yarn/unplugged
+.pnpm-store/
+*.swp
+*.swo
+ 
+ 
+# =============================================================================
+# IDEs & EDITORS
+# =============================================================================
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.sublime-workspace
+*.suo
+*.user
+.DS_Store
+Thumbs.db
+ 
+ 
+# =============================================================================
+# OS FILES
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+ 
+ 
+# =============================================================================
+# DOCKER
+# =============================================================================
+.docker/
+docker-compose.override.yml
+ 
+ 
+# =============================================================================
+# SPIKE/ — keep explorations out of history
+# =============================================================================
+spike/**/*.log
+spike/**/node_modules/
+spike/**/__pycache__/
+spike/**/.env
+spike/**/dist/
+spike/**/build/
+ 
+ 
+# =============================================================================
+# SERVICE/
+# =============================================================================
+service/**/*.log
+service/**/node_modules/
+service/**/__pycache__/
+service/**/.env
+service/**/dist/
+service/**/build/
+ 
+ 
+# =============================================================================
+# MISC
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.orig
+.terraform/
+*.tfstate
+*.tfstate.backup
