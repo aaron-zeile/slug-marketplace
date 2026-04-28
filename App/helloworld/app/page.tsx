@@ -4,6 +4,7 @@ export default function Home() {
       <div>Hello World</div>
       <div>Pouria Rezaei</div>
       <div>Aaron Zeile</div>
+      <div>Nathan Skinner</div>
     </div>
   );
 }
