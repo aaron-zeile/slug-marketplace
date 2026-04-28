@@ -5,6 +5,7 @@ export default function Home() {
       <div>Pouria Rezaei</div>
       <div>Aaron Zeile</div>
       <div>Nathan Skinner</div>
+      <div>Austin Nguyen</div>
     </div>
   );
 }
