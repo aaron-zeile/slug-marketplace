@@ -3,6 +3,7 @@ export default function Home() {
     <div className="flex flex-col flex-1 items-center justify-center text-4xl">
       <div>Hello World</div>
       <div>Pouria Rezaei</div>
+      <div>Aaron Zeile</div>
     </div>
   );
 }
