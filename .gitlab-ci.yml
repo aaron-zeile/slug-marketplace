@@ -23,14 +23,6 @@ stages:
 - secret-detection
 variables:
   SECRET_DETECTION_ENABLED: 'true'
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_HOST: "tcp://docker:2375"
-  DOCKER_DRIVER: overlay2
-
-services:
-  - name: docker:dind
-    alias: docker
-
 secret_detection:
   stage: secret-detection
 include:
