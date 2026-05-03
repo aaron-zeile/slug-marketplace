@@ -1,4 +1,5 @@
-import { Box } from '@mui/material';
+import GoogleLogin from "./buyer/GoogleLogin";
+
 export default function Home() {
-  return <Box>Testing</Box>;
+  return <GoogleLogin />;
 }

@@ -1,0 +1,47 @@
+{
+  "name": "admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3002",
+    "build": "next build",
+    "start": "next start --port 3002",
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "graphql-yoga": "^5.10.4",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.0",
+    "@mui/material": "^7.0.0",
+    "postgres": "^3.4.5",
+    "bcryptjs": "^3.0.2",
+    "class-transformer": "^0.5.1",
+    "graphql": "^16.10.0",
+    "iron-session": "^8.0.4",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "reflect-metadata": "^0.2.2",
+    "type-graphql": "2.0.0-rc.4"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "jsdom": "^26.1.0",
+    "typescript": "^5",
+    "vite": "^6.3.2",
+    "vitest": "^3.1.3"
+  }
+}
