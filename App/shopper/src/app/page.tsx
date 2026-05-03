@@ -1,5 +1,5 @@
-import BuyerApp from "./buyer/BuyerApp";
+import GoogleLogin from "./buyer/GoogleLogin";
 
 export default function Home() {
-  return <BuyerApp />;
+  return <GoogleLogin />;
 }
