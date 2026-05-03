@@ -1,4 +1,5 @@
-import { Box } from '@mui/material';
+import BuyerApp from "./buyer/BuyerApp";
+
 export default function Home() {
-  return <Box>Testing</Box>;
+  return <BuyerApp />;
 }

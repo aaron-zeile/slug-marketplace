@@ -1,15 +1,17 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import React, { StrictMode } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import { Landing } from "./Landing";
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const googleClientId = import.meta.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={googleClientId}>
-        <h1>Buyer Service</h1>
-      <App />
+      <main>
+        <h1>Slug Market Place</h1>
+        <Landing />
+      </main>
     </GoogleOAuthProvider>
   </StrictMode>,
 );
