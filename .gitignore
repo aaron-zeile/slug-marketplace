@@ -168,3 +168,11 @@ service/**/build/
 .terraform/
 *.tfstate
 *.tfstate.backup
+
+
+# =============================================================================
+# AI / CLAUDE
+# =============================================================================
+.claude/settings.local.json
+**/.claude/settings.local.json
+.claude/
