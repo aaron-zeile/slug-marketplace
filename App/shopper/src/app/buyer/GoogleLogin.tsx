@@ -23,6 +23,7 @@ export function GoogleButtonLogin() {
   return (
     <GoogleLoginButton
       auto_select
+      theme="filled_black"
       onSuccess={(credentialResponse) => {
         console.log(credentialResponse);
       }}
