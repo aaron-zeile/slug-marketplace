@@ -1,9 +1,14 @@
-import type { CredentialResponse } from "@react-oauth/google";
-
 export interface Authenticated {
-  name: string
+  id: number;
+  email: string;
+  name: string;
 }
 
-export interface GoogleLoginCredentials {
-  Credentials: GoogleOAuthToken;
+export interface Credentials {
+  credential: string;
+}
+
+export interface SessionUser {
+  id: number;
+  email: string;
 }

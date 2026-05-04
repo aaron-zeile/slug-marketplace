@@ -4,5 +4,8 @@
     "build": "npm --prefix App/shopper run build",
     "start": "npm --prefix App/shopper run start",
     "lint": "npm --prefix App/shopper run lint"
+  },
+  "dependencies": {
+    "google-auth-library": "^10.6.2"
   }
 }
