@@ -1,13 +1,16 @@
 "use client";
+
 import {
   GoogleLogin as GoogleLoginButton,
   GoogleOAuthProvider,
   type PromptMomentNotification,
   useGoogleOneTapLogin,
 } from "@react-oauth/google";
-//If it says auth error before logging in go to https://console.cloud.google.com/auth/clients?project=slugmarketplace to 
-//fix url settings
-// https://www.npmjs.com/package/@react-oauth/google
+
+// If it says auth error before logging in, go to
+// https://console.cloud.google.com/auth/clients?project=slugmarketplace
+// and fix the URL settings.
+// Docs: https://www.npmjs.com/package/@react-oauth/google
 const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
 function LoginShell({ children }: Readonly<{ children: React.ReactNode }>) {
