@@ -1,13 +1,23 @@
-// import { Stack } from '@mui/material'
 import React from 'react'
-import Typography from '@mui/material/Typography';
+import TopBar from './Appbar';
+
+import { createTheme, ThemeProvider, getContrastRatio } from '@mui/material/styles';
+
+const navyBlue = '#003c6c'
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: navyBlue,
+      contrastText: getContrastRatio(navyBlue, '#fff') > 4.5 ? '#fff' : '#111',
+    },
+  },
+});
 
 export default function Dashboard() {
   return (
-    // <Stack spacing={0}>
-    <Typography>
-      Dashboard
-    </Typography>
-    // </Stack>
+    <ThemeProvider theme={theme}>
+      <TopBar/>
+    </ThemeProvider>
   )
 }
