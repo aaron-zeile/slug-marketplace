@@ -1,5 +1,6 @@
-import GoogleLogin from "./buyer/GoogleLogin";
-import { data } from '../../../../db';
+
+
+import GoogleLogin from "./buyer/login";
 
 export default function Home() {
   return <GoogleLogin />;
