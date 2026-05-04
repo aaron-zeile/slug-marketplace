@@ -1,7 +1,6 @@
-
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE DATABASE shopper;
+CREATE DATABASE test;
 
-\connect shopper
+\connect test
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
