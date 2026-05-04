@@ -3,8 +3,6 @@
 import {
   GoogleLogin as GoogleLoginButton,
   GoogleOAuthProvider,
-  type PromptMomentNotification,
-  useGoogleOneTapLogin,
 } from "@react-oauth/google";
 import { useState } from "react";
 
@@ -69,49 +67,12 @@ export function GoogleButtonLogin({ setName }: { setName: SetName }) {
   );
 }
 
-function logPromptMoment(notification: PromptMomentNotification) {
-  if (notification.isNotDisplayed()) {
-    console.log("One Tap not displayed:", notification.getNotDisplayedReason());
-  }
-
-  if (notification.isSkippedMoment()) {
-    console.log("One Tap skipped:", notification.getSkippedReason());
-  }
-
-  if (notification.isDismissedMoment()) {
-    console.log("One Tap dismissed:", notification.getDismissedReason());
-  }
-}
-
-function OneTapPrompt() {
-  useGoogleOneTapLogin({
-    onSuccess: (credentialResponse) => {
-      console.log(credentialResponse);
-    },
-    onError: () => {
-      console.log("Login Failed");
-    },
-    promptMomentNotification: logPromptMoment,
-    cancel_on_tap_outside: false,
-    use_fedcm_for_prompt: true,
-  });
-
-  return null;
-}
-
-export function GoogleOneTapLogin() {
-  return <OneTapPrompt />;
-}
-
 export default function GoogleLogin() {
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <LoginShell>
         {(setName: SetName) => (
-          <>
-            <GoogleButtonLogin setName={setName} />
-            {/* <GoogleOneTapLogin /> */}
-          </>
+          <GoogleButtonLogin setName={setName} />
         )}
       </LoginShell>
     </GoogleOAuthProvider>
