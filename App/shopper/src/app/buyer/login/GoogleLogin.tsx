@@ -28,6 +28,14 @@ export function GoogleButtonLogin() {
       auto_select
       theme="filled_black"
       onSuccess={(credentialResponse) => {
+        const token = credentialResponse.credential;
+
+  if (!token) return;
+
+  const payload = JSON.parse(atob(token.split(".")[1]));
+
+  console.log("Google ID:", payload.sub);
+  console.log("Email:", payload.email);
         console.log(credentialResponse);
       }}
       onError={() => {
