@@ -11,7 +11,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { logout } from "../login/actions";
 import GoogleLogin from "../login/GoogleLogin";
@@ -21,13 +21,7 @@ function getAvatarLabel(name: string | null) {
 }
 
 export default function Topbar() {
-  const [name, setName] = useState<string | null>(() => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-
-    return window.sessionStorage.getItem("name");
-  });
+  const [name, setName] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<null | {
     left: number;
     top: number;
@@ -37,6 +31,10 @@ export default function Topbar() {
   const handleMenuClose = () => {
     setMenuPosition(null);
   };
+
+  useEffect(() => {
+    setName(window.sessionStorage.getItem("name"));
+  }, []);
 
   const handleLogout = async () => {
     await logout();
