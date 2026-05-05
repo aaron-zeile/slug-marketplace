@@ -1,5 +1,5 @@
-import GoogleLogin from './buyer/login';
 import ItemCard from './components/ItemCard';
+import Topbar from './topbar';
 
 // remove this later
 const singleItem = {
@@ -15,7 +15,7 @@ const singleItem = {
 export default function Home() {
   return (
     <>
-      <GoogleLogin />
+      <Topbar />
       <ItemCard item={singleItem}/>
     </>
   );
