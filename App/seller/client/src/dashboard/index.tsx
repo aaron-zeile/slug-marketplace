@@ -9,7 +9,7 @@ const theme = createTheme({
   palette: {
     primary: {
       main: navyBlue,
-      contrastText: getContrastRatio(navyBlue, '#fff') > 4.5 ? '#fff' : '#111',
+      contrastText: '#fff',
     },
   },
 });
