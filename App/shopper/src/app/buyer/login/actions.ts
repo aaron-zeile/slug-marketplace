@@ -3,37 +3,15 @@
 import { cookies } from 'next/headers'
 
 import { AuthService } from '@/auth/service'
-import type { Authenticated, Credentials } from '@/auth'
+import type { Authenticated, Credentials, SessionUser } from '@/auth'
 
 export interface LoginResult {
   authenticated?: Authenticated
   error?: string
 }
 
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error && error.message) {
-    return error.message
-  }
-
-  if (typeof error === 'object' && error !== null) {
-    const record = error as Record<string, unknown>
-    const parts = [
-      typeof record.name === 'string' ? record.name : undefined,
-      typeof record.code === 'string' ? `code ${record.code}` : undefined,
-      typeof record.detail === 'string' ? record.detail : undefined,
-      typeof record.message === 'string' && record.message
-        ? record.message
-        : undefined,
-    ].filter(Boolean)
-
-    if (parts.length > 0) {
-      return parts.join(': ')
-    }
-
-    return JSON.stringify(record)
-  }
-
-  return String(error || 'Login failed')
+export interface CheckLoginResult {
+  user?: SessionUser
 }
 
 export async function login(
@@ -44,10 +22,19 @@ export async function login(
       authenticated: await new AuthService().login(credentials),
     }
   } catch (error) {
-    console.error('Login failed:', error)
     return {
-      error: getErrorMessage(error),
+      error: error instanceof Error ? error.message : 'Login failed',
     }
+  }
+}
+
+export async function checkLogin(): Promise<CheckLoginResult> {
+  try {
+    return {
+      user: await new AuthService().check(),
+    }
+  } catch {
+    return {}
   }
 }
 

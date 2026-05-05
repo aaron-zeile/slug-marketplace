@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => {
   return {
     cookieSet: vi.fn(),
     getPayload: vi.fn(),
+    jwtDecrypt: vi.fn(),
     query: vi.fn(),
     verifyIdToken: vi.fn(),
   }
@@ -23,6 +24,11 @@ vi.mock('next/headers', () => {
   return {
     cookies: vi.fn(async () => {
       return {
+        get: vi.fn(() => {
+          return {
+            value: 'test-session-token',
+          }
+        }),
         set: mocks.cookieSet,
       }
     }),
@@ -41,7 +47,7 @@ vi.mock('jose', () => {
 
   return {
     EncryptJWT,
-    jwtDecrypt: vi.fn(),
+    jwtDecrypt: mocks.jwtDecrypt,
   }
 })
 
@@ -76,6 +82,7 @@ function mockGooglePayload(payload: Record<string, unknown>) {
 describe('AuthService.login', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mocks.jwtDecrypt.mockReset()
   })
 
   it('logs in an existing member and sets a session cookie', async () => {
@@ -176,5 +183,20 @@ describe('AuthService.login', () => {
     ).rejects.toThrow('Invalid Google token')
     expect(mocks.query).not.toHaveBeenCalled()
     expect(mocks.cookieSet).not.toHaveBeenCalled()
+  })
+
+  it('rejects an invalid session cookie payload', async () => {
+    mocks.jwtDecrypt.mockResolvedValue({
+      payload: {
+        email: 'molly@example.com',
+        id: 7,
+      },
+    })
+
+    const AuthService = await loadAuthService()
+
+    await expect(new AuthService().check()).rejects.toThrow(
+      'Invalid session cookie',
+    )
   })
 })

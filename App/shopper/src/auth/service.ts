@@ -22,10 +22,6 @@ interface MemberRow {
 let db: Pool | undefined
 
 function getDb() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('Missing DATABASE_URL')
-  }
-
   db ??= new Pool({
     connectionString: process.env.DATABASE_URL,
   })
@@ -36,18 +32,10 @@ function getDb() {
 function getSessionSecret() {
   const secret = process.env.AUTH_SECRET
 
-  if (!secret) {
-    throw new Error('Missing AUTH_SECRET')
-  }
-
   return createHash('sha256').update(secret).digest()
 }
 
 async function verifyGoogleToken(token: string) {
-  if (!googleClientId) {
-    throw new Error('Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID')
-  }
-
   const ticket = await googleClient.verifyIdToken({
     idToken: token,
     audience: googleClientId,
@@ -83,10 +71,12 @@ export class AuthService {
       member = newMember.rows[0]
     }
 
+    const name = payload.name 
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS)
     const authToken = await new EncryptJWT({
       id: member.id,
       email: member.email,
+      name,
     })
       .setProtectedHeader({ alg: 'dir', enc: JWE_ALGORITHM })
       .setIssuedAt()
@@ -105,7 +95,7 @@ export class AuthService {
     return {
       id: member.id,
       email: member.email,
-      name: payload.name ?? member.email,
+      name,
     }
   }
 
@@ -121,13 +111,18 @@ export class AuthService {
       contentEncryptionAlgorithms: [JWE_ALGORITHM],
     })
 
-    if (typeof payload.id !== 'number' || typeof payload.email !== 'string') {
+    if (
+      typeof payload.id !== 'number' ||
+      typeof payload.email !== 'string' ||
+      typeof payload.name !== 'string'
+    ) {
       throw new Error('Invalid session cookie')
     }
 
     return {
       id: payload.id,
       email: payload.email,
+      name: payload.name,
     }
   }
 }

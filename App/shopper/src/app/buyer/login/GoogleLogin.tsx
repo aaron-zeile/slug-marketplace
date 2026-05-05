@@ -29,7 +29,6 @@ export default function GoogleLogin({
           const credential = credentialResponse.credential;
 
           if (!credential) {
-            console.log("Login Failed");
             return;
           }
 
@@ -39,12 +38,7 @@ export default function GoogleLogin({
             window.sessionStorage.setItem("name", result.authenticated.name);
             setName(result.authenticated.name);
             onLogin?.();
-          } else {
-            console.log(result.error ?? "Login Failed");
-          }
-        }}
-        onError={() => {
-          console.log("Login Failed");
+          } 
         }}
       />
     </GoogleOAuthProvider>

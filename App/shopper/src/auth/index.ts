@@ -11,4 +11,5 @@ export interface Credentials {
 export interface SessionUser {
   id: number;
   email: string;
+  name: string;
 }

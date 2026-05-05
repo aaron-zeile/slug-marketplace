@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { logout } from "../login/actions";
+import { checkLogin, logout } from "../login/actions";
 import GoogleLogin from "../login/GoogleLogin";
 
 function getAvatarLabel(name: string | null) {
@@ -33,7 +33,24 @@ export default function Topbar() {
   };
 
   useEffect(() => {
-    setName(window.sessionStorage.getItem("name"));
+    let active = true;
+
+    async function loadSession() {
+      const storedName = window.sessionStorage.getItem("name");
+      const result = await checkLogin();
+
+      if (!active) {
+        return;
+      }
+
+      setName(result.user ? storedName ?? result.user.name : storedName);
+    }
+
+    void loadSession();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleLogout = async () => {
