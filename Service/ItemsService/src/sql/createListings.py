@@ -1,6 +1,4 @@
-# Creates N new listings / items
-
-import random, os
+import random, os, uuid
 from datetime import datetime, timedelta, timezone
 
 SAMPLE_NAMES = [
@@ -25,6 +23,9 @@ SAMPLE_DESCRIPTIONS = [
     "An exceptional blend of form and function at an unbeatable price.",
 ]
 
+# Sample seller UUIDs — replace with real member IDs from your member table
+SAMPLE_SELLERS = [str(uuid.uuid4()) for _ in range(5)]
+
 def random_created_at():
     days_ago = random.randint(0, 365)
     dt = datetime.now(timezone.utc) - timedelta(days=days_ago, seconds=random.randint(0, 86400))
@@ -35,13 +36,14 @@ def generate_insert():
     desc       = random.choice(SAMPLE_DESCRIPTIONS)
     price      = round(random.uniform(1.99, 999.99), 2)
     created_at = random_created_at()
+    seller     = random.choice(SAMPLE_SELLERS)
 
     name = name.replace("'", "''")
     desc = desc.replace("'", "''")
 
     return (
-        f"INSERT INTO item (name, description, price, created_at) VALUES "
-        f"('{name}', '{desc}', {price}, '{created_at}');"
+        f"INSERT INTO item (seller, name, description, price, created_at) VALUES "
+        f"('{seller}', '{name}', '{desc}', {price}, '{created_at}');"
     )
 
 while True:
