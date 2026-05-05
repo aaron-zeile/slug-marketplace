@@ -1,0 +1,41 @@
+{
+  "name": "itemsService",
+  "version": "1.1.0",
+  "description": "Service for Items",
+  "license": "UNLICENSED",
+  "repository": "none",
+  "devDependencies": {
+    "@eslint/js": "*",
+    "@types/express": "*",
+    "@types/node": "*",
+    "eslint": "*",
+    "eslint-config-typescript": "*",
+    "globals": "8",
+    "nodemon": "*",
+    "supertest": "*",
+    "ts-node": "*",
+    "typescript": "*",
+    "typescript-eslint": "*"
+  },
+  "dependencies": {
+    "class-validator": "*",
+    "dotenv": "*",
+    "express": "*",
+    "graphql-http": "*",
+    "graphql": "*",
+    "graphql-playground-middleware-express": "*",
+    "reflect-metadata": "*",
+    "type-graphql": "*"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts",
+    "exec": "ts-node src/server.ts"
+  },
+  "scripts": {
+    "dev": "nodemon",
+    "lint": "eslint src/**/*.[jt]s --fix"
+  }
+}

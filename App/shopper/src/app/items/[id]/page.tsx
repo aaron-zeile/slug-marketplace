@@ -1,3 +1,5 @@
+'use client';
+
 interface ItemPageProps {
   params: Promise<{ id: string }>;
 }
