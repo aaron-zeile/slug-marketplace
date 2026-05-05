@@ -13,7 +13,7 @@ export default function TopBar() {
             size="large"
             edge="start"
             color="inherit"
-            aria-label="menu"
+            aria-label="open menu"
             sx={{ mr: 2 }}
           >
             <MenuIcon />
