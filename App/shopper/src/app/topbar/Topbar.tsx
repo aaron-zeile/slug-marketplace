@@ -84,12 +84,15 @@ export default function Topbar() {
             },
           }}
         >
-          <MenuItem disableRipple>
-            <Box sx={{ py: 0.5, width: "100%" }}>
-              <GoogleLogin setName={setName} onLogin={handleMenuClose} />
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          {name ? (
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          ) : (
+            <MenuItem disableRipple>
+              <Box sx={{ py: 0.5, width: "100%" }}>
+                <GoogleLogin setName={setName} onLogin={handleMenuClose} />
+              </Box>
+            </MenuItem>
+          )}
         </Menu>
       </Toolbar>
     </AppBar>
