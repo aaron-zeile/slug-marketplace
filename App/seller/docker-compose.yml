@@ -1,0 +1,14 @@
+services:
+  postgres:
+    container_name: seller
+    image: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./server/sql/databases.sql:/docker-entrypoint-initdb.d/1.databases.sql
+      - ./server/sql/schema.sql:/docker-entrypoint-initdb.d/2.schema.sql
+      - ./server/sql/data.sql:/docker-entrypoint-initdb.d/3.data.sql
