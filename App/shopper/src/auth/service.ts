@@ -69,10 +69,18 @@ export class AuthService {
       'SELECT id, email, google_id FROM member WHERE google_id = $1',
       [payload.sub],
     )
-    const member = result.rows[0]
+    let member = result.rows[0]
 
     if (!member) {
-      throw new Error('Unauthorized')
+      const newMember = await getDb().query<MemberRow>(
+        `INSERT INTO member (email, google_id)
+         VALUES ($1, $2)
+         ON CONFLICT (email) DO UPDATE
+         SET google_id = EXCLUDED.google_id
+         RETURNING id, email, google_id`,
+        [payload.email, payload.sub],
+      )
+      member = newMember.rows[0]
     }
 
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS)
@@ -123,4 +131,3 @@ export class AuthService {
     }
   }
 }
-

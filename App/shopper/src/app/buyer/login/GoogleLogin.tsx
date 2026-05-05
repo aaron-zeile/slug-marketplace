@@ -4,7 +4,6 @@ import {
   GoogleLogin as GoogleLoginButton,
   GoogleOAuthProvider,
 } from "@react-oauth/google";
-import { useState } from "react";
 
 import { login } from "./actions";
 
@@ -13,36 +12,20 @@ import { login } from "./actions";
 // and fix the URL settings.
 // Docs: https://www.npmjs.com/package/@react-oauth/google
 const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
-type SetName = React.Dispatch<React.SetStateAction<string | null>>;
+export type SetName = React.Dispatch<React.SetStateAction<string | null>>;
 
-function LoginShell({
-  //state made by codex
-  children,
+export function GoogleButtonLogin({
+  setName,
+  onLogin,
 }: {
-  children: (setName: SetName) => React.ReactNode;
+  setName: SetName;
+  onLogin?: () => void;
 }) {
-  const [name, setName] = useState<string | null>(() => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-
-    return window.sessionStorage.getItem("name");
-  });
-
-  return (
-    <main>
-      <h1>SlugMarketPlace</h1>
-      {name && <h2>{name}</h2>}
-      {children(setName)}
-    </main>
-  );
-}
-
-export function GoogleButtonLogin({ setName }: { setName: SetName }) {
   return (
     <GoogleLoginButton
       auto_select
       theme="filled_black"
+      width="220"
       onSuccess={async (credentialResponse) => {
         const credential = credentialResponse.credential;
 
@@ -56,6 +39,7 @@ export function GoogleButtonLogin({ setName }: { setName: SetName }) {
         if (result.authenticated) {
           window.sessionStorage.setItem("name", result.authenticated.name);
           setName(result.authenticated.name);
+          onLogin?.();
         } else {
           console.log(result.error ?? "Login Failed");
         }
@@ -67,14 +51,16 @@ export function GoogleButtonLogin({ setName }: { setName: SetName }) {
   );
 }
 
-export default function GoogleLogin() {
+export default function GoogleLogin({
+  setName,
+  onLogin,
+}: {
+  setName: SetName;
+  onLogin?: () => void;
+}) {
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <LoginShell>
-        {(setName: SetName) => (
-          <GoogleButtonLogin setName={setName} />
-        )}
-      </LoginShell>
+      <GoogleButtonLogin setName={setName} onLogin={onLogin} />
     </GoogleOAuthProvider>
   );
 }
