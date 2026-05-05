@@ -3,7 +3,7 @@ import { expect, it, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event'
 
 import { routerSpy } from './mockRouter'
-import ItemCard, { type CardItem } from '../src/app/components/ItemCard';
+import ItemCard, { type CardItem } from '../src/app/buyer/components/ItemCard';
 
 const item: CardItem = {
   id: '11111111-1111-4111-8111-111111111111',

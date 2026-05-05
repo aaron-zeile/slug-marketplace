@@ -4,6 +4,7 @@
     "build": "npm --prefix App/shopper run build",
     "start": "npm --prefix App/shopper run start",
     "lint": "npm --prefix App/shopper run lint",
+    "test": "npm --prefix App/shopper test",
     "e2e": "vitest run e2e --pool=threads --no-file-parallelism --testTimeout=20000"
   },
   "dependencies": {

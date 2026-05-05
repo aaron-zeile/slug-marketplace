@@ -13,8 +13,8 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import { logout } from "../buyer/login/actions";
-import GoogleLogin from "../buyer/login/GoogleLogin";
+import { logout } from "../login/actions";
+import GoogleLogin from "../login/GoogleLogin";
 
 function getAvatarLabel(name: string | null) {
   return name?.trim().charAt(0).toUpperCase() || undefined;

@@ -1,5 +1,5 @@
-import ItemCard from './components/ItemCard';
-import Topbar from './topbar';
+import ItemCard from './buyer/components/ItemCard';
+import Topbar from './buyer/topbar';
 
 // remove this later
 const singleItem = {
