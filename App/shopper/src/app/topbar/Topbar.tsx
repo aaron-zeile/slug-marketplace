@@ -47,27 +47,32 @@ export default function Topbar() {
 
   return (
     <AppBar position="static" color="default" elevation={1}>
-      <Toolbar sx={{ justifyContent: "flex-end", gap: 2 }}>
-        <Typography variant="body1">Hello {name ?? "Guest"}</Typography>
-        <IconButton
-          aria-label="Open profile menu"
-          aria-controls={isMenuOpen ? "profile-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={isMenuOpen ? "true" : undefined}
-          onClick={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
+      <Toolbar sx={{ justifyContent: "space-between", gap: 2 }}>
+        <Typography component="div" variant="h6">
+          slugmarketplace
+        </Typography>
+        <Box sx={{ alignItems: "center", display: "flex", gap: 2 }}>
+          <Typography variant="body1">Hello {name ?? "Guest"}</Typography>
+          <IconButton
+            aria-label="profile"
+            aria-controls={isMenuOpen ? "profile-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={isMenuOpen ? "true" : undefined}
+            onClick={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect();
 
-            setMenuPosition({
-              left: rect.right - 12,
-              top: rect.bottom,
-            });
-          }}
-          size="small"
-        >
-          <Avatar sx={{ width: 36, height: 36 }}>
-            {getAvatarLabel(name) ?? <AccountCircleIcon />}
-          </Avatar>
-        </IconButton>
+              setMenuPosition({
+                left: rect.right - 12,
+                top: rect.bottom,
+              });
+            }}
+            size="small"
+          >
+            <Avatar sx={{ width: 36, height: 36 }}>
+              {getAvatarLabel(name) ?? <AccountCircleIcon />}
+            </Avatar>
+          </IconButton>
+        </Box>
         <Menu
           id="profile-menu"
           anchorPosition={menuPosition ?? undefined}
@@ -85,9 +90,11 @@ export default function Topbar() {
           }}
         >
           {name ? (
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            <MenuItem aria-label="logout" onClick={handleLogout}>
+              Logout
+            </MenuItem>
           ) : (
-            <MenuItem disableRipple>
+            <MenuItem aria-label="login" disableRipple>
               <Box sx={{ py: 0.5, width: "100%" }}>
                 <GoogleLogin setName={setName} onLogin={handleMenuClose} />
               </Box>

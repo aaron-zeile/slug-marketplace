@@ -3,9 +3,16 @@
     "dev": "npm --prefix App/shopper run dev",
     "build": "npm --prefix App/shopper run build",
     "start": "npm --prefix App/shopper run start",
-    "lint": "npm --prefix App/shopper run lint"
+    "lint": "npm --prefix App/shopper run lint",
+    "e2e": "vitest run e2e --pool=threads --no-file-parallelism --testTimeout=20000"
   },
   "dependencies": {
     "google-auth-library": "^10.6.2"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "pg": "^8.20.0",
+    "puppeteer": "^24.32.0",
+    "vitest": "4.1.5"
   }
 }
