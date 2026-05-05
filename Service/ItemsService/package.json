@@ -9,14 +9,17 @@
     "@types/express": "*",
     "@types/node": "*",
     "@types/pg": "^8.20.0",
+    "@types/supertest": "^7.2.0",
+    "@vitest/coverage-v8": "^4.1.5",
     "eslint": "*",
     "eslint-config-typescript": "*",
     "globals": "8",
     "nodemon": "*",
-    "supertest": "*",
+    "supertest": "^7.2.2",
     "ts-node": "*",
     "typescript": "*",
-    "typescript-eslint": "*"
+    "typescript-eslint": "*",
+    "vitest": "^4.1.5"
   },
   "dependencies": {
     "class-validator": "*",
@@ -38,6 +41,8 @@
   },
   "scripts": {
     "dev": "nodemon",
-    "lint": "eslint src/**/*.[jt]s --fix"
+    "lint": "eslint src/**/*.[jt]s --fix",
+    "cpd": "jscpd src test --silent",
+    "test": "vitest run --dir test --no-file-parallelism --testTimeout=3000 --coverage"
   }
 }
