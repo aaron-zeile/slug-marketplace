@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run --dir test --no-file-parallelism --testTimeout=3000 --coverage",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cpd": "jscpd src test --silent"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
