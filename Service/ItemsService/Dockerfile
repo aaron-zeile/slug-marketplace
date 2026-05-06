@@ -1,14 +1,26 @@
-FROM node:18
+# --- Build stage ---
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm install
-RUN npm install -g nodemon
+RUN npm ci
 
 COPY . .
+RUN npm run build  
+
+# --- Runtime stage ---
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/build ./build
 
 EXPOSE 4000
 
-CMD ["nodemon", "--watch", "src", "--ext", "ts", "--exec", "npx ts-node src/server.ts"]
+USER node
+
+CMD ["node", "build/server.js"]
