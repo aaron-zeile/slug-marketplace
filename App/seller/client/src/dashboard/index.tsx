@@ -1,7 +1,8 @@
 import React from 'react'
-import TopBar from './Appbar';
+import { DashboardProvider } from './Provider';
+import TopBar from './Appbar'
 
-import { createTheme, ThemeProvider, getContrastRatio } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const navyBlue = '#003c6c'
 
@@ -17,7 +18,9 @@ const theme = createTheme({
 export default function Dashboard() {
   return (
     <ThemeProvider theme={theme}>
-      <TopBar/>
+      <DashboardProvider>
+        <TopBar/>
+      </DashboardProvider>
     </ThemeProvider>
   )
 }
