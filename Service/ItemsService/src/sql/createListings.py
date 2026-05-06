@@ -23,7 +23,6 @@ SAMPLE_DESCRIPTIONS = [
     "An exceptional blend of form and function at an unbeatable price.",
 ]
 
-# Sample seller UUIDs — replace with real member IDs from your member table
 SAMPLE_SELLERS = [str(uuid.uuid4()) for _ in range(5)]
 
 def random_created_at():
@@ -32,6 +31,7 @@ def random_created_at():
     return dt.strftime("%Y-%m-%d %H:%M:%S+00")
 
 def generate_insert():
+    item_id    = str(uuid.uuid4())
     name       = random.choice(SAMPLE_NAMES) + f" {random.randint(1, 999)}"
     desc       = random.choice(SAMPLE_DESCRIPTIONS)
     price      = round(random.uniform(1.99, 999.99), 2)
@@ -42,8 +42,8 @@ def generate_insert():
     desc = desc.replace("'", "''")
 
     return (
-        f"INSERT INTO item (seller, name, description, price, created_at) VALUES "
-        f"('{seller}', '{name}', '{desc}', {price}, '{created_at}');"
+        f"INSERT INTO item (id, seller, name, description, price, created_at) VALUES "
+        f"('{item_id}', '{seller}', '{name}', '{desc}', {price}, '{created_at}');"
     )
 
 while True:

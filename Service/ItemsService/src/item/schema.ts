@@ -3,22 +3,6 @@ import { Field, GraphQLISODateTime, InputType, ObjectType } from 'type-graphql';
 
 @ObjectType()
 export class Item {
-  constructor(
-    id: string,
-    seller: string,
-    name: string,
-    description: string,
-    price: number,
-    created_at: Date,
-  ) {
-    this.id = id;
-    this.seller = seller;
-    this.name = name;
-    this.description = description;
-    this.price = price;
-    this.created_at = created_at;
-  }
-
   @Field()
   id!: string;
   @Field()

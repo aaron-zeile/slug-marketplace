@@ -43,6 +43,6 @@
     "dev": "nodemon",
     "lint": "eslint src/**/*.[jt]s --fix",
     "cpd": "jscpd src test --silent",
-    "test": "vitest run --dir test --no-file-parallelism --testTimeout=3000 --coverage"
+    "test": "vitest run --no-file-parallelism --testTimeout=3000 --coverage"
   }
 }
