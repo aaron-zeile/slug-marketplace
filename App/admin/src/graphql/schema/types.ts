@@ -8,3 +8,12 @@ export class AuthPayload {
   @Field(() => String, { nullable: true })
   message?: string;
 }
+
+@ObjectType()
+export class MonthlyProfit {
+  @Field(() => String)
+  month!: string;
+
+  @Field(() => Number)
+  profit!: number;
+}

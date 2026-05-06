@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { createYoga, type Plugin } from 'graphql-yoga';
 import { AdminResolver } from './schema/admin.resolver';
+import { ProfitResolver } from './schema/profit.resolver';
 
 export type GraphQLContext = {
   request: Request;
@@ -24,7 +25,7 @@ let _yoga: ReturnType<typeof createYoga<GraphQLContext>> | undefined;
 export async function getYoga() {
   if (!_yoga) {
     const schema = await buildSchema({
-      resolvers: [AdminResolver],
+      resolvers: [AdminResolver, ProfitResolver],
       validate: false,
     });
     _yoga = createYoga<GraphQLContext>({
