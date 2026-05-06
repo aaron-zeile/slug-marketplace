@@ -5,10 +5,12 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import NavTabs from './Tabs'
+// import SharedBar from '../../../../shopper/src/app/buyer/topbar'
 
 export default function TopBar() {
   return (
     <AppBar position='fixed'>
+      {/* <SharedBar/> */}
       <Toolbar>
         <IconButton
             size="large"
