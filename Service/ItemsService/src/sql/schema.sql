@@ -24,11 +24,9 @@
 --        → INSERT into item table
 --        ← return item
 
-CREATE TABLE IF NOT EXISTS item(
+DROP TABLE IF EXISTS item;
+
+CREATE TABLE item(
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  seller      UUID NOT NULL,
-  name        TEXT        NOT NULL,
-  description TEXT        NOT NULL,
-  price       NUMERIC(10, 2) NOT NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  data jsonb
 );

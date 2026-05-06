@@ -1,9 +1,15 @@
-// import {z} from 'zod'
+// ZOD SCHEMAS GO HERE
+import {z} from 'zod'
 
-// ZOD SCHEMAS WILL GO HERE
-
-/** EXAMPLE **/
-// export const NewTaskSchema = z.object({
-//   title: z.string().min(1, 'Too short').max(16, 'Must be less than 16 characters')
-// })
-// export type NewTask = z.infer<typeof NewTaskSchema>
+export const ListingSchema = z.object({
+  id: z.string(),
+  seller: z.string(),
+  name: z.string(),
+  description: z.string(),
+  price: z.number(),
+  created_at: z.string(),
+});
+export const ListingsResponseSchema = z.object({
+  listings: z.array(ListingSchema)
+})
+export type Listing = z.infer<typeof ListingSchema>;

@@ -1,4 +1,7 @@
-import random, os, uuid
+import json
+import random
+import os
+import uuid
 from datetime import datetime, timedelta, timezone
 
 SAMPLE_NAMES = [
@@ -23,8 +26,13 @@ SAMPLE_DESCRIPTIONS = [
     "An exceptional blend of form and function at an unbeatable price.",
 ]
 
-# Sample seller UUIDs — replace with real member IDs from your member table
-SAMPLE_SELLERS = [str(uuid.uuid4()) for _ in range(5)]
+SAMPLE_SELLERS = [
+    {"id": str(uuid.uuid4()), "name": "Avery Parks"},
+    {"id": str(uuid.uuid4()), "name": "Jordan Lee"},
+    {"id": str(uuid.uuid4()), "name": "Morgan Blake"},
+    {"id": str(uuid.uuid4()), "name": "Riley Quinn"},
+    {"id": str(uuid.uuid4()), "name": "Taylor Brooks"},
+]
 
 def random_created_at():
     days_ago = random.randint(0, 365)
@@ -32,19 +40,26 @@ def random_created_at():
     return dt.strftime("%Y-%m-%d %H:%M:%S+00")
 
 def generate_insert():
-    name       = random.choice(SAMPLE_NAMES) + f" {random.randint(1, 999)}"
-    desc       = random.choice(SAMPLE_DESCRIPTIONS)
-    price      = round(random.uniform(1.99, 999.99), 2)
+    item_id = str(uuid.uuid4())
+    name = random.choice(SAMPLE_NAMES) + f" {random.randint(1, 999)}"
+    desc = random.choice(SAMPLE_DESCRIPTIONS)
+    price = round(random.uniform(1.99, 999.99), 2)
     created_at = random_created_at()
-    seller     = random.choice(SAMPLE_SELLERS)
+    seller = random.choice(SAMPLE_SELLERS)
 
-    name = name.replace("'", "''")
-    desc = desc.replace("'", "''")
+    item_data = {
+        "sellerId": seller["id"],
+        "sellerName": seller["name"],
+        "name": name,
+        "description": desc,
+        "price": price,
+        "created_at": created_at,
+        "images": [],
+    }
 
-    return (
-        f"INSERT INTO item (seller, name, description, price, created_at) VALUES "
-        f"('{seller}', '{name}', '{desc}', {price}, '{created_at}');"
-    )
+    json_data = json.dumps(item_data).replace("'", "''")
+
+    return f"INSERT INTO item (id, data) VALUES ('{item_id}', '{json_data}'::jsonb);"
 
 while True:
     try:

@@ -5,7 +5,6 @@ import express from 'express'
 
 import app from './app.ts'
 
-// TODO fix port number??
 const port = Number(process.env.PORT ?? 3010);
 
 const __filename = fileURLToPath(import.meta.url);

@@ -12,55 +12,30 @@ let server: http.Server<
 beforeAll(async () => {
   server = http.createServer(app);
   server.listen();
-  await db.reset();
   await bootstrap();
+  await db.reset();
 });
 
 afterAll(() => {
   db.shutdown();
   server.close();
 });
-export async function getRequests(authToken: string | undefined) {
-  const res = await supertest(server)
-    .post('/graphql')
-    .set('Authorization', 'Bearer ' + authToken)
-    .send({
-      query: `query getRequests{
-              request{
-                inbound{
-                  id
-                  name
-                }
-                outbound{
-                  id
-                  name
-                }
-              }
-            }`,
-    })
-    .then((res) => {
-      if (res.body.data) {
-        console.log(res.body.data.request);
-        return res.body.data.request;
-      } else {
-        return res.body.errors[0].message;
-      }
-    });
-  return res;
-}
+
+// MAKE SURE TO CREATE AN ITEM FIRST THEN STORE ITS ID, THEN USE THAT ID IN THE TEST BELOW
+// also make sure to update the expected name in the test below to match the name of the item you created
 
 test('Testing to pull 1 item', async () => {
   await supertest(server)
     .post('/graphql')
     .send({
-      query: `{item(input: { id: "30f0c3bc-4e76-4372-b6e6-5ca8d0ccd8e5" }) {
-    id
-    seller
-    name
-    description
-    price
-    created_at
-  }}`,
+      query: `{item(input: { id: "50f1033c-020a-4a3a-9544-d7f9f0f0ba4d" }) {
+  name
+}}`,
     })
-    .then((res) => {});
+    .then((res) => {
+      console.log(res.body);
+      expect(res.body.data.item).toEqual({
+        name: 'Standing Desk 515',
+      });
+    });
 });

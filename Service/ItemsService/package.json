@@ -6,6 +6,7 @@
   "repository": "none",
   "devDependencies": {
     "@eslint/js": "*",
+    "@types/cors": "^2.8.19",
     "@types/express": "*",
     "@types/node": "*",
     "@types/pg": "^8.20.0",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "class-validator": "*",
+    "cors": "^2.8.6",
     "dotenv": "*",
     "express": "*",
     "graphql": "*",
@@ -43,6 +45,6 @@
     "dev": "nodemon",
     "lint": "eslint src/**/*.[jt]s --fix",
     "cpd": "jscpd src test --silent",
-    "test": "vitest run --dir test --no-file-parallelism --testTimeout=3000 --coverage"
+    "test": "vitest run --no-file-parallelism --testTimeout=3000 --coverage"
   }
 }

@@ -3,7 +3,6 @@ import * as fs from 'fs';
 
 import dotenv from 'dotenv';
 dotenv.config();
-process.env.POSTGRES_DB = 'test';
 
 const pool = new Pool({
   host: 'localhost',
@@ -30,8 +29,8 @@ const run = async (file: string) => {
 };
 
 const reset = async () => {
-  await run('sql/schema.sql');
-  await run('sql/data.sql');
+  await run('src/sql/schema.sql');
+  await run('src/sql/data.sql');
 };
 
 const shutdown = () => {
