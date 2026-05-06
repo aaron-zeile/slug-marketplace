@@ -1,7 +1,6 @@
 'use server'
 
-import { cookies } from 'next/headers'
-
+import { getAuthCookieStore } from '@/auth/cookies'
 import { AuthService } from '@/auth/service'
 import type { Authenticated, Credentials, SessionUser } from '@/auth'
 
@@ -17,15 +16,9 @@ export interface CheckLoginResult {
 export async function login(
   credentials: Credentials,
 ): Promise<LoginResult> {
-  try {
     return {
       authenticated: await new AuthService().login(credentials),
     }
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : 'Login failed',
-    }
-  }
 }
 
 export async function checkLogin(): Promise<CheckLoginResult> {
@@ -39,6 +32,6 @@ export async function checkLogin(): Promise<CheckLoginResult> {
 }
 
 export async function logout() {
-  const cookieStore = await cookies()
+  const cookieStore = await getAuthCookieStore()
   cookieStore.delete('session')
 }

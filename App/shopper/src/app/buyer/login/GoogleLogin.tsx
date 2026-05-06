@@ -26,11 +26,7 @@ export default function GoogleLogin({
         theme="filled_black"
         width="220"
         onSuccess={async (credentialResponse) => {
-          const credential = credentialResponse.credential;
-
-          if (!credential) {
-            return;
-          }
+          const credential = credentialResponse.credential!;
 
           const result = await login({ credential });
 
