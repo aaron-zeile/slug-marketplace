@@ -44,4 +44,19 @@ export class AdminResolver {
 
     return { success: true };
   }
+  
+  @Mutation(() => AuthPayload)
+  async logout(
+    @Ctx() ctx: GraphQLContext,
+  ) : Promise<AuthPayload> {
+    const tempResponse = new Response();
+    const session = await getIronSession<AdminSession>(ctx.request, tempResponse, sessionOptions);
+    await session.destroy();
+
+    tempResponse.headers.forEach((value, key) => {
+      ctx.responseHeaders.append(key, value);
+    });
+
+    return { success: true };
+  }
 }
