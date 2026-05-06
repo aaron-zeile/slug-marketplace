@@ -1,15 +1,13 @@
 import 'server-only'
 
 import { createHash } from 'crypto'
-import { OAuth2Client } from 'google-auth-library'
 import { EncryptJWT, jwtDecrypt } from 'jose'
 import { cookies } from 'next/headers'
 import { Pool } from 'pg'
 
 import type { Authenticated, Credentials, SessionUser } from '.'
+import { verifyGoogleToken } from './google'
 
-const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-const googleClient = new OAuth2Client(googleClientId)
 const JWE_ALGORITHM = 'A128CBC-HS256'
 const SESSION_DURATION_MS = 2 * 60 * 60 * 1000
 
@@ -17,6 +15,20 @@ interface MemberRow {
   id: number
   email: string
   google_id: string
+}
+
+interface Queryable {
+  query<T>(text: string, values?: unknown[]): Promise<{ rows: T[] }>
+}
+
+interface CookieStore {
+  get(name: string): { value: string } | undefined
+  set(name: string, value: string, options: Record<string, unknown>): void
+}
+
+interface AuthServiceDependencies {
+  cookieStore?: () => Promise<CookieStore>
+  db?: Queryable
 }
 
 let db: Pool | undefined
@@ -32,35 +44,34 @@ function getDb() {
 function getSessionSecret() {
   const secret = process.env.AUTH_SECRET
 
-  return createHash('sha256').update(secret).digest()
-}
-
-async function verifyGoogleToken(token: string) {
-  const ticket = await googleClient.verifyIdToken({
-    idToken: token,
-    audience: googleClientId,
-  })
-
-  const payload = ticket.getPayload()
-
-  if (!payload?.sub || !payload.email) {
-    throw new Error('Invalid Google token')
+  if (!secret) {
+    throw new Error('AUTH_SECRET is required')
   }
 
-  return payload
+  return new Uint8Array(createHash('sha256').update(secret).digest())
 }
 
 export class AuthService {
+  public constructor(private dependencies: AuthServiceDependencies = {}) {}
+
+  private getDb() {
+    return this.dependencies.db ?? getDb()
+  }
+
+  private getCookieStore() {
+    return this.dependencies.cookieStore?.() ?? cookies()
+  }
+
   public async login(credentials: Credentials): Promise<Authenticated> {
     const payload = await verifyGoogleToken(credentials.credential)
-    const result = await getDb().query<MemberRow>(
+    const result = await this.getDb().query<MemberRow>(
       'SELECT id, email, google_id FROM member WHERE google_id = $1',
       [payload.sub],
     )
     let member = result.rows[0]
 
     if (!member) {
-      const newMember = await getDb().query<MemberRow>(
+      const newMember = await this.getDb().query<MemberRow>(
         `INSERT INTO member (email, google_id)
          VALUES ($1, $2)
          ON CONFLICT (email) DO UPDATE
@@ -71,7 +82,7 @@ export class AuthService {
       member = newMember.rows[0]
     }
 
-    const name = payload.name 
+    const name = payload.name ?? payload.email
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS)
     const authToken = await new EncryptJWT({
       id: member.id,
@@ -83,7 +94,7 @@ export class AuthService {
       .setExpirationTime('2h')
       .encrypt(getSessionSecret())
 
-    const cookieStore = await cookies()
+    const cookieStore = await this.getCookieStore()
     cookieStore.set('session', authToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -100,7 +111,7 @@ export class AuthService {
   }
 
   public async check(): Promise<SessionUser> {
-    const cookieStore = await cookies()
+    const cookieStore = await this.getCookieStore()
     const cookie = cookieStore.get('session')?.value
 
     if (!cookie) {

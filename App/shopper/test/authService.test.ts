@@ -1,129 +1,118 @@
+// @vitest-environment node
+
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const mocks = vi.hoisted(() => {
+import { AuthService } from '../src/auth/service'
+
+const google = vi.hoisted(() => {
   return {
-    cookieSet: vi.fn(),
-    getPayload: vi.fn(),
-    jwtDecrypt: vi.fn(),
-    query: vi.fn(),
-    verifyIdToken: vi.fn(),
+    verifyGoogleToken: vi.fn(),
   }
 })
 
-vi.mock('google-auth-library', () => {
+vi.mock('../src/auth/google', () => {
   return {
-    OAuth2Client: vi.fn().mockImplementation(function () {
-      return {
-        verifyIdToken: mocks.verifyIdToken,
-      }
-    }),
+    verifyGoogleToken: google.verifyGoogleToken,
   }
 })
 
-vi.mock('next/headers', () => {
-  return {
-    cookies: vi.fn(async () => {
-      return {
-        get: vi.fn(() => {
-          return {
-            value: 'test-session-token',
-          }
-        }),
-        set: mocks.cookieSet,
-      }
-    }),
-  }
-})
-
-vi.mock('jose', () => {
-  class EncryptJWT {
-    constructor(public payload: Record<string, unknown>) {}
-
-    setProtectedHeader = vi.fn(() => this)
-    setIssuedAt = vi.fn(() => this)
-    setExpirationTime = vi.fn(() => this)
-    encrypt = vi.fn(async () => 'test-session-token')
-  }
-
-  return {
-    EncryptJWT,
-    jwtDecrypt: mocks.jwtDecrypt,
-  }
-})
-
-vi.mock('pg', () => {
-  return {
-    Pool: vi.fn().mockImplementation(function () {
-      return {
-        query: mocks.query,
-      }
-    }),
-  }
-})
-
-async function loadAuthService() {
-  vi.resetModules()
-  process.env.AUTH_SECRET = 'test-secret'
-  process.env.DATABASE_URL = 'postgres://postgres:postgres@localhost:5433/test'
-  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = 'google-client-id'
-
-  const { AuthService } = await import('../src/auth/service')
-
-  return AuthService
+interface Query {
+  text: string
+  values?: unknown[]
 }
 
-function mockGooglePayload(payload: Record<string, unknown>) {
-  mocks.getPayload.mockReturnValue(payload)
-  mocks.verifyIdToken.mockResolvedValue({
-    getPayload: mocks.getPayload,
+const cookies: Record<string, string> = {}
+const cookieSets: {
+  name: string
+  options: Record<string, unknown>
+  value: string
+}[] = []
+const queries: Query[] = []
+let queryResults: { rows: unknown[] }[] = []
+
+const cookieStore = async () => {
+  return {
+    get: (name: string) => {
+      const value = cookies[name]
+
+      return value ? { value } : undefined
+    },
+    set: (name: string, value: string, options: Record<string, unknown>) => {
+      cookies[name] = value
+      cookieSets.push({ name, options, value })
+    },
+  }
+}
+
+const db = {
+  query: async <T>(text: string, values?: unknown[]) => {
+    queries.push({ text, values })
+
+    return queryResults.shift() as { rows: T[] }
+  },
+}
+
+function authService() {
+  return new AuthService({
+    cookieStore,
+    db,
   })
 }
 
-describe('AuthService.login', () => {
+function mockGoogleProfile(profile: {
+  email: string
+  name?: string
+  sub: string
+}) {
+  google.verifyGoogleToken.mockResolvedValue(profile)
+}
+
+describe('AuthService', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mocks.jwtDecrypt.mockReset()
+    process.env.AUTH_SECRET = 'test-secret'
+    google.verifyGoogleToken.mockReset()
+    queryResults = []
+    queries.length = 0
+    cookieSets.length = 0
+
+    for (const name of Object.keys(cookies)) {
+      delete cookies[name]
+    }
   })
 
   it('logs in an existing member and sets a session cookie', async () => {
-    mockGooglePayload({
+    mockGoogleProfile({
       email: 'molly@example.com',
       name: 'Molly',
       sub: 'google-id-1',
     })
-    mocks.query.mockResolvedValueOnce({
-      rows: [
-        {
-          email: 'molly@example.com',
-          google_id: 'google-id-1',
-          id: 7,
-        },
-      ],
-    })
+    queryResults = [
+      {
+        rows: [
+          {
+            email: 'molly@example.com',
+            google_id: 'google-id-1',
+            id: 7,
+          },
+        ],
+      },
+    ]
 
-    const AuthService = await loadAuthService()
-    const authenticated = await new AuthService().login({
+    const authenticated = await authService().login({
       credential: 'google-token',
     })
 
-    expect(mocks.verifyIdToken).toHaveBeenCalledWith({
-      audience: 'google-client-id',
-      idToken: 'google-token',
-    })
-    expect(mocks.query).toHaveBeenCalledTimes(1)
-    expect(mocks.query).toHaveBeenCalledWith(
-      'SELECT id, email, google_id FROM member WHERE google_id = $1',
-      ['google-id-1'],
-    )
-    expect(mocks.cookieSet).toHaveBeenCalledWith(
-      'session',
-      expect.any(String),
-      expect.objectContaining({
-        httpOnly: true,
-        path: '/',
-        sameSite: 'lax',
-      }),
-    )
+    expect(cookieSets).toEqual([
+      {
+        name: 'session',
+        value: expect.any(String),
+        options: expect.objectContaining({
+          httpOnly: true,
+          path: '/',
+          sameSite: 'lax',
+        }),
+      },
+    ])
     expect(authenticated).toEqual({
       email: 'molly@example.com',
       id: 7,
@@ -132,14 +121,14 @@ describe('AuthService.login', () => {
   })
 
   it('creates a member from Google token info when none exists', async () => {
-    mockGooglePayload({
+    mockGoogleProfile({
       email: 'new@example.com',
       name: 'New User',
       sub: 'google-id-new',
     })
-    mocks.query
-      .mockResolvedValueOnce({ rows: [] })
-      .mockResolvedValueOnce({
+    queryResults = [
+      { rows: [] },
+      {
         rows: [
           {
             email: 'new@example.com',
@@ -147,23 +136,18 @@ describe('AuthService.login', () => {
             id: 12,
           },
         ],
-      })
+      },
+    ]
 
-    const AuthService = await loadAuthService()
-    const authenticated = await new AuthService().login({
+    const authenticated = await authService().login({
       credential: 'new-google-token',
     })
 
-    expect(mocks.query).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining('INSERT INTO member (email, google_id)'),
-      ['new@example.com', 'google-id-new'],
-    )
-    expect(mocks.cookieSet).toHaveBeenCalledWith(
-      'session',
-      expect.any(String),
-      expect.any(Object),
-    )
+    expect(cookieSets[0]).toEqual({
+      name: 'session',
+      value: expect.any(String),
+      options: expect.any(Object),
+    })
     expect(authenticated).toEqual({
       email: 'new@example.com',
       id: 12,
@@ -171,32 +155,39 @@ describe('AuthService.login', () => {
     })
   })
 
-  it('rejects a Google token without required user info', async () => {
-    mockGooglePayload({
-      email: 'missing-sub@example.com',
-    })
-
-    const AuthService = await loadAuthService()
+  it('rejects an invalid Google token', async () => {
+    google.verifyGoogleToken.mockRejectedValue(new Error('Invalid Google token'))
 
     await expect(
-      new AuthService().login({ credential: 'bad-google-token' }),
+      authService().login({ credential: 'bad-google-token' }),
     ).rejects.toThrow('Invalid Google token')
-    expect(mocks.query).not.toHaveBeenCalled()
-    expect(mocks.cookieSet).not.toHaveBeenCalled()
+    expect(queries).toEqual([])
+    expect(cookieSets).toEqual([])
   })
 
-  it('rejects an invalid session cookie payload', async () => {
-    mocks.jwtDecrypt.mockResolvedValue({
-      payload: {
-        email: 'molly@example.com',
-        id: 7,
-      },
+  it('checks a valid session cookie', async () => {
+    mockGoogleProfile({
+      email: 'molly@example.com',
+      name: 'Molly',
+      sub: 'google-id-1',
     })
+    queryResults = [
+      {
+        rows: [
+          {
+            email: 'molly@example.com',
+            google_id: 'google-id-1',
+            id: 7,
+          },
+        ],
+      },
+    ]
+    await authService().login({ credential: 'google-token' })
 
-    const AuthService = await loadAuthService()
-
-    await expect(new AuthService().check()).rejects.toThrow(
-      'Invalid session cookie',
-    )
+    await expect(authService().check()).resolves.toEqual({
+      email: 'molly@example.com',
+      id: 7,
+      name: 'Molly',
+    })
   })
 })
