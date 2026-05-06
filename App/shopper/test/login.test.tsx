@@ -60,7 +60,8 @@ let pool: Pool
 beforeAll(async () => {
   process.env.AUTH_SECRET = 'test-secret'
   process.env.DATABASE_URL =
-    process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5433/test'
+    process.env.DATABASE_URL ??
+    'postgres://postgres:postgres@localhost:5433/shopper';
 
   pool = new Pool({ connectionString: process.env.DATABASE_URL })
 })
