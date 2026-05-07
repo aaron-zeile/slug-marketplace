@@ -2,9 +2,9 @@ import {render, screen} from '@testing-library/react'
 import {it} from 'vitest'
 import React from 'react'
 
-import AppBar from '../dashboard/Appbar'
+import {App} from '../App'
 
 it('renders', async () => {
-  render(<AppBar/>)
-  await screen.findByLabelText('open menu')
+  render(<App/>)
+  await screen.findByText('Dashboard')
 })
