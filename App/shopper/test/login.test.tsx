@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import type { ReactNode } from 'react'
 
-import { login } from '../src/app/buyer/login/actions'
+import { checkLogin, login } from '../src/app/buyer/login/actions'
 import { setLoginCookieStoreForTest } from '../src/app/buyer/login/cookies'
 import GoogleLogin from '../src/app/buyer/login/GoogleLogin'
 import Topbar from '../src/app/buyer/topbar/Topbar'
@@ -143,6 +143,36 @@ it('stays logged out when Google login fails', async () => {
   expect(await screen.findByText('Hello Guest')).toBeTruthy()
   expect(window.sessionStorage.getItem('name')).toBeNull()
   expect(screen.queryByLabelText('logout')).toBeNull()
+})
+
+it('returns a generic login error when the service response has no message', async () => {
+  fetchMock.mockResolvedValueOnce(Response.json({}, { status: 500 }))
+
+  await expect(login({ credential: 'google-token' })).resolves.toEqual({
+    error: 'Login failed',
+  })
+})
+
+it('returns an unavailable error when the login service cannot be reached', async () => {
+  fetchMock.mockRejectedValueOnce(new Error('network down'))
+
+  await expect(login({ credential: 'google-token' })).resolves.toEqual({
+    error: 'Login service unavailable',
+  })
+})
+
+it('returns logged out when the session check service cannot be reached', async () => {
+  cookies.session = 'service-token'
+  fetchMock.mockRejectedValueOnce(new Error('network down'))
+
+  await expect(checkLogin()).resolves.toEqual({})
+})
+
+it('returns logged out when the session check is rejected', async () => {
+  cookies.session = 'service-token'
+  fetchMock.mockResolvedValueOnce(Response.json({}, { status: 401 }))
+
+  await expect(checkLogin()).resolves.toEqual({})
 })
 
 it('logs in without a menu close callback', async () => {
