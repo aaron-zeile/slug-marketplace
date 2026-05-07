@@ -1,6 +1,8 @@
 import React from 'react'
 import { DashboardProvider } from './Provider';
 import TopBar from './Appbar'
+// import Box from '@mui/material/Box';
+import SellerListings from './Listings';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -20,6 +22,9 @@ export default function Dashboard() {
     <ThemeProvider theme={theme}>
       <DashboardProvider>
         <TopBar/>
+        {/* <Box sx={{pt: 14}}> */}
+        <SellerListings/>
+        {/* </Box> */}
       </DashboardProvider>
     </ThemeProvider>
   )

@@ -2,13 +2,16 @@ import { ListingSchema, type Listing } from '../../shared/index.js'
 
 const ITEMS_SERVICE_URL = 'http://localhost:4000/graphql'
 
-const TEMP_LISTING_ID = '50f1033c-020a-4a3a-9544-d7f9f0f0ba4d'
+const TEMP_LISTING_ID = 'da9d705c-0f9e-4e30-ab80-435abdf25284'
 
 const GET_ITEM_QUERY = `
   query GetItem($id: String!) {
     item(input: { id: $id }) {
       id
-      seller
+      seller {
+        id
+        name
+      }
       name
       description
       price
@@ -18,7 +21,7 @@ const GET_ITEM_QUERY = `
 `
 
 export class ListingService {
-  public async list(): Promise<Listing[]>  {
+  public async getListings(): Promise<Listing[]>  {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {

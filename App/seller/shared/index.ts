@@ -3,7 +3,10 @@ import {z} from 'zod'
 
 export const ListingSchema = z.object({
   id: z.string(),
-  seller: z.string(),
+  seller: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
   name: z.string(),
   description: z.string(),
   price: z.number(),
