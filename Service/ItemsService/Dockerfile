@@ -19,6 +19,8 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/build ./build
 
+RUN chown -R node:node /app
+
 EXPOSE 4000
 
 USER node
