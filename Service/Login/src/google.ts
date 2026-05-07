@@ -5,6 +5,15 @@ export interface GoogleProfile {
   name?: string
   sub: string
 }
+type GoogleTokenVerifier = (token: string) => Promise<GoogleProfile>
+
+let googleTokenVerifierForTest: GoogleTokenVerifier | undefined
+
+export function setGoogleTokenVerifierForTest(
+  verifier: GoogleTokenVerifier | undefined,
+) {
+  googleTokenVerifierForTest = verifier
+}
 
 function getGoogleClientId() {
   const googleClientId =
@@ -18,6 +27,10 @@ function getGoogleClientId() {
 }
 
 export async function verifyGoogleToken(token: string): Promise<GoogleProfile> {
+  if (googleTokenVerifierForTest) {
+    return googleTokenVerifierForTest(token)
+  }
+
   const googleClientId = getGoogleClientId()
   const googleClient = new OAuth2Client(googleClientId)
   const ticket = await googleClient.verifyIdToken({

@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import type { ReactNode } from 'react'
+import type { Server } from 'http'
+import { Pool } from 'pg'
 
 import { checkLogin, login } from '../src/app/buyer/login/actions'
 import { setLoginCookieStoreForTest } from '../src/app/buyer/login/cookies'
@@ -20,6 +22,12 @@ const serviceUser = {
 const google = vi.hoisted(() => {
   return {
     lastLogin: undefined as Promise<void> | undefined,
+  }
+})
+
+const loginService = vi.hoisted(() => {
+  return {
+    verifyIdToken: vi.fn(),
   }
 })
 
@@ -45,27 +53,81 @@ vi.mock('@react-oauth/google', () => {
   }
 })
 
-const fetchMock = vi.fn<typeof fetch>()
+let server: Server
+let originalLoginServiceUrl: string | undefined
+let originalAuthSecret: string | undefined
+let originalDatabaseUrl: string | undefined
+let originalGoogleClientId: string | undefined
+let pool: Pool
 
-beforeAll(() => {
-  vi.stubGlobal('fetch', fetchMock)
+beforeAll(async () => {
+  originalLoginServiceUrl = process.env.LOGIN_SERVICE_URL
+  originalAuthSecret = process.env.AUTH_SECRET
+  originalDatabaseUrl = process.env.DATABASE_URL
+  originalGoogleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+  process.env.AUTH_SECRET = 'test-secret'
+  process.env.DATABASE_URL =
+    process.env.LOGIN_DATABASE_URL ??
+    process.env.DATABASE_URL ??
+    'postgres://postgres:postgres@localhost:55433/postgres'
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = 'test-client-id'
+  pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS member (
+      id SERIAL PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      google_id TEXT UNIQUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `)
+
+  const [{ app }, { setGoogleTokenVerifierForTest }] =
+    await Promise.all([
+      import('../../../Service/Login/app'),
+      import('../../../Service/Login/src/google'),
+    ])
+  setGoogleTokenVerifierForTest(async (token: string) => {
+    const ticket = await loginService.verifyIdToken({
+      audience: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      idToken: token,
+    })
+    const payload = ticket.getPayload()
+
+    if (!payload?.sub || !payload.email) {
+      throw new Error('Invalid Google token')
+    }
+
+    return {
+      email: payload.email,
+      name: payload.name,
+      sub: payload.sub,
+    }
+  })
+  await new Promise<void>((resolve) => {
+    server = app.listen(0, resolve)
+  })
+
+  const address = server.address()
+
+  if (!address || typeof address === 'string') {
+    throw new Error('Login service test server did not start')
+  }
+
+  process.env.LOGIN_SERVICE_URL = `http://127.0.0.1:${address.port}/api/v0`
 })
 
 beforeEach(async () => {
   google.lastLogin = undefined
-  fetchMock.mockReset()
-  fetchMock.mockImplementation(async (input) => {
-    const url = input.toString()
-
-    if (url.endsWith('/login/check')) {
-      return Response.json({
-        id: serviceUser.id,
+  await pool.query('TRUNCATE member RESTART IDENTITY')
+  loginService.verifyIdToken.mockReset()
+  loginService.verifyIdToken.mockResolvedValue({
+    getPayload: () => {
+      return {
         email: serviceUser.email,
         name: serviceUser.name,
-      })
-    }
-
-    return Response.json(serviceUser)
+        sub: 'mock-google-user',
+      }
+    },
   })
   window.sessionStorage.clear()
   deletedCookies.length = 0
@@ -93,8 +155,54 @@ beforeEach(async () => {
 })
 
 afterAll(async () => {
+  const [{ closeAuthDbForTest }, { setGoogleTokenVerifierForTest }] =
+    await Promise.all([
+      import('../../../Service/Login/service'),
+      import('../../../Service/Login/src/google'),
+    ])
+  setGoogleTokenVerifierForTest(undefined)
+  await closeAuthDbForTest()
+
+  if (pool) {
+    await pool.end()
+  }
   setLoginCookieStoreForTest(undefined)
-  vi.unstubAllGlobals()
+
+  if (server) {
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve()
+        }
+      })
+    })
+  }
+
+  if (originalLoginServiceUrl === undefined) {
+    delete process.env.LOGIN_SERVICE_URL
+  } else {
+    process.env.LOGIN_SERVICE_URL = originalLoginServiceUrl
+  }
+
+  if (originalAuthSecret === undefined) {
+    delete process.env.AUTH_SECRET
+  } else {
+    process.env.AUTH_SECRET = originalAuthSecret
+  }
+
+  if (originalDatabaseUrl === undefined) {
+    delete process.env.DATABASE_URL
+  } else {
+    process.env.DATABASE_URL = originalDatabaseUrl
+  }
+
+  if (originalGoogleClientId === undefined) {
+    delete process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+  } else {
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = originalGoogleClientId
+  }
 })
 
 it('Renders Page', async () => {
@@ -120,18 +228,15 @@ it('updates the greeting after Google login succeeds', async () => {
 
   expect(await screen.findByText('Hello username')).toBeTruthy()
   expect(window.sessionStorage.getItem('name')).toBe('username')
-  expect(fetchMock).toHaveBeenCalledWith(
-    expect.stringContaining('/login'),
-    expect.objectContaining({
-      body: JSON.stringify({ credential: 'google-token' }),
-      method: 'POST',
-    }),
-  )
+  expect(loginService.verifyIdToken).toHaveBeenCalledWith({
+    audience: 'test-client-id',
+    idToken: 'google-token',
+  })
 })
 
 it('stays logged out when Google login fails', async () => {
-  fetchMock.mockResolvedValueOnce(
-    Response.json({ message: 'Invalid Google token' }, { status: 401 }),
+  loginService.verifyIdToken.mockRejectedValueOnce(
+    new Error('Invalid Google token'),
   )
 
   render(<Topbar />)
@@ -146,7 +251,9 @@ it('stays logged out when Google login fails', async () => {
 })
 
 it('returns a generic login error when the service response has no message', async () => {
-  fetchMock.mockResolvedValueOnce(Response.json({}, { status: 500 }))
+  loginService.verifyIdToken.mockRejectedValueOnce(
+    new Error('Invalid Google token'),
+  )
 
   await expect(login({ credential: 'google-token' })).resolves.toEqual({
     error: 'Login failed',
@@ -154,23 +261,38 @@ it('returns a generic login error when the service response has no message', asy
 })
 
 it('returns an unavailable error when the login service cannot be reached', async () => {
-  fetchMock.mockRejectedValueOnce(new Error('network down'))
+  process.env.LOGIN_SERVICE_URL = 'http://127.0.0.1:1/api/v0'
 
   await expect(login({ credential: 'google-token' })).resolves.toEqual({
     error: 'Login service unavailable',
   })
+
+  const address = server.address()
+
+  if (!address || typeof address === 'string') {
+    throw new Error('Login service test server is not listening')
+  }
+
+  process.env.LOGIN_SERVICE_URL = `http://127.0.0.1:${address.port}/api/v0`
 })
 
 it('returns logged out when the session check service cannot be reached', async () => {
   cookies.session = 'service-token'
-  fetchMock.mockRejectedValueOnce(new Error('network down'))
+  process.env.LOGIN_SERVICE_URL = 'http://127.0.0.1:1/api/v0'
 
   await expect(checkLogin()).resolves.toEqual({})
+
+  const address = server.address()
+
+  if (!address || typeof address === 'string') {
+    throw new Error('Login service test server is not listening')
+  }
+
+  process.env.LOGIN_SERVICE_URL = `http://127.0.0.1:${address.port}/api/v0`
 })
 
 it('returns logged out when the session check is rejected', async () => {
-  cookies.session = 'service-token'
-  fetchMock.mockResolvedValueOnce(Response.json({}, { status: 401 }))
+  cookies.session = 'bad-service-token'
 
   await expect(checkLogin()).resolves.toEqual({})
 })

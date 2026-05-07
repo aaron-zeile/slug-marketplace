@@ -18,9 +18,6 @@ export interface SessionUser {
   name: string
 }
 
-const LOGIN_SERVICE_URL =
-  process.env.LOGIN_SERVICE_URL ?? 'http://localhost:4010/api/v0'
-
 interface RestAuthenticated extends Authenticated {
   token: string
 }
@@ -34,18 +31,8 @@ export interface CheckLoginResult {
   user?: SessionUser
 }
 
-async function readError(response: Response) {
-  try {
-    const body = await response.json()
-
-    if (typeof body?.message === 'string') {
-      return body.message
-    }
-  } catch {
-    // Keep the generic fallback below when the response is not JSON.
-  }
-
-  return 'Login failed'
+function getLoginServiceUrl() {
+  return process.env.LOGIN_SERVICE_URL
 }
 
 export async function login(
@@ -54,7 +41,7 @@ export async function login(
   let response: Response
 
   try {
-    response = await fetch(`${LOGIN_SERVICE_URL}/login`, {
+    response = await fetch(`${getLoginServiceUrl()}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,7 +57,7 @@ export async function login(
 
   if (!response.ok) {
     return {
-      error: await readError(response),
+      error: 'Login failed',
     }
   }
 
@@ -103,7 +90,7 @@ export async function checkLogin(): Promise<CheckLoginResult> {
   let response: Response
 
   try {
-    response = await fetch(`${LOGIN_SERVICE_URL}/login/check`, {
+    response = await fetch(`${getLoginServiceUrl()}/login/check`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

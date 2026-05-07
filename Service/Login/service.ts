@@ -17,9 +17,29 @@ interface TokenPayload extends SessionUser {
   iat: number
 }
 
+interface DbClient {
+  query<T>(sql: string, params?: unknown[]): Promise<{ rows: T[] }>
+}
+
 let db: Pool | undefined
+let dbForTest: DbClient | undefined
+
+export function setAuthDbForTest(testDb: DbClient | undefined) {
+  dbForTest = testDb
+}
+
+export async function closeAuthDbForTest() {
+  if (db) {
+    await db.end()
+    db = undefined
+  }
+}
 
 function getDb() {
+  if (dbForTest) {
+    return dbForTest
+  }
+
   db ??= new Pool({
     connectionString: process.env.DATABASE_URL,
   })
