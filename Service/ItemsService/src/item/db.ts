@@ -1,5 +1,5 @@
 import { pool } from '../db';
-import { Item, ItemId, SellerId } from './schema';
+import { Item, ItemId, RandomItemsInput, SellerId } from './schema';
 
 export const getItem = async (itemId: ItemId): Promise<Item> => {
   const select = `
@@ -42,6 +42,31 @@ export const getSellerItems = async (sellerId: SellerId): Promise<Item[]> => {
   const query = {
     text: select,
     values: [sellerId.id],
+  }
+  const {rows} = await pool.query<Item>(query)
+  return rows
+}
+
+export const getRandomItems = async (input: RandomItemsInput): Promise<Item[]> => {
+  const select = `
+  SELECT
+    id,
+    jsonb_build_object(
+      'id', data->>'sellerId',
+      'name', data->>'sellerName'
+    ) AS seller,
+    data->>'name' AS name,
+    data->>'description' AS description,
+    data->'images' AS images,
+    (data->>'price')::numeric AS price,
+    (data->>'created_at')::timestamptz AS created_at
+  FROM item
+  ORDER BY random()
+  LIMIT $1
+  `
+  const query = {
+    text: select,
+    values: [input.count],
   }
   const {rows} = await pool.query<Item>(query)
   return rows
