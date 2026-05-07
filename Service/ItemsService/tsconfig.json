@@ -4,7 +4,7 @@
     "module": "commonjs",
     "outDir": "./build",
     "rootDir": "./src",
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -22,5 +22,11 @@
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": ["src"],
-  "exclude": ["vite.config.ts"]
+  "exclude": [
+    "node_modules",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "build"
+  ]
 }
