@@ -1,36 +1,86 @@
-// Made with codex
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { buildGoogleAuthorizationUrl, mockGoogleProfile } from '../src/auth/google'
+const googleAuth = vi.hoisted(() => {
+  return {
+    OAuth2Client: vi.fn(),
+    verifyIdToken: vi.fn(),
+  }
+})
 
-describe('Google OAuth helpers', () => {
-  it('builds the Google authorization URL with openid profile scopes and state', () => {
-    process.env.GOOGLE_CLIENT_ID = 'client-id.apps.googleusercontent.com'
-    process.env.GOOGLE_REDIRECT_URI =
-      'http://localhost:3000/api/auth/google/callback'
+vi.mock('google-auth-library', () => {
+  return {
+    OAuth2Client: googleAuth.OAuth2Client.mockImplementation(function () {
+      return {
+        verifyIdToken: googleAuth.verifyIdToken,
+      }
+    }),
+  }
+})
 
-    const url = buildGoogleAuthorizationUrl(
-      'http://localhost:3000',
-      'state-value',
-    )
+import { verifyGoogleToken } from '../src/auth/google'
 
-    expect(url.origin).toBe('https://accounts.google.com')
-    expect(url.searchParams.get('client_id')).toBe(
-      'client-id.apps.googleusercontent.com',
-    )
-    expect(url.searchParams.get('redirect_uri')).toBe(
-      'http://localhost:3000/api/auth/google/callback',
-    )
-    expect(url.searchParams.get('response_type')).toBe('code')
-    expect(url.searchParams.get('scope')).toBe('openid email profile')
-    expect(url.searchParams.get('state')).toBe('state-value')
+describe('Google auth helpers', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = 'public-client-id'
+    delete process.env.GOOGLE_CLIENT_ID
   })
 
-  it('provides a deterministic local Google profile for browser tests', () => {
-    expect(mockGoogleProfile()).toEqual({
-      email: 'username@example.com',
-      name: 'username',
-      sub: 'mock-google-user',
+  it('verifies a Google token and returns the profile', async () => {
+    googleAuth.verifyIdToken.mockResolvedValue({
+      getPayload: () => {
+        return {
+          email: 'molly@example.com',
+          name: 'Molly',
+          sub: 'google-id-1',
+        }
+      },
     })
+
+    await expect(verifyGoogleToken('google-token')).resolves.toEqual({
+      email: 'molly@example.com',
+      name: 'Molly',
+      sub: 'google-id-1',
+    })
+    expect(googleAuth.OAuth2Client).toHaveBeenCalledWith('public-client-id')
+    expect(googleAuth.verifyIdToken).toHaveBeenCalledWith({
+      audience: 'public-client-id',
+      idToken: 'google-token',
+    })
+  })
+
+  it('falls back to the server Google client id', async () => {
+    delete process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    process.env.GOOGLE_CLIENT_ID = 'server-client-id'
+    googleAuth.verifyIdToken.mockResolvedValue({
+      getPayload: () => {
+        return {
+          email: 'molly@example.com',
+          sub: 'google-id-1',
+        }
+      },
+    })
+
+    await verifyGoogleToken('google-token')
+
+    expect(googleAuth.OAuth2Client).toHaveBeenCalledWith('server-client-id')
+    expect(googleAuth.verifyIdToken).toHaveBeenCalledWith({
+      audience: 'server-client-id',
+      idToken: 'google-token',
+    })
+  })
+
+  it('rejects a Google token without required user info', async () => {
+    googleAuth.verifyIdToken.mockResolvedValue({
+      getPayload: () => {
+        return {
+          email: 'missing-sub@example.com',
+        }
+      },
+    })
+
+    await expect(verifyGoogleToken('bad-google-token')).rejects.toThrow(
+      'Invalid Google token',
+    )
   })
 })

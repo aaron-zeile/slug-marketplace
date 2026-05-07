@@ -2,10 +2,10 @@ import 'server-only'
 
 import { createHash } from 'crypto'
 import { EncryptJWT, jwtDecrypt } from 'jose'
-import { cookies } from 'next/headers'
 import { Pool } from 'pg'
 
 import type { Authenticated, Credentials, SessionUser } from '.'
+import { getAuthCookieStore } from './cookies'
 import { verifyGoogleToken } from './google'
 
 const JWE_ALGORITHM = 'A128CBC-HS256'
@@ -15,20 +15,6 @@ interface MemberRow {
   id: number
   email: string
   google_id: string
-}
-
-interface Queryable {
-  query<T>(text: string, values?: unknown[]): Promise<{ rows: T[] }>
-}
-
-interface CookieStore {
-  get(name: string): { value: string } | undefined
-  set(name: string, value: string, options: Record<string, unknown>): void
-}
-
-interface AuthServiceDependencies {
-  cookieStore?: () => Promise<CookieStore>
-  db?: Queryable
 }
 
 let db: Pool | undefined
@@ -42,36 +28,22 @@ function getDb() {
 }
 
 function getSessionSecret() {
-  const secret = process.env.AUTH_SECRET
-
-  if (!secret) {
-    throw new Error('AUTH_SECRET is required')
-  }
-
-  return new Uint8Array(createHash('sha256').update(secret).digest())
+  return new Uint8Array(
+    createHash('sha256').update(process.env.AUTH_SECRET!).digest(),
+  )
 }
 
 export class AuthService {
-  public constructor(private dependencies: AuthServiceDependencies = {}) {}
-
-  private getDb() {
-    return this.dependencies.db ?? getDb()
-  }
-
-  private getCookieStore() {
-    return this.dependencies.cookieStore?.() ?? cookies()
-  }
-
   public async login(credentials: Credentials): Promise<Authenticated> {
     const payload = await verifyGoogleToken(credentials.credential)
-    const result = await this.getDb().query<MemberRow>(
+    const result = await getDb().query<MemberRow>(
       'SELECT id, email, google_id FROM member WHERE google_id = $1',
       [payload.sub],
     )
     let member = result.rows[0]
 
     if (!member) {
-      const newMember = await this.getDb().query<MemberRow>(
+      const newMember = await getDb().query<MemberRow>(
         `INSERT INTO member (email, google_id)
          VALUES ($1, $2)
          ON CONFLICT (email) DO UPDATE
@@ -82,7 +54,7 @@ export class AuthService {
       member = newMember.rows[0]
     }
 
-    const name = payload.name ?? payload.email
+    const name = payload.name!
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS)
     const authToken = await new EncryptJWT({
       id: member.id,
@@ -94,7 +66,7 @@ export class AuthService {
       .setExpirationTime('2h')
       .encrypt(getSessionSecret())
 
-    const cookieStore = await this.getCookieStore()
+    const cookieStore = await getAuthCookieStore()
     cookieStore.set('session', authToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -111,7 +83,7 @@ export class AuthService {
   }
 
   public async check(): Promise<SessionUser> {
-    const cookieStore = await this.getCookieStore()
+    const cookieStore = await getAuthCookieStore()
     const cookie = cookieStore.get('session')?.value
 
     if (!cookie) {

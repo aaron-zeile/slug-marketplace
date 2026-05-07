@@ -182,9 +182,3 @@ service/**/build/
 # =============================================================================
 data.sql
 
-
-# Lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-bun.lockb

@@ -3,7 +3,7 @@ import { ItemSchema } from '../shared/item';
 import { Item } from './index';
 
 const ITEMS_SERVICE_URL =
-  process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
+  process.env.ITEMS_SERVICE_URL || 'http://items-service:4000/graphql';
 
 export async function getItem(id: string): Promise<Item> {
   const query = `
