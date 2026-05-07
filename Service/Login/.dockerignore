@@ -1,0 +1,7 @@
+node_modules
+build
+generated
+src/generated
+coverage
+.env
+*.log

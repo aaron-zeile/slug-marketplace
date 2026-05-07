@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev": "npm --prefix App/shopper run dev",
+    "docker:reset": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-reset.ps1 -Detached",
     "build": "npm --prefix App/shopper run build",
     "start": "npm --prefix App/shopper run start",
     "lint": "npm --prefix App/shopper run lint",

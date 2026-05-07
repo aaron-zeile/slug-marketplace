@@ -1,11 +1,12 @@
+export interface Credentials {
+  credential: string;
+}
+
 export interface Authenticated {
   id: number;
   email: string;
   name: string;
-}
-
-export interface Credentials {
-  credential: string;
+  token: string;
 }
 
 export interface SessionUser {

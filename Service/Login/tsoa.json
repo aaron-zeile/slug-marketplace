@@ -1,0 +1,24 @@
+{
+  "entryFile": "app.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/**/controller.ts"],
+  "spec": {
+    "outputDirectory": "build",
+    "specVersion": 3,
+    "schemes": [ "http" ],
+    "basePath": "/api/v0",
+    "securityDefinitions": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "scopes": {
+          "member": "member"
+        }
+      }
+    }
+  },
+  "routes": {
+    "routesDir": "src/generated",
+    "authenticationModule": "./src/express.ts"
+  }
+}

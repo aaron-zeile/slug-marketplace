@@ -7,7 +7,14 @@ export interface GoogleProfile {
 }
 
 function getGoogleClientId() {
-  return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? process.env.GOOGLE_CLIENT_ID
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? process.env.GOOGLE_CLIENT_ID
+
+  if (!googleClientId) {
+    throw new Error('GOOGLE_CLIENT_ID is required')
+  }
+
+  return googleClientId
 }
 
 export async function verifyGoogleToken(token: string): Promise<GoogleProfile> {
@@ -17,7 +24,6 @@ export async function verifyGoogleToken(token: string): Promise<GoogleProfile> {
     idToken: token,
     audience: googleClientId,
   })
-
   const payload = ticket.getPayload()
 
   if (!payload?.sub || !payload.email) {

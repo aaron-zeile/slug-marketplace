@@ -1,35 +1,25 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import type { ReactNode } from 'react'
-import { Pool } from 'pg'
 
-import { setAuthCookieStoreForTest } from '../src/auth/cookies'
 import { login } from '../src/app/buyer/login/actions'
+import { setLoginCookieStoreForTest } from '../src/app/buyer/login/cookies'
 import GoogleLogin from '../src/app/buyer/login/GoogleLogin'
 import Topbar from '../src/app/buyer/topbar/Topbar'
 
 const googleButtonLabel = 'mock-google-login'
 const cookies: Record<string, string> = {}
 const deletedCookies: string[] = []
-const googleProfile = {
+const serviceUser = {
+  id: 1,
   email: 'username@example.com',
   name: 'username',
-  sub: 'mock-google-user',
+  token: 'service-token',
 }
 
 const google = vi.hoisted(() => {
   return {
     lastLogin: undefined as Promise<void> | undefined,
-    verifyGoogleToken: vi.fn(),
-  }
-})
-
-vi.mock('../src/auth/google', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../src/auth/google')>()
-
-  return {
-    ...actual,
-    verifyGoogleToken: google.verifyGoogleToken,
   }
 })
 
@@ -55,20 +45,28 @@ vi.mock('@react-oauth/google', () => {
   }
 })
 
-let pool: Pool
+const fetchMock = vi.fn<typeof fetch>()
 
-beforeAll(async () => {
-  process.env.AUTH_SECRET = 'test-secret'
-  process.env.DATABASE_URL =
-    process.env.DATABASE_URL ??
-    'postgres://postgres:postgres@localhost:5433/shopper';
-
-  pool = new Pool({ connectionString: process.env.DATABASE_URL })
+beforeAll(() => {
+  vi.stubGlobal('fetch', fetchMock)
 })
 
 beforeEach(async () => {
   google.lastLogin = undefined
-  google.verifyGoogleToken.mockResolvedValue(googleProfile)
+  fetchMock.mockReset()
+  fetchMock.mockImplementation(async (input) => {
+    const url = input.toString()
+
+    if (url.endsWith('/login/check')) {
+      return Response.json({
+        id: serviceUser.id,
+        email: serviceUser.email,
+        name: serviceUser.name,
+      })
+    }
+
+    return Response.json(serviceUser)
+  })
   window.sessionStorage.clear()
   deletedCookies.length = 0
 
@@ -76,7 +74,7 @@ beforeEach(async () => {
     delete cookies[name]
   }
 
-  setAuthCookieStoreForTest(async () => {
+  setLoginCookieStoreForTest(async () => {
     return {
       delete: (name: string) => {
         deletedCookies.push(name)
@@ -92,13 +90,11 @@ beforeEach(async () => {
       },
     }
   })
-
-  await pool.query('TRUNCATE member RESTART IDENTITY')
 })
 
 afterAll(async () => {
-  setAuthCookieStoreForTest(undefined)
-  await pool.end()
+  setLoginCookieStoreForTest(undefined)
+  vi.unstubAllGlobals()
 })
 
 it('Renders Page', async () => {
@@ -124,11 +120,19 @@ it('updates the greeting after Google login succeeds', async () => {
 
   expect(await screen.findByText('Hello username')).toBeTruthy()
   expect(window.sessionStorage.getItem('name')).toBe('username')
-  expect(google.verifyGoogleToken).toHaveBeenCalledWith('google-token')
+  expect(fetchMock).toHaveBeenCalledWith(
+    expect.stringContaining('/login'),
+    expect.objectContaining({
+      body: JSON.stringify({ credential: 'google-token' }),
+      method: 'POST',
+    }),
+  )
 })
 
 it('stays logged out when Google login fails', async () => {
-  google.verifyGoogleToken.mockRejectedValue(new Error('Invalid Google token'))
+  fetchMock.mockResolvedValueOnce(
+    Response.json({ message: 'Invalid Google token' }, { status: 401 }),
+  )
 
   render(<Topbar />)
 
@@ -184,7 +188,7 @@ it('ignores a session check result after unmount', async () => {
   await login({ credential: 'google-token' })
 
   let resolveCookieStore: () => void = () => {}
-  setAuthCookieStoreForTest(
+  setLoginCookieStoreForTest(
     () =>
       new Promise((resolve) => {
         resolveCookieStore = () => {
