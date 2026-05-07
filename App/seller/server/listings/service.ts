@@ -1,12 +1,13 @@
+import {z} from 'zod'
 import { ListingSchema, type Listing } from '../../shared/index.js'
 
 const ITEMS_SERVICE_URL = 'http://localhost:4000/graphql'
 
-const TEMP_LISTING_ID = 'da9d705c-0f9e-4e30-ab80-435abdf25284'
+const TEMP_SELLER_ID = '7b355067-1dee-4b9a-a87a-fa745332ecf8'
 
-const GET_ITEM_QUERY = `
-  query GetItem($id: String!) {
-    item(input: { id: $id }) {
+const GET_ITEMS_QUERY = `
+  query GetSellerItems($id: String!) {
+    sellerItems(input: { id: $id }) {
       id
       seller {
         id
@@ -28,9 +29,9 @@ export class ListingService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        query: GET_ITEM_QUERY,
+        query: GET_ITEMS_QUERY,
         variables: {
-          id: TEMP_LISTING_ID
+          id: TEMP_SELLER_ID
         },
       }),
     })
@@ -45,12 +46,12 @@ export class ListingService {
       throw new Error(body.errors[0]?.message ?? 'GraphQL error')
     }
 
-    const parseResult = ListingSchema.safeParse(body.data?.item)
+    const parseResult = z.array(ListingSchema).safeParse(body.data?.sellerItems)
 
     if(!parseResult.success) {
-      throw new Error('Item response did not match expected listing schema')
+      throw new Error('Seller items response did not match expected listing schema')
     }
 
-    return [parseResult.data]
+    return parseResult.data
   }
 }

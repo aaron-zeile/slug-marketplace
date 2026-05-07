@@ -41,3 +41,9 @@ export class ItemId {
   @Field()
   id!: string;
 }
+
+@InputType('SellerId')
+export class SellerId {
+  @Field()
+  id!: string;
+}

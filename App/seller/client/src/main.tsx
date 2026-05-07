@@ -5,7 +5,6 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 
 const rootElement = document.getElementById('root');
-const theme = createTheme();
 
 if (rootElement === null) {
   throw new Error('Root element #root was not found.');
@@ -13,9 +12,7 @@ if (rootElement === null) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
+    <CssBaseline />
+    <App />
   </React.StrictMode>,
 );
