@@ -1,23 +1,27 @@
 services:
-  db:
-    image: postgres:16-alpine
-    container_name: slugmarketplace_db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-sluguser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-slugpassword}
-      POSTGRES_DB: ${POSTGRES_DB:-slugmarketplace}
+  app:
+    container_name: app
+    env_file: .env
+    build: .
+    depends_on:
+      - postgres
     ports:
-      - "5432:5432"
+      - "3000:3000"
+    
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    environment:
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sluguser} -d ${POSTGRES_DB:-slugmarketplace}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  postgres_data:
+      - ./Service/Login/sql/databases.sql:/docker-entrypoint-initdb.d/1.databases.sql
+      - ./Service/Login/sql/schema.sql:/docker-entrypoint-initdb.d/2.schema.sql
+      - ./Service/ItemService/src/sql/schema.sql:/docker-entrypoint-initdb.d/3.schema.sql
+      - ./Service/ItemService/src/sql/data.sql:/docker-entrypoint-initdb.d/4.data.sql
+      - ./App/seller/server/sql/databases.sql:/docker-entrypoint-initdb.d/5.databases.sql
+      - ./App/seller/server/sql/schema.sql:/docker-entrypoint-initdb.d/6.schema.sql
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/7.schema.sql
+      - ./db/data.sql:/docker-entrypoint-initdb.d/8.data.sql

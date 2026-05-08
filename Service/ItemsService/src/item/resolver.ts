@@ -11,7 +11,7 @@ export class ItemResolver {
 
   @Query((returns) => [Item])
   async sellerItems(@Arg('input') sellerId: SellerId): Promise<Item[]> {
-    return new ItemService().getSellerItems(sellerId)
+    return new ItemService().getSellerItems(sellerId);
   }
 
   @Query((returns) => [Item])
