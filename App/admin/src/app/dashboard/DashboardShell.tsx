@@ -1,0 +1,44 @@
+'use client';
+
+import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import LogoutButton from './LogoutButton';
+import SimpleCharts from './charts/chart';
+
+export default function DashboardShell({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+      <AppBar position="static" color="primary" elevation={2}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 1 }}>
+            Slug Marketplace Admin
+          </Typography>
+          <LogoutButton />
+        </Toolbar>
+      </AppBar>
+
+      <Box sx={{ display: 'flex', flex: 1, gap: 3, p: 3, alignItems: 'flex-start' }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          {children}
+        </Box>
+
+        <Paper elevation={2} sx={{ flexShrink: 0, borderRadius: 2, p: 2 }}>
+          <Typography variant="subtitle1" fontWeight={600} mb={1} color="text.secondary">
+            Monthly Profit
+          </Typography>
+          <SimpleCharts />
+        </Paper>
+      </Box>
+    </Box>
+  );
+}

@@ -2,6 +2,8 @@
 
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useEffect, useState } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 const MONTHLY_PROFIT_QUERY = `
   query MonthlyProfit {
@@ -19,6 +21,11 @@ interface MonthlyProfit {
 
 export default function SimpleCharts() {
   const [data, setData] = useState<MonthlyProfit[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetch('/api/graphql', {
@@ -32,22 +39,32 @@ export default function SimpleCharts() {
       });
   }, []);
 
+  if (!mounted) return null;
+
   return (
-    <BarChart
-      xAxis={[
-        {
-          id: 'barCategories',
-          data: data.map((d) => d.month),
-          height: 30,
-        },
-      ]}
-      series={[
-        {
-          data: data.map((d) => d.profit),
-        },
-      ]}
-      height={300}
-      width={500}
-    />
+    <Box>
+      {data.length === 0 && (
+        <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+          No data available
+        </Typography>
+      )}
+      <BarChart
+        xAxis={[
+          {
+            id: 'barCategories',
+            data: data.map((d) => d.month),
+            height: 30,
+          },
+        ]}
+        series={[
+          {
+            data: data.map((d) => d.profit),
+            color: '#1976d2',
+          },
+        ]}
+        height={300}
+        width={500}
+      />
+    </Box>
   );
 }

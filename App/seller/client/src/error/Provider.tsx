@@ -29,7 +29,7 @@ export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
     <Fragment>
       <IconButton
         size="small"
-        aria-label="close"
+        aria-label="close error"
         color="inherit"
         onClick={handleClose}
       >
