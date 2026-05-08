@@ -8,7 +8,7 @@
   "repository": "none",
   "scripts": {
     "dev": "concurrently -k -n client,server -c blue,green \"cd client && vite\" \"tsx watch server/index.ts\"",
-    "build": "npm run clean && vite build && tsc -p tsconfig.server.build.json",
+    "build": "npm run clean && vite build --config client/vite.config.ts && tsc -p tsconfig.server.build.json",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production node dist/server/index.js",
     "server": "tsx watch --clear-screen=false server/index.ts",

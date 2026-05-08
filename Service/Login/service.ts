@@ -1,80 +1,80 @@
-import jwt from 'jsonwebtoken'
-import { Pool } from 'pg'
+import jwt from 'jsonwebtoken';
+import { Pool } from 'pg';
 
-import type { Authenticated, Credentials, SessionUser } from './src'
-import { verifyGoogleToken } from './src/google'
+import type { Authenticated, Credentials, SessionUser } from './src';
+import { verifyGoogleToken } from './src/google';
 
-const SESSION_DURATION = '2h'
+const SESSION_DURATION = '2h';
 
 interface MemberRow {
-  id: number
-  email: string
-  google_id: string
+  id: number;
+  email: string;
+  google_id: string;
 }
 
 interface TokenPayload extends SessionUser {
-  exp: number
-  iat: number
+  exp: number;
+  iat: number;
 }
 
 interface DbClient {
-  query<T>(sql: string, params?: unknown[]): Promise<{ rows: T[] }>
+  query<T>(sql: string, params?: unknown[]): Promise<{ rows: T[] }>;
 }
 
-let db: Pool | undefined
-let dbForTest: DbClient | undefined
+let db: Pool | undefined;
+let dbForTest: DbClient | undefined;
 
 export function setAuthDbForTest(testDb: DbClient | undefined) {
-  dbForTest = testDb
+  dbForTest = testDb;
 }
 
 export async function closeAuthDbForTest() {
   if (db) {
-    await db.end()
-    db = undefined
+    await db.end();
+    db = undefined;
   }
 }
 
 function getDb() {
   if (dbForTest) {
-    return dbForTest
+    return dbForTest;
   }
 
   db ??= new Pool({
-    connectionString: process.env.DATABASE_URL,
-  })
+    connectionString: process.env.ADMIN_DATABASE_URL,
+  });
 
-  return db
+  return db;
 }
 
 function getSessionSecret() {
-  const secret = process.env.AUTH_SECRET
+  const secret = process.env.AUTH_SECRET;
 
   if (!secret) {
-    throw new Error('AUTH_SECRET is required')
+    throw new Error('AUTH_SECRET is required');
   }
 
-  return secret
+  return secret;
 }
 
 function getBearerToken(authorization?: string) {
-  const [scheme, token] = authorization?.split(' ') ?? []
+  const [scheme, token] = authorization?.split(' ') ?? [];
 
   if (scheme !== 'Bearer' || !token) {
-    throw new Error('Missing bearer token')
+    throw new Error('Missing bearer token');
   }
 
-  return token
+  return token;
 }
 
 export class AuthService {
   public async login(credentials: Credentials): Promise<Authenticated> {
-    const payload = await verifyGoogleToken(credentials.credential)
+    const payload = await verifyGoogleToken(credentials.credential);
     const result = await getDb().query<MemberRow>(
       'SELECT id, email, google_id FROM member WHERE google_id = $1',
       [payload.sub],
-    )
-    let member = result.rows[0]
+    );
+    let member = result.rows[0];
 
     if (!member) {
       const newMember = await getDb().query<MemberRow>(
@@ -84,41 +84,46 @@ export class AuthService {
          SET google_id = EXCLUDED.google_id
          RETURNING id, email, google_id`,
         [payload.email, payload.sub],
-      )
-      member = newMember.rows[0]
+      );
+      member = newMember.rows[0];
     }
 
     const user: SessionUser = {
       id: member.id,
       email: member.email,
       name: payload.name ?? member.email,
-    }
+    };
 
     return {
       ...user,
-      token: jwt.sign(user, getSessionSecret(), { expiresIn: SESSION_DURATION }),
-    }
+      token: jwt.sign(user, getSessionSecret(), {
+        expiresIn: SESSION_DURATION,
+      }),
+    };
   }
 
   public async check(
     authorization?: string,
     _scopes?: string[],
   ): Promise<SessionUser> {
-    const token = getBearerToken(authorization)
-    const payload = jwt.verify(token, getSessionSecret()) as Partial<TokenPayload>
+    const token = getBearerToken(authorization);
+    const payload = jwt.verify(
+      token,
+      getSessionSecret(),
+    ) as Partial<TokenPayload>;
 
     if (
       typeof payload.id !== 'number' ||
       typeof payload.email !== 'string' ||
       typeof payload.name !== 'string'
     ) {
-      throw new Error('Invalid authorization token')
+      throw new Error('Invalid authorization token');
     }
 
     return {
       id: payload.id,
       email: payload.email,
       name: payload.name,
-    }
+    };
   }
 }

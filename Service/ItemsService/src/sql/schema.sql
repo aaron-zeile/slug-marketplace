@@ -23,6 +23,7 @@
 --                        ← yes/no
 --        → INSERT into item table
 --        ← return item
+\c items
 
 DROP TABLE IF EXISTS item;
 

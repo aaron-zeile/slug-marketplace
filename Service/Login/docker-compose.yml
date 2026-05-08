@@ -1,14 +1,96 @@
 services:
-  postgres:
-    container_name: items-service-db
-    image: postgres
+  items-db:
+    image: postgres:16-alpine
+    container_name: marketplace_items_db
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5434:5432"
+      POSTGRES_DB: ${ITEMS_POSTGRES_DB:-items}
+      POSTGRES_USER: ${ITEMS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${ITEMS_POSTGRES_PASSWORD:-postgres}
     volumes:
-      - ./sql/databases.sql:/docker-entrypoint-initdb.d/1.databases.sql
-      - ./sql/schema.sql:/docker-entrypoint-initdb.d/2.schema.sql
-      - ./sql/data.sql:/docker-entrypoint-initdb.d/3.data.sql
+      - items_postgres_data:/var/lib/postgresql/data
+      - ./Service/ItemsService/src/sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./Service/ItemsService/src/sql/data.sql:/docker-entrypoint-initdb.d/02-data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ITEMS_POSTGRES_USER:-postgres} -d ${ITEMS_POSTGRES_DB:-items}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  items-service:
+    build:
+      context: ./Service/ItemsService
+    container_name: marketplace_items_service
+    restart: unless-stopped
+    depends_on:
+      items-db:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: items-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${ITEMS_POSTGRES_DB:-items}
+      POSTGRES_USER: ${ITEMS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${ITEMS_POSTGRES_PASSWORD:-postgres}
+      CORS_ORIGIN: http://localhost:${SHOPPER_PORT:-3000}
+    ports:
+      - "${ITEMS_SERVICE_PORT:-4000}:4000"
+
+  login-db:
+    image: postgres:16-alpine
+    container_name: marketplace_login_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${LOGIN_POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${LOGIN_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${LOGIN_POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${LOGIN_DB_PORT:-55433}:5432"
+    volumes:
+      - login_postgres_data:/var/lib/postgresql/data
+      - ./Service/Login/sql/databases.sql:/docker-entrypoint-initdb.d/01-databases.sql:ro
+      - ./Service/Login/sql/schema.sql:/docker-entrypoint-initdb.d/02-schema.sql:ro
+      - ./Service/Login/sql/data.sql:/docker-entrypoint-initdb.d/03-data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LOGIN_POSTGRES_USER:-postgres} -d ${LOGIN_POSTGRES_DB:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  login-service:
+    build:
+      context: ./Service/Login
+    container_name: marketplace_login_service
+    restart: unless-stopped
+    depends_on:
+      login-db:
+        condition: service_healthy
+    environment:
+      PORT: 4010
+      DATABASE_URL: postgres://${LOGIN_POSTGRES_USER:-postgres}:${LOGIN_POSTGRES_PASSWORD:-postgres}@login-db:5432/${LOGIN_POSTGRES_DB:-postgres}
+      AUTH_SECRET: ${AUTH_SECRET:-dev-auth-secret-change-me}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+      CORS_ORIGIN: http://localhost:${SHOPPER_PORT:-3000}
+    ports:
+      - "${LOGIN_SERVICE_PORT:-4010}:4010"
+
+  shopper-service:
+    build:
+      context: ./App/shopper
+      args:
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+    container_name: marketplace_shopper_service
+    restart: unless-stopped
+    depends_on:
+      - items-service
+      - login-service
+    environment:
+      ITEMS_SERVICE_URL: http://items-service:4000/graphql
+      LOGIN_SERVICE_URL: http://login-service:4010/api/v0
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+    ports:
+      - "${SHOPPER_PORT:-3000}:3000"
+
+volumes:
+  items_postgres_data:
+  login_postgres_data:

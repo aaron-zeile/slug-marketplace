@@ -1,3 +1,4 @@
+\c account
 DROP TABLE IF EXISTS member;
 
 CREATE TABLE IF NOT EXISTS member (

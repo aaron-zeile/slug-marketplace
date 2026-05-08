@@ -1,5 +1,6 @@
--- SlugMarketplace admin schema
+\c admindb
 
+-- SlugMarketplace admin schema
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS admins (

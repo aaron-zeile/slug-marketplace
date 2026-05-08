@@ -32,7 +32,7 @@ Create a `.env` file in the project root before running. Example:
 
 ```env
 PORT=4000
-DATABASE_URL=postgres://user:password@host:5432/dbname
+ADMIN_DATABASE_URL=postgres://user:password@host:5432/dbname
 NODE_ENV=production
 ```
 

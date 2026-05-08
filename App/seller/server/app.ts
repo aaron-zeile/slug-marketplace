@@ -1,15 +1,24 @@
-import express from 'express'
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// import { ListingSchema } from '../shared/index'
-import * as listings from './listings/router'
-// import { validate } from './middleware.js'
+import * as listings from './listings/router.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const app = express()
-app.use(express.json())
+const app = express();
+app.use(express.json());
 
 /** API ENDPOINTS HERE **/
-app.get('/api/listings', listings.get)
-// app.post('/api/listings', validate(ListingSchema), listings.post)
+app.get('/api/listings', listings.get);
 
-export default app
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../../client/dist')));
+
+// Catch-all route for React router
+app.get('/{*path}', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+});
+
+export default app;

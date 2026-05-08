@@ -1,2 +1,3 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE DATABASE seller;
+\c seller

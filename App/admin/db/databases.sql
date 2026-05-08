@@ -1,1 +1,2 @@
-CREATE DATABASE admin;
+CREATE DATABASE admindb;
+\c admindb

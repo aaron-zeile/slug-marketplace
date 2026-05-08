@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import express from 'express'
+import express from 'express';
 
-import app from './app.ts'
+import app from './app.js';
 
 const port = Number(process.env.PORT ?? 3010);
 
