@@ -1,0 +1,31 @@
+services:
+  app:
+    container_name: app
+    env_file: .env
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+postgres:
+    container_name: postgres
+    image: postgres:alpine
+    environment:
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./Service/Login/sql/databases.sql:/docker-entrypoint-initdb.d/1.databases.sql
+      - ./Service/Login/sql/schema.sql:/docker-entrypoint-initdb.d/2.schema.sql
+
+      - ./Service/ItemsService/src/sql/databases.sql:/docker-entrypoint-initdb.d/3.databases.sql
+      - ./Service/ItemService/src/sql/schema.sql:/docker-entrypoint-initdb.d/4.schema.sql
+      - ./Service/ItemService/src/sql/data.sql:/docker-entrypoint-initdb.d/5.data.sql
+
+      - ./App/seller/server/sql/databases.sql:/docker-entrypoint-initdb.d/6.databases.sql
+      - ./App/seller/server/sql/schema.sql:/docker-entrypoint-initdb.d/7.schema.sql
+
+      - ./App/admin/db/databases.sql:/docker-entrypoint-initdb.d/8.databases.sql
+      - ./App/admin/db/schema.sql:/docker-entrypoint-initdb.d/9.schema.sql
+      - ./App/admin/db/data.sql:/docker-entrypoint-initdb.d/10.data.sql
