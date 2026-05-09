@@ -21,6 +21,15 @@ const GET_ITEMS_QUERY = `
   }
 `;
 
+type SellerItemsResponse = {
+  data?: {
+    sellerItems?: unknown
+  }
+  errors?: Array<{
+    message?: string
+  }>
+}
+
 export class ListingService {
   public async getListings(): Promise<Listing[]> {
     const response = await fetch(ITEMS_SERVICE_URL, {
@@ -41,7 +50,7 @@ export class ListingService {
     }
 
     // FIX THIS SO IT IS NOT SET TO AS ANY!!!!!!!!!!!
-    const body = (await response.json()) as any;
+    const body = await response.json() as SellerItemsResponse
 
     if (body.errors?.length) {
       throw new Error(body.errors[0]?.message ?? 'GraphQL error');
