@@ -72,11 +72,31 @@ while True:
         print("Invalid input — please enter a whole number.")
 
 SQL_FILE = "data.sql"
-mode = "a" if os.path.exists(SQL_FILE) else "w"
+file_exists = os.path.exists(SQL_FILE)
 
-with open(SQL_FILE, mode) as f:
-    for _ in range(count):
-        f.write(generate_insert() + "\n")
+if file_exists:
+    # Check if \c items is already at the top
+    with open(SQL_FILE, "r") as f:
+        first_line = f.readline().strip()
+    
+    if first_line != "\\c items":
+        # Prepend \c items to existing file
+        with open(SQL_FILE, "r") as f:
+            existing = f.read()
+        with open(SQL_FILE, "w") as f:
+            f.write("\\c items\n" + existing)
+        print("Prepended '\\c items' to existing data.sql")
+    
+    # Append new inserts
+    with open(SQL_FILE, "a") as f:
+        for _ in range(count):
+            f.write(generate_insert() + "\n")
+    print(f"Appended {count} INSERT statements to {SQL_FILE}")
 
-action = "Appended" if mode == "a" else "Created"
-print(f"{action} {count} INSERT statements to {SQL_FILE}")
+else:
+    # Create new file with \c items at the top
+    with open(SQL_FILE, "w") as f:
+        f.write("\\c items\n")
+        for _ in range(count):
+            f.write(generate_insert() + "\n")
+    print(f"Created {SQL_FILE} with {count} INSERT statements")
