@@ -59,6 +59,9 @@ export default function SellerListings() {
         rows={listings}
         columns={columns}
         getRowId={(row) => row.id}
+        localeText={{
+          noRowsLabel: 'No active listings'
+        }}
         pageSizeOptions={[5, 10, 25]}
         initialState={{
           pagination: {
