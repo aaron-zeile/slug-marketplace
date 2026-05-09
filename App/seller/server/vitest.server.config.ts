@@ -7,6 +7,7 @@ export default defineConfig({
     include: ['server/**/*.test.ts'],
     coverage: {exclude: [
       './server/*.config.ts',
+      './*.config.ts',
       './server/*.setup.ts',
       './client',
       './shared']},

@@ -17,6 +17,7 @@ const GET_ITEMS_QUERY = `
       description
       price
       created_at
+      images
     }
   }
 `;

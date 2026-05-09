@@ -7,6 +7,7 @@ export default defineConfig({
     setupFiles: './client/src/__tests__/setupTests.ts',
     coverage: {exclude: [
       './client/*.config.ts',
+      './*.config.ts',
       './client/*.setup.ts',
       './client/src/main.tsx',
       './server',

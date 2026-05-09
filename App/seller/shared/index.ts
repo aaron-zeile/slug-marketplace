@@ -11,6 +11,7 @@ export const ListingSchema = z.object({
   description: z.string(),
   price: z.number(),
   created_at: z.string(),
+  images: z.array(z.string()).default([])
 });
 export const ListingsResponseSchema = z.object({
   listings: z.array(ListingSchema)
