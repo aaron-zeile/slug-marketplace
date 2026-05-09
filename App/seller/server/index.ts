@@ -9,7 +9,7 @@ const port = Number(process.env.PORT ?? 3010);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const clientDistDir = path.resolve(__dirname, '../client');
+const clientDistDir = path.resolve(__dirname, '../../client/dist');
 
 if (process.env.NODE_ENV === 'production') {
   app.use('/seller', express.static(clientDistDir));
