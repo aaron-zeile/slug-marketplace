@@ -2,12 +2,17 @@ services:
   app:
     container_name: app
     env_file: .env
-    build: .
+    build:
+      context: .
+      args:
+        ADMIN_DATABASE_URL: ${ADMIN_DATABASE_URL}
     depends_on:
       - postgres
     ports:
       - "3000:3000"
-postgres:
+      - "3002:3002"
+      - "3010:3010"
+  postgres:
     container_name: postgres
     image: postgres:alpine
     environment:
@@ -18,14 +23,11 @@ postgres:
     volumes:
       - ./Service/Login/sql/databases.sql:/docker-entrypoint-initdb.d/1.databases.sql
       - ./Service/Login/sql/schema.sql:/docker-entrypoint-initdb.d/2.schema.sql
-
       - ./Service/ItemsService/src/sql/databases.sql:/docker-entrypoint-initdb.d/3.databases.sql
-      - ./Service/ItemService/src/sql/schema.sql:/docker-entrypoint-initdb.d/4.schema.sql
-      - ./Service/ItemService/src/sql/data.sql:/docker-entrypoint-initdb.d/5.data.sql
-
+      - ./Service/ItemsService/src/sql/schema.sql:/docker-entrypoint-initdb.d/4.schema.sql
+      - ./Service/ItemsService/src/sql/data.sql:/docker-entrypoint-initdb.d/5.data.sql
       - ./App/seller/server/sql/databases.sql:/docker-entrypoint-initdb.d/6.databases.sql
       - ./App/seller/server/sql/schema.sql:/docker-entrypoint-initdb.d/7.schema.sql
-
       - ./App/admin/db/databases.sql:/docker-entrypoint-initdb.d/8.databases.sql
       - ./App/admin/db/schema.sql:/docker-entrypoint-initdb.d/9.schema.sql
       - ./App/admin/db/data.sql:/docker-entrypoint-initdb.d/10.data.sql
