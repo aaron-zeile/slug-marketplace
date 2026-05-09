@@ -2,6 +2,8 @@ services:
   app:
     container_name: app
     env_file: .env
+    environment:
+      - NODE_ENV=production
     build:
       context: .
       args:
@@ -23,14 +25,11 @@ services:
     volumes:
       - ./Service/Login/sql/databases.sql:/docker-entrypoint-initdb.d/01.databases.sql
       - ./Service/Login/sql/schema.sql:/docker-entrypoint-initdb.d/02.schema.sql
-
       - ./Service/ItemsService/src/sql/databases.sql:/docker-entrypoint-initdb.d/03.databases.sql
       - ./Service/ItemsService/src/sql/schema.sql:/docker-entrypoint-initdb.d/04.schema.sql
       - ./Service/ItemsService/src/sql/data.sql:/docker-entrypoint-initdb.d/05.data.sql
-
       - ./App/seller/server/sql/databases.sql:/docker-entrypoint-initdb.d/06.databases.sql
       - ./App/seller/server/sql/schema.sql:/docker-entrypoint-initdb.d/07.schema.sql
-      
       - ./App/admin/db/databases.sql:/docker-entrypoint-initdb.d/08.databases.sql
       - ./App/admin/db/schema.sql:/docker-entrypoint-initdb.d/09.schema.sql
       - ./App/admin/db/data.sql:/docker-entrypoint-initdb.d/10.data.sql

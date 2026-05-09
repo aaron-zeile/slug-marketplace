@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   root: 'client',
+  base: '/seller',
   plugins: [react()],
   server: {
     proxy: {

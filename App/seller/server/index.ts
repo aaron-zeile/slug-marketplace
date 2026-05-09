@@ -12,8 +12,8 @@ const __dirname = path.dirname(__filename);
 const clientDistDir = path.resolve(__dirname, '../client');
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(clientDistDir));
-  app.get(/.*/, (_request, response) => {
+  app.use('/seller', express.static(clientDistDir));
+  app.get(/^\/seller(\/.*)?$/, (_request, response) => {
     response.sendFile(path.join(clientDistDir, 'index.html'));
   });
 }
