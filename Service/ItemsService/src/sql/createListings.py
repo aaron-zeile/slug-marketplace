@@ -34,6 +34,8 @@ SAMPLE_SELLERS = [
     {"id": str(uuid.uuid4()), "name": "Taylor Brooks"},
 ]
 
+IMAGE_URL = "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+
 def random_created_at():
     days_ago = random.randint(0, 365)
     dt = datetime.now(timezone.utc) - timedelta(days=days_ago, seconds=random.randint(0, 86400))
@@ -54,7 +56,7 @@ def generate_insert():
         "description": desc,
         "price": price,
         "created_at": created_at,
-        "images": [],
+        "images": [IMAGE_URL],
     }
 
     json_data = json.dumps(item_data).replace("'", "''")
@@ -72,11 +74,31 @@ while True:
         print("Invalid input — please enter a whole number.")
 
 SQL_FILE = "data.sql"
-mode = "a" if os.path.exists(SQL_FILE) else "w"
+file_exists = os.path.exists(SQL_FILE)
 
-with open(SQL_FILE, mode) as f:
-    for _ in range(count):
-        f.write(generate_insert() + "\n")
+if file_exists:
+    # Check if \c items is already at the top
+    with open(SQL_FILE, "r") as f:
+        first_line = f.readline().strip()
+    
+    if first_line != "\\c items":
+        # Prepend \c items to existing file
+        with open(SQL_FILE, "r") as f:
+            existing = f.read()
+        with open(SQL_FILE, "w") as f:
+            f.write("\\c items\n" + existing)
+        print("Prepended '\\c items' to existing data.sql")
+    
+    # Append new inserts
+    with open(SQL_FILE, "a") as f:
+        for _ in range(count):
+            f.write(generate_insert() + "\n")
+    print(f"Appended {count} INSERT statements to {SQL_FILE}")
 
-action = "Appended" if mode == "a" else "Created"
-print(f"{action} {count} INSERT statements to {SQL_FILE}")
+else:
+    # Create new file with \c items at the top
+    with open(SQL_FILE, "w") as f:
+        f.write("\\c items\n")
+        for _ in range(count):
+            f.write(generate_insert() + "\n")
+    print(f"Created {SQL_FILE} with {count} INSERT statements")

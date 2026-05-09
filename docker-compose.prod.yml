@@ -5,10 +5,6 @@ services:
     image: pouriarez/marketplace:latest
     environment:
       - NODE_ENV=production
-    build:
-      context: .
-      args:
-        ADMIN_DATABASE_URL: ${ADMIN_DATABASE_URL}
     depends_on:
       - postgres
     ports:
