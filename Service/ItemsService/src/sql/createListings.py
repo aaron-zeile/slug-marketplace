@@ -34,6 +34,8 @@ SAMPLE_SELLERS = [
     {"id": str(uuid.uuid4()), "name": "Taylor Brooks"},
 ]
 
+IMAGE_URL = "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+
 def random_created_at():
     days_ago = random.randint(0, 365)
     dt = datetime.now(timezone.utc) - timedelta(days=days_ago, seconds=random.randint(0, 86400))
@@ -54,7 +56,7 @@ def generate_insert():
         "description": desc,
         "price": price,
         "created_at": created_at,
-        "images": [],
+        "images": [IMAGE_URL],
     }
 
     json_data = json.dumps(item_data).replace("'", "''")
