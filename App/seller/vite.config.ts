@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': {
+      '/seller/api': {
         target: 'http://localhost:3010',
         changeOrigin: true,
       },
