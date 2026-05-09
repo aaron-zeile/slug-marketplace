@@ -38,10 +38,10 @@
     "e2e": "vitest run e2e --pool=threads --no-file-parallelism --testTimeout=20000"
   },
   "dependencies": {
+    "concurrently": "9.2.1",
     "google-auth-library": "^10.6.2"
   },
   "devDependencies": {
-    "concurrently": "*",
     "dotenv": "^17.2.3",
     "pg": "^8.20.0",
     "puppeteer": "^24.32.0",
