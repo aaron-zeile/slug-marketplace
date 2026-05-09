@@ -1,3 +1,6 @@
+FROM node:25-alpine
+EXPOSE 3000 3002 3010
+
 WORKDIR /home/app
 
 COPY package.json /home/app/
@@ -58,3 +61,5 @@ ARG ADMIN_DATABASE_URL
 ENV ADMIN_DATABASE_URL=$ADMIN_DATABASE_URL
 
 RUN cd App/admin && npm run build
+
+CMD ["npm", "start"]
