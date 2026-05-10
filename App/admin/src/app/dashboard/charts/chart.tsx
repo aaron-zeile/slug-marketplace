@@ -28,7 +28,7 @@ export default function SimpleCharts() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/graphql', {
+    fetch('/admin/api/graphql', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: MONTHLY_PROFIT_QUERY }),

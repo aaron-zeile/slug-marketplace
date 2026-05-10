@@ -20,7 +20,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     setLoading(true);
-    await fetch('/api/graphql', {
+    await fetch('/admin/api/graphql', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: LOGOUT_MUTATION }),

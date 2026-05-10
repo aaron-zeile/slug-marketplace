@@ -33,7 +33,7 @@ export default function SignInPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/graphql', {
+      const res = await fetch('/admin/api/graphql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

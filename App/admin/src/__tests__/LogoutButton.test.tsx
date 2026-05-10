@@ -32,7 +32,7 @@ describe('LogoutButton', () => {
     await userEvent.click(screen.getByRole('button', { name: /logout/i }));
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/graphql',
+        '/admin/api/graphql',
         expect.objectContaining({
           method: 'POST',
           body: expect.stringContaining('logout'),

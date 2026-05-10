@@ -12,7 +12,7 @@ import { getIronSession } from 'iron-session';
 
 function makeCtx(): GraphQLContext {
   return {
-    request: new Request('http://localhost/api/graphql'),
+    request: new Request('http://localhost/admin/api/graphql'),
     responseHeaders: new Headers(),
   };
 }
