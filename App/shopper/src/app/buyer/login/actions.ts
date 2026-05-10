@@ -32,7 +32,7 @@ export interface CheckLoginResult {
 }
 
 function getLoginServiceUrl() {
-  return process.env.LOGIN_SERVICE_URL ?? 'http://localhost:4010/api/v0';
+  return process.env.LOGIN_SERVICE_URL;
 }
 
 export async function login(credentials: Credentials): Promise<LoginResult> {
@@ -61,12 +61,7 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
 
   const authenticated = (await response.json()) as RestAuthenticated;
   const cookieStore = await getLoginCookieStore();
-  // FIX THIS ?????????????????????????????????
-  if (!cookieStore) {
-    return {
-      error: 'Cookie store not available',
-    };
-  }
+
   cookieStore.set('session', authenticated.token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -85,10 +80,6 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
 
 export async function checkLogin(): Promise<CheckLoginResult> {
   const cookieStore = await getLoginCookieStore();
-  // FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (!cookieStore) {
-    return {};
-  }
   const token = cookieStore.get('session')?.value;
 
   if (!token) {
@@ -119,9 +110,5 @@ export async function checkLogin(): Promise<CheckLoginResult> {
 
 export async function logout() {
   const cookieStore = await getLoginCookieStore();
-  // FIX THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (!cookieStore) {
-    return;
-  }
   cookieStore.delete('session');
 }

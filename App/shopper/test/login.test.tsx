@@ -69,7 +69,7 @@ beforeAll(async () => {
   process.env.ADMIN_DATABASE_URL =
     process.env.LOGIN_DATABASE_URL ??
     process.env.ADMIN_DATABASE_URL ??
-    'postgres://postgres:postgres@localhost:55433/admin';
+    'postgres://postgres:postgres@localhost:4005/account';
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = 'test-client-id';
   pool = new Pool({ connectionString: process.env.ADMIN_DATABASE_URL });
   await pool.query(`

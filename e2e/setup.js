@@ -8,8 +8,8 @@ export let page;
 
 beforeEach(async () => {
   browser = await puppeteer.launch({
-    headless: true,
-    slowMo: 2,
+    // headless: true,
+    // slowMo: 2,
     args: ['--window-size=768,1024'],
     defaultViewport: null, 
     /*
@@ -26,6 +26,9 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await new Promise(res => setTimeout(res, 1000))
+  if (!browser) {
+    return
+  }
   const childProcess = browser.process();
   if (childProcess) {
     await childProcess.kill(9);

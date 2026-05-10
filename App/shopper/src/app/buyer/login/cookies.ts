@@ -25,5 +25,9 @@ export function setLoginCookieStoreForTest(
 }
 
 export function getLoginCookieStore() {
-  return testCookieStore?.() ?? cookies()
+  if (testCookieStore) {
+    return testCookieStore()
+  }
+
+  return cookies()
 }

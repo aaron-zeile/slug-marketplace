@@ -29,6 +29,10 @@ const pool = new Pool({
 })
 
 const run = async (file: string) => {
+  if (!fs.existsSync(file)) {
+    return
+  }
+
   const content = fs.readFileSync(file, 'utf8')
   const lines = content.split(/\r?\n/)
   let statement = ''
