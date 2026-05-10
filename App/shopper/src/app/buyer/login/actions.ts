@@ -32,7 +32,7 @@ export interface CheckLoginResult {
 }
 
 function getLoginServiceUrl() {
-  return process.env.LOGIN_SERVICE_URL;
+  return process.env.LOGIN_SERVICE_URL ?? 'http://localhost:4010/api/v0';
 }
 
 export async function login(credentials: Credentials): Promise<LoginResult> {

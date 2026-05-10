@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "dev": "powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1",
+    "dev:clean": "powershell -ExecutionPolicy Bypass -File ./scripts/dev.ps1 -NoStart",
     "containerised": "npm run build && npm run compose",
     "compose": "docker compose up --build",
     "installs": "npm install && npm run install-admin && npm run install-seller && npm run install-shopper && npm run install-items && npm run install-login",
