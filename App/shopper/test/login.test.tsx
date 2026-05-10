@@ -13,7 +13,7 @@ const googleButtonLabel = 'mock-google-login';
 const cookies: Record<string, string> = {};
 const deletedCookies: string[] = [];
 const serviceUser = {
-  id: 1,
+  id: '7b355067-1dee-4b9a-a87a-fa745332ecf8',
   email: 'username@example.com',
   name: 'username',
   token: 'service-token',
@@ -74,7 +74,7 @@ beforeAll(async () => {
   pool = new Pool({ connectionString: process.env.ADMIN_DATABASE_URL });
   await pool.query(`
     CREATE TABLE IF NOT EXISTS member (
-      id SERIAL PRIMARY KEY,
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       email TEXT NOT NULL UNIQUE,
       google_id TEXT UNIQUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

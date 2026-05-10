@@ -7,7 +7,7 @@ import { verifyGoogleToken } from './src/google';
 const SESSION_DURATION = '2h';
 
 interface MemberRow {
-  id: number;
+  id: string;
   email: string;
   google_id: string;
 }
@@ -113,7 +113,7 @@ export class AuthService {
     ) as Partial<TokenPayload>;
 
     if (
-      typeof payload.id !== 'number' ||
+      typeof payload.id !== 'string' ||
       typeof payload.email !== 'string' ||
       typeof payload.name !== 'string'
     ) {

@@ -3,14 +3,14 @@ export interface Credentials {
 }
 
 export interface Authenticated {
-  id: number;
+  id: string;
   email: string;
   name: string;
   token: string;
 }
 
 export interface SessionUser {
-  id: number;
+  id: string;
   email: string;
   name: string;
 }

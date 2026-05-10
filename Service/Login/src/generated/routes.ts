@@ -18,7 +18,7 @@ const models: TsoaRoute.Models = {
     "Authenticated": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
+            "id": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "name": {"dataType":"string","required":true},
             "token": {"dataType":"string","required":true},
@@ -37,7 +37,7 @@ const models: TsoaRoute.Models = {
     "SessionUser": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
+            "id": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "name": {"dataType":"string","required":true},
         },

@@ -3,7 +3,7 @@
 import { getLoginCookieStore } from './cookies';
 
 export interface Authenticated {
-  id: number;
+  id: string;
   email: string;
   name: string;
 }
@@ -13,7 +13,7 @@ export interface Credentials {
 }
 
 export interface SessionUser {
-  id: number;
+  id: string;
   email: string;
   name: string;
 }
