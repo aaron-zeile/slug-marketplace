@@ -49,3 +49,48 @@ export async function getItem(id: string): Promise<Item> {
   const parseResult = ItemSchema.parse(body.data?.item);
   return parseResult;
 }
+
+export async function getRandomItems(count: number): Promise<Item[]> {
+  const query = `
+    query GetRandomItems($input: RandomItemsInput!) {
+      randomItems(input: $input) {
+        id
+        seller {
+          id
+          name
+        }
+        name
+        description
+        images
+        price
+        created_at
+      }
+    }
+  `;
+
+  const response = await fetch(ITEMS_SERVICE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables: {
+        input: { count },
+      },
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch random items: ${response.statusText}`);
+  }
+
+  const body = await response.json();
+  if (body.errors?.length) {
+    throw new Error('GraphQL error');
+  }
+
+  const parseResult = ItemSchema.array().parse(body.data?.randomItems);
+  return parseResult;
+}

@@ -1,4 +1,4 @@
-import { Length } from 'class-validator';
+import { Length, Min } from 'class-validator';
 import { Field, GraphQLISODateTime, InputType, Int, ObjectType } from 'type-graphql';
 
 @ObjectType()
@@ -51,5 +51,6 @@ export class SellerId {
 @InputType('RandomItemsInput')
 export class RandomItemsInput {
   @Field(() => Int)
+  @Min(1)
   count!: number;
 }
