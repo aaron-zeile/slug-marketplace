@@ -28,14 +28,14 @@ test('Testing to pull 1 item', async () => {
   await supertest(server)
     .post('/graphql')
     .send({
-      query: `{item(input: { id: "50f1033c-020a-4a3a-9544-d7f9f0f0ba4d" }) {
+      query: `{item(input: { id: "52bbb488-1f5c-4540-b0e5-5fe51aa6fe33" }) {
   name
 }}`,
     })
     .then((res) => {
       console.log(res.body);
       expect(res.body.data.item).toEqual({
-        name: 'Standing Desk 515',
+        name: 'Plant Pot 405',
       });
     });
 });

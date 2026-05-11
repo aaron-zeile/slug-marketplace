@@ -18,7 +18,7 @@ const run = async (file: string) => {
   let statement = '';
   for (let line of lines) {
     line = line.trim();
-    if (!line.startsWith('--')) {
+    if (!line.startsWith('--') && !line.startsWith('\\')) {
       statement += ' ' + line + '\n';
       if (line.endsWith(';')) {
         await pool.query(statement);

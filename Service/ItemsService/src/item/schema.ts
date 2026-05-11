@@ -54,3 +54,10 @@ export class RandomItemsInput {
   @Min(1)
   count!: number;
 }
+
+@InputType('SearchItemsInput')
+export class SearchItemsInput {
+  @Field()
+  @Length(1, 256)
+  searchText!: string;
+}

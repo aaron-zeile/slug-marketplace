@@ -1,5 +1,5 @@
-import { getItem, getRandomItems, getSellerItems } from './db';
-import { Item, ItemId, RandomItemsInput, SellerId } from './schema';
+import { getItem, getRandomItems, getSearchItems, getSellerItems } from './db';
+import { Item, ItemId, RandomItemsInput, SearchItemsInput, SellerId } from './schema';
 
 export class ItemService {
   public async getItem(itemId: ItemId): Promise<Item> {
@@ -16,5 +16,10 @@ export class ItemService {
   public async getRandomItems(input: RandomItemsInput): Promise<Item[]> {
     const randomItems = await getRandomItems(input);
     return randomItems;
+  }
+
+  public async getSearchItems(input: SearchItemsInput): Promise<Item[]> {
+    const searchItems = await getSearchItems(input);
+    return searchItems;
   }
 }
