@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { ListingSchema, type Listing } from '../../shared/index.js';
 
-const ITEMS_SERVICE_URL = 'http://localhost:4000/graphql';
+const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
 
-const TEMP_SELLER_ID = '7b355067-1dee-4b9a-a87a-fa745332ecf8';
+const TEMP_SELLER_ID = process.env.TEMP_SELLER_ID || 'dbdb10af-685c-41ff-b8e1-676b98c1732a';
 
 const GET_ITEMS_QUERY = `
   query GetSellerItems($id: String!) {
