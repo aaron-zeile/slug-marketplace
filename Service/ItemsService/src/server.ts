@@ -3,7 +3,9 @@ dotenv.config();
 
 import { app, bootstrap } from './app';
 
-app.listen(4000, async () => {
+const port = process.env.PORT || 4500;
+
+app.listen(port, async () => {
   await bootstrap();
   console.log(
     'Running a GraphQL Playground at http://localhost:4000/playground',
