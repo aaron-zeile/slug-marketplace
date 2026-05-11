@@ -40,8 +40,11 @@
     "e2e": "vitest run e2e --pool=threads --no-file-parallelism --testTimeout=20000"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^6.3.0",
+    "@stripe/stripe-js": "^9.4.0",
     "concurrently": "9.2.1",
-    "google-auth-library": "^10.6.2"
+    "google-auth-library": "^10.6.2",
+    "stripe": "^22.1.1"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
