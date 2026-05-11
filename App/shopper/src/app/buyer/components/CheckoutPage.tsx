@@ -23,8 +23,23 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
       },
       body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
     })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Unable to start payment");
+        }
+
+        return res.json();
+      })
+      .then((data) => {
+        if (!data.clientSecret) {
+          throw new Error("Unable to start payment");
+        }
+
+        setClientSecret(data.clientSecret);
+      })
+      .catch(() => {
+        setErrorMessage("Unable to start payment. Please try again later.");
+      });
   }, [amount]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -62,6 +77,10 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
 
     setLoading(false);
   };
+
+  if (errorMessage && !clientSecret) {
+    return <div role="alert">{errorMessage}</div>;
+  }
 
   if (!clientSecret || !stripe || !elements) {
     return (

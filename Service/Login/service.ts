@@ -40,8 +40,11 @@ function getDb() {
     return dbForTest;
   }
 
+  const connectionString =
+    process.env.LOGIN_DATABASE_URL ?? process.env.ADMIN_DATABASE_URL;
+
   db ??= new Pool({
-    connectionString: process.env.ADMIN_DATABASE_URL,
+    connectionString,
   });
 
   return db;

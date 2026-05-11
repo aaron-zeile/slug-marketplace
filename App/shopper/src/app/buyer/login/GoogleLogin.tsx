@@ -34,7 +34,7 @@ export default function GoogleLogin({
             window.sessionStorage.setItem("name", result.authenticated.name);
             setName(result.authenticated.name);
             onLogin?.();
-          } 
+          }
         }}
       />
     </GoogleOAuthProvider>
