@@ -7,7 +7,7 @@ export async function fetchItemAction(id: string) {
     const item = await getItem(id);
     return { success: true, data: item };
   } catch (error) {
-    console.error('fetchItemAction error:', error); // add this
+    console.error('fetchItemAction error:', error);
     const message = error instanceof Error && error.message;
     return { success: false, error: message };
   }
