@@ -11,8 +11,8 @@ const app = express();
 app.use(express.json());
 
 /** API ENDPOINTS HERE **/
-// app.get('/api/listings', listings.get);
-app.get('/seller/api/listings', listings.get);
+app.get('/api/listings', listings.get);
+//app.get('/seller/api/listings', listings.get);
 
 
 export default app;
