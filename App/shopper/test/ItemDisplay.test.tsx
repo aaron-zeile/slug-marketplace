@@ -1,7 +1,13 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { expect, it, beforeEach, vi } from 'vitest';
 import ItemDisplay from '../src/app/items/[id]/ItemDisplay';
 import { Item } from '../src/item';
+
+vi.mock('../src/app/items/[id]/actions', () => ({
+  fetchItemAction: vi.fn(),
+}));
+
+import { fetchItemAction } from '../src/app/items/[id]/actions';
 
 const mockItem: Item = {
   id: '550e8400-e29b-41d4-a716-446655440000',
@@ -11,15 +17,9 @@ const mockItem: Item = {
   },
   name: 'Throw Pillow 336',
   description: 'Sleek modern design that fits seamlessly into any lifestyle.',
-  images: [],
+  images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
   price: 894.74,
   created_at: '2025-10-07T18:56:33.000Z',
-};
-
-const mockGraphQLResponse = {
-  data: {
-    item: mockItem,
-  },
 };
 
 const mockRouter = {
@@ -32,15 +32,10 @@ vi.mock('next/navigation', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockGraphQLResponse),
-      }),
-    ),
-  );
+  vi.mocked(fetchItemAction).mockResolvedValue({
+    success: true,
+    data: mockItem,
+  });
 });
 
 it('renders the item name', async () => {
@@ -67,53 +62,29 @@ it('renders the item price formatted', async () => {
   });
 });
 
-it('renders the item id', async () => {
-  render(<ItemDisplay id={mockItem.id} />);
-
-  await waitFor(() => {
-    expect(screen.getByText(mockItem.id)).toBeDefined();
-  });
-});
-
 it('renders the seller name', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
   await waitFor(() => {
-    expect(screen.getByText(mockItem.seller.name)).toBeDefined();
-  });
-});
-
-it('renders the seller id', async () => {
-  render(<ItemDisplay id={mockItem.id} />);
-
-  await waitFor(() => {
-    expect(screen.getByText(mockItem.seller.id)).toBeDefined();
+    expect(screen.getByText(`Seller: ${mockItem.seller.name}`)).toBeDefined();
   });
 });
 
 it('renders the created date', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
-  const expectedDate = new Date(mockItem.created_at).toLocaleString();
+  const expectedDate = new Date(mockItem.created_at).toLocaleDateString();
 
   await waitFor(() => {
-    expect(screen.getByText(expectedDate)).toBeDefined();
+    expect(screen.getByText(`Created ${expectedDate}`)).toBeDefined();
   });
 });
 
-it('redirects to home when GraphQL returns errors', async () => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            errors: [{ message: 'Item not found' }],
-          }),
-      }),
-    ),
-  );
+it('redirects to home when fetchItemAction returns failure', async () => {
+  vi.mocked(fetchItemAction).mockResolvedValue({
+    success: false,
+    error: 'Item not found',
+  });
 
   render(<ItemDisplay id={mockItem.id} />);
 
@@ -122,20 +93,26 @@ it('redirects to home when GraphQL returns errors', async () => {
   });
 });
 
-it('redirects to home when fetch fails', async () => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() =>
-      Promise.resolve({
-        ok: false,
-        statusText: 'Not Found',
-      }),
-    ),
-  );
-
+it('displays the first image as the main image on load', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
   await waitFor(() => {
-    expect(mockRouter.push).toHaveBeenCalledWith('/');
+    const mainImage = screen.getAllByAltText('thumbnail')[0];
+    expect(mainImage.getAttribute('src')).toContain('image1');
+  });
+});
+
+it('updates the main image when a thumbnail is clicked', async () => {
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getAllByAltText('thumbnail')).toHaveLength(3);
+  });
+
+  fireEvent.click(screen.getAllByAltText('thumbnail')[2]);
+
+  await waitFor(() => {
+    const mainImage = screen.getAllByAltText('thumbnail')[0];
+    expect(mainImage.getAttribute('src')).toContain('image2');
   });
 });
