@@ -1,7 +1,5 @@
 // import { AuthResolver } from './auth/resolver';
 import { ItemResolver } from './item/resolver';
+import { ReviewResolver } from './review/resolver';
 
-export const resolvers = [
-  // AuthResolver,
-  ItemResolver,
-] as const;
+export const resolvers = [ItemResolver, ReviewResolver] as const;

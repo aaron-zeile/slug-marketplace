@@ -25,9 +25,16 @@
 --        ← return item
 \c items
 
+DROP TABLE IF EXISTS review;
 DROP TABLE IF EXISTS item;
 
 CREATE TABLE item(
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   data jsonb
+);
+
+CREATE TABLE review(
+  id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  item UUID NOT NULL REFERENCES item(id) ON DELETE CASCADE,
+  data    jsonb
 );
