@@ -50,7 +50,6 @@ export class ListingService {
       throw new Error(`Failed to fetch listings: ${response.statusText}`);
     }
 
-    // FIX THIS SO IT IS NOT SET TO AS ANY!!!!!!!!!!!
     const body = await response.json() as SellerItemsResponse
 
     if (body.errors?.length) {
