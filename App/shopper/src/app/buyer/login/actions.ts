@@ -35,6 +35,14 @@ function getLoginServiceUrl() {
   return process.env.LOGIN_SERVICE_URL;
 }
 
+function shouldUseSecureLoginCookie() {
+  if (process.env.LOGIN_COOKIE_SECURE !== undefined) {
+    return process.env.LOGIN_COOKIE_SECURE === 'true';
+  }
+
+  return process.env.NODE_ENV === 'production';
+}
+
 export async function login(credentials: Credentials): Promise<LoginResult> {
   let response: Response;
 
@@ -64,7 +72,7 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
 
   cookieStore.set('session', authenticated.token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: shouldUseSecureLoginCookie(),
     sameSite: 'lax',
     path: '/',
   });
