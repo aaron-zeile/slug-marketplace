@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import {
   AppBar,
   Avatar,
@@ -10,17 +10,20 @@ import {
   MenuItem,
   Toolbar,
   Typography,
-} from "@mui/material";
-import { useEffect, useState } from "react";
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 
-import { checkLogin, logout } from "../login/actions";
-import GoogleLogin from "../login/GoogleLogin";
+import { checkLogin, logout } from '../login/actions';
+import GoogleLogin from '../login/GoogleLogin';
+import { useRouter } from 'next/navigation';
 
 function getAvatarLabel(name: string | null) {
   return name?.trim().charAt(0).toUpperCase() || undefined;
 }
 
 export default function Topbar() {
+  const router = useRouter();
+
   const [name, setName] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<null | {
     left: number;
@@ -36,14 +39,14 @@ export default function Topbar() {
     let active = true;
 
     async function loadSession() {
-      const storedName = window.sessionStorage.getItem("name");
+      const storedName = window.sessionStorage.getItem('name');
       const result = await checkLogin();
 
       if (!active) {
         return;
       }
 
-      setName(result.user ? storedName ?? result.user.name : storedName);
+      setName(result.user ? (storedName ?? result.user.name) : storedName);
     }
 
     void loadSession();
@@ -55,24 +58,30 @@ export default function Topbar() {
 
   const handleLogout = async () => {
     await logout();
-    window.sessionStorage.removeItem("name");
+    window.sessionStorage.removeItem('name');
     setName(null);
     handleMenuClose();
   };
 
   return (
     <AppBar position="static" color="default" elevation={1}>
-      <Toolbar sx={{ justifyContent: "space-between", gap: 2 }}>
-        <Typography component="div" variant="h6">
-          slugmarketplace
+      <Toolbar sx={{ justifyContent: 'space-between', gap: 2 }}>
+        <Typography
+          component="div"
+          variant="h6"
+          onClick={() => {
+            router.push('/');
+          }}
+        >
+          SlugMarketplace
         </Typography>
-        <Box sx={{ alignItems: "center", display: "flex", gap: 2 }}>
-          <Typography variant="body1">Hello {name ?? "Guest"}</Typography>
+        <Box sx={{ alignItems: 'center', display: 'flex', gap: 2 }}>
+          <Typography variant="body1">Hello {name ?? 'Guest'}</Typography>
           <IconButton
             aria-label="profile"
-            aria-controls={isMenuOpen ? "profile-menu" : undefined}
+            aria-controls={isMenuOpen ? 'profile-menu' : undefined}
             aria-haspopup="true"
-            aria-expanded={isMenuOpen ? "true" : undefined}
+            aria-expanded={isMenuOpen ? 'true' : undefined}
             onClick={(event) => {
               const rect = event.currentTarget.getBoundingClientRect();
 
@@ -94,12 +103,12 @@ export default function Topbar() {
           anchorReference="anchorPosition"
           open={isMenuOpen}
           onClose={handleMenuClose}
-          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           slotProps={{
             paper: {
               sx: {
                 width: 260,
-                maxWidth: "calc(100vw - 24px)",
+                maxWidth: 'calc(100vw - 24px)',
               },
             },
           }}
@@ -110,7 +119,7 @@ export default function Topbar() {
             </MenuItem>
           ) : (
             <MenuItem aria-label="login" disableRipple>
-              <Box sx={{ py: 0.5, width: "100%" }}>
+              <Box sx={{ py: 0.5, width: '100%' }}>
                 <GoogleLogin setName={setName} onLogin={handleMenuClose} />
               </Box>
             </MenuItem>

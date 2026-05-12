@@ -8,6 +8,6 @@ const port = process.env.PORT || 4500;
 app.listen(port, async () => {
   await bootstrap();
   console.log(
-    'Running a GraphQL Playground at http://localhost:4000/playground',
+    `Running a GraphQL Playground at http://localhost:${port}/playground`,
   );
 });

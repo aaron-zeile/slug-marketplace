@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { Item } from '../../../item';
 import { fetchItemAction } from './actions';
+import Reviews from './Reviews';
 
 interface Props {
   id: string;
@@ -108,7 +109,7 @@ const ItemDisplay = ({ id }: Props) => {
               gap: 2,
             }}
           >
-            {item.images.map((image) => (
+            {item.images.map((image: string) => (
               <Box
                 key={image}
                 onClick={() => handleMainImageChange(image)}
@@ -203,7 +204,7 @@ const ItemDisplay = ({ id }: Props) => {
           </Box>
         </Box>
         {/* REVIEWS GO HERE */}
-        <Box> Reviews</Box>
+        <Reviews id={item.id} />
       </Box>
     </Paper>
   );

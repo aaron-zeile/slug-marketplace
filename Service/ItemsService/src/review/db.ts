@@ -6,6 +6,7 @@ export const getReviews = async (item: ItemId) => {
   console.log(item.id);
   const select = `
                   SELECT 
+                    r.id,
                     r.data->'user' AS user,
                     r.data->>'content' AS content,
                     (r.data->>'rating')::float AS rating,

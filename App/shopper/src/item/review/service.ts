@@ -9,7 +9,7 @@ export async function getReviews(itemId: string): Promise<Review[]> {
     query GetReviews($input: ItemId!) {
       reviews(input: $input) {
         id 
-        reviewer {
+        user {
           id
           name
         }

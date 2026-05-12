@@ -12,6 +12,9 @@ export class ReviewUser {
 
 @ObjectType()
 export class Review {
+  @Field()
+  id!: string;
+
   @Field(() => ReviewUser)
   user!: ReviewUser;
 
