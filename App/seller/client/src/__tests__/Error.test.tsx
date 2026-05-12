@@ -41,7 +41,7 @@ test('close error snackbar', async () => {
   )
 
   const close = await screen.findByLabelText('close error')
-  await fireEvent.click(close)
+  fireEvent.click(close)
   expect(screen.queryByText('Error: Not Found')).toBeNull
 })
 
