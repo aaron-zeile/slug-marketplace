@@ -3,6 +3,11 @@ import { beforeEach, expect, it, vi } from 'vitest';
 
 import SearchList from '../src/app/search/[searchText]/SearchList';
 import { Item } from '../src/item';
+import { fetchSearchItemsAction } from '../src/app/search/[searchText]/actions';
+
+vi.mock('../src/app/search/[searchText]/actions', () => ({
+  fetchSearchItemsAction: vi.fn(),
+}));
 
 const items: Item[] = [
   {
@@ -32,23 +37,14 @@ const items: Item[] = [
 ];
 
 const stubSearchResponse = (searchItems: Item[]) => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              searchItems,
-            },
-          }),
-      }),
-    ),
-  );
+  vi.mocked(fetchSearchItemsAction).mockResolvedValue({
+    success: true,
+    data: searchItems,
+  });
 };
 
 beforeEach(() => {
+  vi.clearAllMocks();
   stubSearchResponse(items);
 });
 
@@ -65,13 +61,7 @@ it('fetches search items using the search text', async () => {
 
   render(result);
 
-  expect(fetch).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.objectContaining({
-      method: 'POST',
-      body: expect.stringContaining('"searchText":"desk lamp"'),
-    }),
-  );
+  expect(fetchSearchItemsAction).toHaveBeenCalledWith('desk lamp');
 });
 
 it('renders search item', async () => {
@@ -97,5 +87,19 @@ it('renders an empty state when no items match', async () => {
 
   render(result);
 
+  screen.getByText('No items match your search.');
+});
+
+it('renders an empty state when the search action fails', async () => {
+  vi.mocked(fetchSearchItemsAction).mockResolvedValue({
+    success: false,
+    error: 'Search failed',
+  });
+
+  const result = await SearchList({ searchText: 'desk%20lamp' });
+
+  render(result);
+
+  screen.getByText('0 items found');
   screen.getByText('No items match your search.');
 });
