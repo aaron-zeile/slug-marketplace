@@ -1,5 +1,5 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { getSearchItems } from '../../../item/service';
+import { fetchSearchItemsAction } from './actions';
 import SearchItem from './SearchItem';
 
 interface SearchListProps {
@@ -8,7 +8,8 @@ interface SearchListProps {
 
 export default async function SearchList({ searchText }: SearchListProps) {
   const decodedSearchText = decodeURIComponent(searchText);
-  const items = await getSearchItems(decodedSearchText);
+  const result = await fetchSearchItemsAction(decodedSearchText);
+  const items = result.success && result.data ? result.data : [];
 
   return (
     <Container sx={{ py: 3 }}>

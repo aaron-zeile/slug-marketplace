@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { checkLogin, logout } from '../login/actions';
 import GoogleLogin from '../login/GoogleLogin';
 import { useRouter } from 'next/navigation';
+import CartButton from './CartButton';
 
 function getAvatarLabel(name: string | null) {
   return name?.trim().charAt(0).toUpperCase() || undefined;
@@ -76,6 +77,7 @@ export default function Topbar() {
           SlugMarketplace
         </Typography>
         <Box sx={{ alignItems: 'center', display: 'flex', gap: 2 }}>
+          <CartButton />
           <Typography variant="body1">Hello {name ?? 'Guest'}</Typography>
           <IconButton
             aria-label="profile"
