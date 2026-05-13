@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 import LogoutButton from './LogoutButton';
 import SimpleCharts from './charts/chart';
 
-export default function DashboardShell({ children }: { children: ReactNode }) {
+export default function DashboardShell({ children, currentLocale }: { children: ReactNode; currentLocale: string }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   const t = useTranslations('Dashboard');
