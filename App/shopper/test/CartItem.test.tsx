@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { beforeEach, expect, it } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import SearchItem from '../src/app/search/[searchText]/SearchItem';
+import CartItem from '../src/app/cart/CartItem';
 import { Item } from '../src/item';
 import { routerSpy } from './mockRouter';
 
@@ -23,7 +23,7 @@ const item: Item = {
 };
 
 beforeEach(() => {
-  render(<SearchItem item={item} />);
+  render(<CartItem item={item} />);
 });
 
 it('renders the item name', () => {
@@ -32,10 +32,6 @@ it('renders the item name', () => {
 
 it('renders the description', () => {
   screen.getByText('12GB 192-bit GDDR7, PCIe 5.0, compact graphics card built for gaming and creative work.');
-});
-
-it('renders the seller', () => {
-  screen.getByText('Avery Parks');
 });
 
 it('renders the price formatted', () => {
@@ -48,8 +44,22 @@ it('renders the image', () => {
   expect(image.getAttribute('src')).toBe(item.images[0]);
 });
 
-it('routes to the item page when clicked', async () => {
-  await userEvent.click(screen.getByLabelText(`Search Item GIGABYTE GeForce RTX 5070 WINDFORCE OC SFF 12G Graphics Card`));
+it('renders the quantity controls', () => {
+  screen.getByLabelText(`quantity GIGABYTE GeForce RTX 5070 WINDFORCE OC SFF 12G Graphics Card`);
+});
+
+it('routes to the item page when the image is clicked', async () => {
+  const [imageLink] = screen.getAllByLabelText(`Cart Item GIGABYTE GeForce RTX 5070 WINDFORCE OC SFF 12G Graphics Card`);
+
+  await userEvent.click(imageLink);
+
+  expect(routerSpy).toHaveBeenCalledWith(`/items/11111111-1111-1111-1111-111111111111`);
+});
+
+it('routes to the item page when the text is clicked', async () => {
+  const [, textLink] = screen.getAllByLabelText(`Cart Item GIGABYTE GeForce RTX 5070 WINDFORCE OC SFF 12G Graphics Card`);
+
+  await userEvent.click(textLink);
 
   expect(routerSpy).toHaveBeenCalledWith(`/items/11111111-1111-1111-1111-111111111111`);
 });
