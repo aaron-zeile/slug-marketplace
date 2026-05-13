@@ -41,7 +41,7 @@ export default function Topbar() {
 
     async function loadSession() {
       const storedName = window.sessionStorage.getItem('name');
-      const result = await checkLogin();
+      const result = await checkLogin().catch(() => ({}));
 
       if (!active) {
         return;
