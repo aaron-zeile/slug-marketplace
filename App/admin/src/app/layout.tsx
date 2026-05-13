@@ -1,15 +1,25 @@
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
+import { NextIntlClientProvider } from 'next-intl';
+import { cookies } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'Admin | Slug Marketplace',
   description: 'Slug Marketplace admin dashboard',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+type Props = {
+  children: React.ReactNode;
+};
+
+export default async function RootLayout({ children }: Props) {
+  const store = await cookies();
+  const currentLocale = store.get('locale')?.value ?? 'en';
+
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang={currentLocale}>
+      <body>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      </body>
     </html>
   );
 }

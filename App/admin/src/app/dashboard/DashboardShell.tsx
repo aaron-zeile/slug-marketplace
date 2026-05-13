@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import {useTranslations} from 'next-intl';
 import { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,6 +14,7 @@ import SimpleCharts from './charts/chart';
 export default function DashboardShell({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+  const t = useTranslations('Dashboard');
 
   if (!mounted) return null;
 
@@ -21,7 +23,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       <AppBar position="static" color="primary" elevation={2}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 1 }}>
-            Slug Marketplace Admin
+            {t('title')}
           </Typography>
           <LogoutButton />
         </Toolbar>
