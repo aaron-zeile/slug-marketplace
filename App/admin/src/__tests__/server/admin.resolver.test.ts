@@ -88,3 +88,43 @@ describe('AdminResolver.login', () => {
     expect(bcrypt.compare).not.toHaveBeenCalled();
   });
 });
+
+describe('AdminResolver.logout', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('destroys the session and returns success', async () => {
+    const mockSession = { destroy: vi.fn() };
+    vi.mocked(getIronSession).mockResolvedValue(mockSession as never);
+
+    const result = await resolver.logout(makeCtx());
+
+    expect(mockSession.destroy).toHaveBeenCalledOnce();
+    expect(result.success).toBe(true);
+  });
+
+  it('calls getIronSession with the request and sessionOptions', async () => {
+    const mockSession = { destroy: vi.fn() };
+    vi.mocked(getIronSession).mockResolvedValue(mockSession as never);
+
+    const ctx = makeCtx();
+    await resolver.logout(ctx);
+
+    expect(getIronSession).toHaveBeenCalledWith(
+      ctx.request,
+      expect.any(Response),
+      expect.objectContaining({ cookieName: 'admin-session' }),
+    );
+  });
+
+  it('does not return a message on successful logout', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ destroy: vi.fn() } as never);
+
+    const result = await resolver.logout(makeCtx());
+
+    expect(result.message).toBeUndefined();
+  });
+});

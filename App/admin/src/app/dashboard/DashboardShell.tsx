@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import {useTranslations} from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -12,8 +12,7 @@ import LogoutButton from './LogoutButton';
 import SimpleCharts from './charts/chart';
 
 export default function DashboardShell({ children, currentLocale }: { children: ReactNode; currentLocale: string }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const t = useTranslations('Dashboard');
 
   if (!mounted) return null;
