@@ -51,9 +51,7 @@ export default function GoogleLogin({
             onLogin?.();
           }
         }}
-        onError={() => {
-          // console.error('[login] Google login button reported an error');
-        }}
+
       />
     </GoogleOAuthProvider>
   );

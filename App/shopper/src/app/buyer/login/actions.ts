@@ -36,9 +36,6 @@ function getLoginServiceUrl() {
 }
 
 function shouldUseSecureLoginCookie() {
-  if (process.env.LOGIN_COOKIE_SECURE !== undefined) {
-    return process.env.LOGIN_COOKIE_SECURE === 'true';
-  }
 
   return process.env.NODE_ENV === 'production';
 }
@@ -52,13 +49,6 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
   //   loginServiceUrl,
   // });
 
-  if (!loginServiceUrl) {
-    // console.error('[login] LOGIN_SERVICE_URL is not configured for shopper');
-
-    return {
-      error: 'Login service unavailable',
-    };
-  }
 
   try {
     response = await fetch(`${loginServiceUrl}/login`, {
@@ -83,28 +73,13 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
   // });
 
   if (!response.ok) {
-    const responseBody = await response.text();
-    let loginError: string | undefined;
-
-    try {
-      const parsedBody = JSON.parse(responseBody) as { message?: unknown };
-      loginError =
-        typeof parsedBody.message === 'string' ? parsedBody.message : undefined;
-    } catch {
-      loginError = undefined;
-    }
-
     // console.error('[login] Login service rejected login', {
     //   status: response.status,
     //   statusText: response.statusText,
-    //   loginError,
-    //   responseBody,
     // });
 
     return {
-      error: loginError
-        ? `Login failed: ${loginError}`
-        : `Login failed with status ${response.status}`,
+      error: 'Login failed',
     };
   }
 
@@ -141,11 +116,6 @@ export async function checkLogin(): Promise<CheckLoginResult> {
     return {};
   }
 
-  if (!loginServiceUrl) {
-    // console.error('[login] LOGIN_SERVICE_URL is not configured for session check');
-
-    return {};
-  }
 
   let response: Response;
 
