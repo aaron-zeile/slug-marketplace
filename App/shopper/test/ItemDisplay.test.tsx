@@ -239,15 +239,15 @@ it('shows listing review summary when reviews are returned', async () => {
 
   render(<ItemDisplay id={mockItem.id} />);
 
+  let summary: HTMLElement | undefined;
   await waitFor(() => {
-    expect(
-      screen.getByRole('status', {
+    summary = screen.getByRole('status', {
         name: 'Average 4.0 stars, 2 reviews',
-      }),
-    ).toBeDefined();
+      });
+    expect(summary).toBeDefined();
   });
-  expect(screen.getByText('4.0')).toBeDefined();
-  expect(screen.getByText(/2 reviews/)).toBeDefined();
+  expect(summary?.textContent).toContain('4.0');
+  expect(summary?.textContent).toContain('2 reviews');
 });
 
 it('uses singular review in listing summary when there is one review', async () => {
