@@ -32,54 +32,60 @@ describe('middleware', () => {
   });
 
   describe('unauthenticated user', () => {
-    it('redirects /dashboard to /login', () => {
-      middleware(makeRequest('/dashboard', false));
+    it('redirects /admin/dashboard to /admin/login', () => {
+      middleware(makeRequest('/admin/dashboard', false));
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({ pathname: '/login' }),
+        expect.objectContaining({ pathname: '/admin/login' }),
       );
     });
 
-    it('redirects /dashboard/accounts to /login', () => {
-      middleware(makeRequest('/dashboard/accounts', false));
+    it('redirects /admin/dashboard/accounts to /admin/login', () => {
+      middleware(makeRequest('/admin/dashboard/accounts', false));
       expect(mockRedirect).toHaveBeenCalled();
     });
 
-    it('allows access to /login', () => {
-      middleware(makeRequest('/login', false));
+    it('allows access to /admin/login', () => {
+      middleware(makeRequest('/admin/login', false));
       expect(mockNext).toHaveBeenCalled();
       expect(mockRedirect).not.toHaveBeenCalled();
     });
 
-    it('allows access to / (root login page)', () => {
-      middleware(makeRequest('/', false));
+    it('allows access to /admin (root)', () => {
+      middleware(makeRequest('/admin', false));
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+
+    it('allows access to /admin/ (trailing slash)', () => {
+      middleware(makeRequest('/admin/', false));
       expect(mockNext).toHaveBeenCalled();
       expect(mockRedirect).not.toHaveBeenCalled();
     });
   });
 
   describe('authenticated user', () => {
-    it('redirects /login to /dashboard', () => {
-      middleware(makeRequest('/login', true));
+    it('redirects /admin/login to /admin/dashboard', () => {
+      middleware(makeRequest('/admin/login', true));
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({ pathname: '/dashboard' }),
+        expect.objectContaining({ pathname: '/admin/dashboard' }),
       );
     });
 
-    it('redirects / to /dashboard', () => {
-      middleware(makeRequest('/', true));
+    it('redirects /admin to /admin/dashboard', () => {
+      middleware(makeRequest('/admin', true));
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({ pathname: '/dashboard' }),
+        expect.objectContaining({ pathname: '/admin/dashboard' }),
       );
     });
 
-    it('allows access to /dashboard', () => {
-      middleware(makeRequest('/dashboard', true));
+    it('allows access to /admin/dashboard', () => {
+      middleware(makeRequest('/admin/dashboard', true));
       expect(mockNext).toHaveBeenCalled();
       expect(mockRedirect).not.toHaveBeenCalled();
     });
 
-    it('allows access to /dashboard/reports', () => {
-      middleware(makeRequest('/dashboard/reports', true));
+    it('allows access to /admin/dashboard/reports', () => {
+      middleware(makeRequest('/admin/dashboard/reports', true));
       expect(mockNext).toHaveBeenCalled();
       expect(mockRedirect).not.toHaveBeenCalled();
     });
