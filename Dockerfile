@@ -37,6 +37,7 @@ COPY App/shopper/next-env.d.ts /home/app/App/shopper/
 
 # Admin
 COPY App/admin/src/ /home/app/App/admin/src/
+COPY App/admin/messages/ /home/app/App/admin/messages/
 COPY App/admin/package.json /home/app/App/admin/
 COPY App/admin/package-lock.json /home/app/App/admin/
 COPY App/admin/next.config.ts /home/app/App/admin/
