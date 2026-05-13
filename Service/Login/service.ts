@@ -72,12 +72,34 @@ function getBearerToken(authorization?: string) {
 
 export class AuthService {
   public async login(credentials: Credentials): Promise<Authenticated> {
+    // console.debug('[login-service] Login request received', {
+    //   hasCredential: Boolean(credentials.credential),
+    //   hasGoogleClientId: Boolean(
+    //     process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? process.env.GOOGLE_CLIENT_ID,
+    //   ),
+    //   hasDatabaseUrl: Boolean(
+    //     process.env.LOGIN_DATABASE_URL ?? process.env.ADMIN_DATABASE_URL,
+    //   ),
+    //   hasAuthSecret: Boolean(process.env.AUTH_SECRET),
+    // });
+
     const payload = await verifyGoogleToken(credentials.credential);
+
+    // console.debug('[login-service] Google token verified', {
+    //   email: payload.email,
+    //   hasName: Boolean(payload.name),
+    //   hasSubject: Boolean(payload.sub),
+    // });
+
     const result = await getDb().query<MemberRow>(
       'SELECT id, email, google_id FROM member WHERE google_id = $1',
       [payload.sub],
     );
     let member = result.rows[0];
+
+    // console.debug('[login-service] Member lookup completed', {
+    //   foundExistingMember: Boolean(member),
+    // });
 
     if (!member) {
       const newMember = await getDb().query<MemberRow>(
@@ -89,6 +111,11 @@ export class AuthService {
         [payload.email, payload.sub],
       );
       member = newMember.rows[0];
+
+      // console.debug('[login-service] Member created or updated from Google login', {
+      //   memberId: member.id,
+      //   email: member.email,
+      // });
     }
 
     const user: SessionUser = {
@@ -109,6 +136,11 @@ export class AuthService {
     authorization?: string,
     _scopes?: string[],
   ): Promise<SessionUser> {
+    // console.debug('[login-service] Session check received', {
+    //   hasAuthorizationHeader: Boolean(authorization),
+    //   hasAuthSecret: Boolean(process.env.AUTH_SECRET),
+    // });
+
     const token = getBearerToken(authorization);
     const payload = jwt.verify(
       token,

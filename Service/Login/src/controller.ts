@@ -17,18 +17,25 @@ interface AuthenticatedRequest extends ExpressRequest {
   user?: SessionUser
 }
 
+interface LoginError {
+  message: string
+}
+
 @Route('login')
 export class AuthController extends Controller {
   @Post()
   @Response('401', 'Unauthorised')
   public async login(
     @Body() credentials: Credentials,
-  ): Promise<Authenticated|undefined> {
+  ): Promise<Authenticated|LoginError> {
     try {
       return await new AuthService().login(credentials)
-    } catch {
+    } catch (error) {
+      // console.error('[login-service] Login failed in controller', error)
       this.setStatus(401)
-      return undefined
+      return {
+        message: error instanceof Error ? error.message : 'Unknown login error',
+      }
     }
   }
 

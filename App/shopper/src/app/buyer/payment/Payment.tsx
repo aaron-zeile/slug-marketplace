@@ -6,13 +6,33 @@ import { Box, Container, Paper, Stack, Typography } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
-  throw new Error("NEXT_PUBLIC_STRIPE_PUBLIC_KEY is not defined");
-}
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+const stripePromise = stripePublicKey ? loadStripe(stripePublicKey) : null;
 
 export default function Payment() {
   const amount = 49.99;
+
+  if (!stripePublicKey) {
+    return (
+      <Container component="main" maxWidth="lg" sx={{ py: 5 }}>
+        <Paper
+          elevation={4}
+          sx={{
+            mx: "auto",
+            p: { xs: 3, sm: 5 },
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography component="h1" sx={{ fontSize: "1.5rem", fontWeight: 700 }}>
+            Payment is not configured
+          </Typography>
+        </Paper>
+      </Container>
+    );
+  }
 
   return (
     <Container component="main" maxWidth="lg" sx={{ py: 5 }}>

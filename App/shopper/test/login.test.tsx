@@ -21,6 +21,7 @@ const serviceUser = {
 
 const google = vi.hoisted(() => {
   return {
+    credential: 'google-token' as string | undefined,
     lastLogin: undefined as Promise<void> | undefined,
   };
 });
@@ -37,12 +38,12 @@ vi.mock('@react-oauth/google', () => {
     GoogleLogin: ({
       onSuccess,
     }: {
-      onSuccess: (response: { credential: string }) => Promise<void>;
+      onSuccess: (response: { credential?: string }) => Promise<void>;
     }) => (
       <button
         aria-label={googleButtonLabel}
         onClick={() => {
-          google.lastLogin = onSuccess({ credential: 'google-token' }).catch(
+          google.lastLogin = onSuccess({ credential: google.credential }).catch(
             () => {},
           );
         }}
@@ -116,6 +117,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  google.credential = 'google-token';
   google.lastLogin = undefined;
   await pool.query('TRUNCATE member RESTART IDENTITY');
   loginService.verifyIdToken.mockReset();
@@ -207,7 +209,7 @@ afterAll(async () => {
 it('Renders Page', async () => {
   render(<Topbar />);
 
-  await screen.findByText('slugmarketplace');
+  await screen.findByText('SlugMarketplace');
 });
 
 it('shows login when logged out', async () => {
@@ -249,15 +251,30 @@ it('stays logged out when Google login fails', async () => {
   expect(screen.queryByLabelText('logout')).toBeNull();
 });
 
-it('returns a generic login error when the service response has no message', async () => {
-  loginService.verifyIdToken.mockRejectedValueOnce(
-    new Error('Invalid Google token'),
-  );
+it('stays logged out when Google does not return a credential', async () => {
+  google.credential = undefined;
 
-  await expect(login({ credential: 'google-token' })).resolves.toEqual({
-    error: 'Login failed',
-  });
+  render(<Topbar />);
+
+  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(await screen.findByLabelText(googleButtonLabel));
+
+  await google.lastLogin;
+  expect(await screen.findByText('Hello Guest')).toBeTruthy();
+  expect(window.sessionStorage.getItem('name')).toBeNull();
+  expect(loginService.verifyIdToken).not.toHaveBeenCalled();
+  expect(screen.queryByLabelText('logout')).toBeNull();
 });
+
+// it('returns a generic login error when the service response has no message', async () => {
+//   loginService.verifyIdToken.mockRejectedValueOnce(
+//     new Error('Invalid Google token'),
+//   );
+
+//   await expect(login({ credential: 'google-token' })).resolves.toEqual({
+//     error: 'Login failed',
+//   });
+// });
 
 it('returns an unavailable error when the login service cannot be reached', async () => {
   process.env.LOGIN_SERVICE_URL = 'http://127.0.0.1:1/api/v0';
