@@ -2,22 +2,41 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import StarRounded from '@mui/icons-material/StarRounded';
 import {
-  Container,
   Divider,
   Box,
   Paper,
   Typography,
   CircularProgress,
   Button,
+  Collapse,
+  Chip,
+  Rating,
 } from '@mui/material';
 import { Item } from '../../../item';
-import { fetchItemAction } from './actions';
+import { fetchItemAction, fetchItemReviewsAction } from './actions';
 import Reviews from './Reviews';
 
 interface Props {
   id: string;
 }
+
+const clipShellSx = {
+  width: '100%',
+  maxWidth: '100%',
+  overflowX: 'hidden',
+} as const;
+
+const priceUnitSx = {
+  fontSize: { xs: '2rem', sm: '2.25rem' },
+  fontWeight: 800,
+  letterSpacing: '-0.04em',
+  fontVariantNumeric: 'tabular-nums' as const,
+  lineHeight: 1.05,
+  color: 'text.primary',
+} as const;
 
 const ItemDisplay = ({ id }: Props) => {
   const router = useRouter();
@@ -25,6 +44,41 @@ const ItemDisplay = ({ id }: Props) => {
   const [loading, setLoading] = useState(true);
 
   const [mainImage, setMainImage] = useState<string>('');
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [reviewSummaryPayload, setReviewSummaryPayload] = useState<{
+    itemId: string;
+    average: number;
+    count: number;
+  } | null>(null);
+
+  useEffect(() => {
+    fetchItemReviewsAction(id).then((result) => {
+      if (
+        !result.success ||
+        result.data === undefined ||
+        result.data.length === 0
+      ) {
+        setReviewSummaryPayload(null);
+        return;
+      }
+      const sum = result.data.reduce((acc, r) => acc + r.rating, 0);
+      const average = sum / result.data.length;
+      setReviewSummaryPayload({
+        itemId: id,
+        average,
+        count: result.data.length,
+      });
+    });
+    return () => {};
+  }, [id]);
+
+  const reviewSummary =
+    reviewSummaryPayload !== null && reviewSummaryPayload.itemId === id
+      ? {
+          average: reviewSummaryPayload.average,
+          count: reviewSummaryPayload.count,
+        }
+      : null;
 
   useEffect(() => {
     fetchItemAction(id).then((result) => {
@@ -40,11 +94,35 @@ const ItemDisplay = ({ id }: Props) => {
 
   if (loading || !item) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper elevation={3} sx={{ p: 4, textAlign: 'center' }}>
-          <CircularProgress />
-        </Paper>
-      </Container>
+      <Box sx={clipShellSx}>
+        <Box
+          component="main"
+          sx={{
+            width: '100%',
+            maxWidth: 'min(100%, 900px)',
+            minWidth: 0,
+            boxSizing: 'border-box',
+            overflowX: 'hidden',
+            mx: 'auto',
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 4 },
+          }}
+        >
+          <Paper
+            elevation={0}
+            sx={{
+              maxWidth: '100%',
+              borderRadius: 2,
+              border: 1,
+              borderColor: 'divider',
+              p: 5,
+              textAlign: 'center',
+            }}
+          >
+            <CircularProgress sx={{ width: 32, height: 32 }} />
+          </Paper>
+        </Box>
+      </Box>
     );
   }
 
@@ -52,161 +130,437 @@ const ItemDisplay = ({ id }: Props) => {
     setMainImage(image);
   };
 
+  const priceFixed = item.price.toFixed(2);
+  const [priceDollars, priceCents] = priceFixed.split('.');
+
   return (
-    <Paper elevation={5}>
+    <Box sx={clipShellSx}>
       <Box
+        component="main"
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          padding: 1,
+          width: '100%',
+          maxWidth: 'min(100%, 900px)',
+          minWidth: 0,
+          boxSizing: 'border-box',
+          overflowX: 'hidden',
+          mx: 'auto',
+          px: { xs: 2, sm: 3 },
+          py: { xs: 2, sm: 4 },
         }}
       >
-        <Box
+        <Paper
+          elevation={0}
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 1,
-            padding: 1,
+            maxWidth: '100%',
+            borderRadius: 2,
+            border: 1,
+            borderColor: 'divider',
+            overflow: 'hidden',
+            boxShadow: '0 10px 48px rgba(15, 23, 42, 0.08)',
           }}
         >
-          <Typography sx={{ fontSize: '1.5rem' }}>{item.name}</Typography>
-          <Typography sx={{ color: 'grey', textAlign: 'center' }}>
-            {item.description}
-          </Typography>
-        </Box>
-        <Box sx={{}}>
-          <Typography sx={{ color: '' }}>Seller: {item.seller.name}</Typography>
-          {/* <Typography>{item.seller.id}</Typography> USE THIS ID TO LINK TO SELLERS PROFILE / STORE?! */}
-        </Box>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {/* Main Image */}
-          <Box
-            sx={{
-              width: '100%',
-              height: '40vh',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <Image
-              key={mainImage}
-              src={mainImage}
-              fill
-              alt="thumbnail"
-              style={{ objectFit: 'contain' }}
-            />
-          </Box>
-          {/* Images to select from */}
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 2,
-            }}
-          >
-            {item.images.map((image: string) => (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <Box
+              sx={{
+                px: { xs: 2, sm: 3 },
+                pt: { xs: 2, sm: 2.5 },
+                pb: 1.5,
+              }}
+            >
               <Box
-                key={image}
-                onClick={() => handleMainImageChange(image)}
                 sx={{
                   position: 'relative',
-                  width: '80px',
-                  height: '80px',
-                  flexShrink: 0,
-                  border:
-                    image !== mainImage
-                      ? '1px solid #ddd'
-                      : '2px solid #c45500',
-                  borderRadius: 1,
+                  width: '100%',
+                  maxWidth: '100%',
+                  minWidth: 0,
+                  height: { xs: 'min(38vh, 340px)', sm: 'min(46vh, 460px)' },
+                  borderRadius: 2,
                   overflow: 'hidden',
-                  cursor: 'pointer',
-                  opacity: image !== mainImage ? 1 : 0.5,
+                  bgcolor: 'grey.50',
+                  border: 1,
+                  borderColor: 'divider',
                 }}
               >
                 <Image
-                  src={image}
+                  key={mainImage}
+                  src={mainImage}
                   fill
                   alt="thumbnail"
+                  sizes="(max-width: 900px) 90vw, 852px"
                   style={{ objectFit: 'contain' }}
                 />
               </Box>
-            ))}
-          </Box>
-        </Box>
+              <Box
+                sx={{
+                  mt: 1.5,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  flexWrap: 'nowrap',
+                  gap: 1.25,
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  py: 1,
+                  px: 0.25,
+                  scrollSnapType: 'x mandatory',
+                  scrollPaddingLeft: 0.25,
+                  WebkitOverflowScrolling: 'touch',
+                  scrollbarWidth: 'thin',
+                  '&::-webkit-scrollbar': { height: 6 },
+                  '&::-webkit-scrollbar-thumb': {
+                    borderRadius: 3,
+                    bgcolor: 'action.disabledBackground',
+                  },
+                  maxWidth: '100%',
+                  minWidth: 0,
+                }}
+              >
+                {item.images.map((image: string) => (
+                  <Box
+                    key={image}
+                    onClick={() => handleMainImageChange(image)}
+                    sx={{
+                      position: 'relative',
+                      width: 88,
+                      height: 88,
+                      flex: '0 0 auto',
+                      scrollSnapAlign: 'start',
+                      borderRadius: 1.5,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      border: 2,
+                      borderColor:
+                        image === mainImage ? 'primary.main' : 'divider',
+                      boxShadow: image === mainImage ? 2 : 0,
+                      opacity: image === mainImage ? 1 : 0.9,
+                      transition:
+                        'opacity 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease',
+                      '&:hover': {
+                        opacity: 1,
+                        transform: 'translateY(-1px)',
+                      },
+                    }}
+                  >
+                    <Image
+                      src={image}
+                      fill
+                      alt="thumbnail"
+                      sizes="88px"
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Box>
 
-        <Divider />
+            <Divider sx={{ borderColor: 'divider' }} />
 
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            gap: 1,
-          }}
-        >
-          <Box>
-            <Typography sx={{ fontWeight: 'bold', fontSize: '3rem' }}>
-              ${item.price.toFixed(2)}
-            </Typography>
-          </Box>
-
-          <Box>
-            <Typography sx={{ color: 'green', fontSize: '2rem' }}>
-              In Stock
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-around',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <Button
-              variant="contained"
+            <Box
               sx={{
-                width: '100%',
-                height: '5vh',
+                px: { xs: 2.5, sm: 4 },
+                pt: { xs: 2.5, sm: 3 },
+                pb: 2,
+                textAlign: 'center',
               }}
             >
-              Add to cart
-            </Button>
-            <Button
-              variant="contained"
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: {
+                    xs: 'clamp(1.45rem, 3.5vw + 0.65rem, 1.875rem)',
+                    sm: '1.875rem',
+                  },
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.14,
+                  color: 'text.primary',
+                  mx: 'auto',
+                  maxWidth: 'min(100%, 34rem)',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
+                  textWrap: 'balance',
+                  WebkitFontSmoothing: 'antialiased',
+                  textRendering: 'optimizeLegibility',
+                }}
+              >
+                {item.name}
+              </Typography>
+              {reviewSummary && (
+                <Box
+                  role="status"
+                  aria-label={`Average ${(Math.round(reviewSummary.average * 10) / 10).toFixed(1)} stars, ${reviewSummary.count} ${reviewSummary.count === 1 ? 'review' : 'reviews'}`}
+                  sx={{
+                    mt: 1.25,
+                    mx: 'auto',
+                    maxWidth: 'min(100%, 40rem)',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 1,
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    component="span"
+                    sx={{ fontWeight: 700, color: 'text.primary' }}
+                  >
+                    {(Math.round(reviewSummary.average * 10) / 10).toFixed(1)}
+                  </Typography>
+                  <Rating
+                    name="listing-average-rating"
+                    value={reviewSummary.average}
+                    max={5}
+                    precision={0.1}
+                    readOnly
+                    size="small"
+                    emptyIcon={
+                      <StarRounded sx={{ opacity: 0.35 }} fontSize="inherit" />
+                    }
+                    icon={<StarRounded fontSize="inherit" />}
+                    sx={{ color: 'warning.main' }}
+                  />
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {reviewSummary.count}{' '}
+                    {reviewSummary.count === 1 ? 'review' : 'reviews'}
+                  </Typography>
+                </Box>
+              )}
+              <Typography
+                variant="body1"
+                sx={{
+                  mt: 2.25,
+                  mx: 'auto',
+                  maxWidth: 'min(100%, 40rem)',
+                  lineHeight: 1.65,
+                  color: 'text.secondary',
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
+                }}
+              >
+                {item.description}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}
+              >
+                <Box
+                  component="span"
+                  sx={{ fontWeight: 600, color: 'text.primary' }}
+                >
+                  Seller: {item.seller.name}
+                </Box>
+              </Typography>
+            </Box>
+
+            <Divider sx={{ borderColor: 'divider' }} />
+
+            <Box sx={{ px: { xs: 2.5, sm: 4 }, py: 3 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2.5,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                    minWidth: 0,
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Box
+                    component="div"
+                    role="group"
+                    aria-label={`$${priceFixed}`}
+                    sx={{
+                      m: 0,
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'baseline',
+                      flexWrap: 'nowrap',
+                      gap: 0,
+                      minWidth: 0,
+                    }}
+                  >
+                    <Typography component="span" sx={priceUnitSx}>
+                      $
+                    </Typography>
+                    <Typography component="span" sx={priceUnitSx}>
+                      {priceDollars}
+                    </Typography>
+                    <Typography component="span" sx={priceUnitSx}>
+                      .{priceCents}
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="In stock"
+                    sx={{
+                      fontWeight: 600,
+                      height: 28,
+                      fontSize: '0.75rem',
+                      bgcolor: 'success.main',
+                      color: 'success.contrastText',
+                      '& .MuiChip-label': { px: 1.5 },
+                    }}
+                  />
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: 1.5,
+                    minWidth: 0,
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    sx={{
+                      width: { xs: '100%', sm: 'auto' },
+                      flex: { sm: 1 },
+                      minWidth: { sm: 0 },
+                      py: 1.25,
+                      px: 2,
+                      minHeight: 48,
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                    }}
+                  >
+                    Add to cart
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      width: { xs: '100%', sm: 'auto' },
+                      flex: { sm: 1 },
+                      minWidth: { sm: 0 },
+                      py: 1.25,
+                      px: 2,
+                      minHeight: 48,
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                    }}
+                  >
+                    Add to wishlist
+                  </Button>
+                </Box>
+
+                <Box
+                  sx={{
+                    width: '100%',
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <Box
+                    role="button"
+                    onClick={() => setDetailsOpen((open) => !open)}
+                    aria-expanded={detailsOpen}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 1,
+                      px: 1.75,
+                      py: 1.35,
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      borderBottom: detailsOpen ? 1 : 0,
+                      borderColor: 'divider',
+                      '&:hover': { bgcolor: 'action.hover' },
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ color: 'text.secondary' }}
+                    >
+                      Details
+                    </Typography>
+                    <KeyboardArrowDown
+                      sx={{
+                        color: 'action.active',
+                        flexShrink: 0,
+                        transition: 'transform 0.2s ease',
+                        transform: detailsOpen
+                          ? 'rotate(180deg)'
+                          : 'rotate(0deg)',
+                      }}
+                      aria-hidden
+                    />
+                  </Box>
+                  <Collapse in={detailsOpen} unmountOnExit>
+                    <Box
+                      sx={{
+                        px: 1.75,
+                        py: 1.75,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                        bgcolor: 'grey.50',
+                      }}
+                    >
+                      <Typography variant="body2">
+                        Seller: {item.seller.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary' }}
+                      >
+                        Created:{' '}
+                        {new Date(item.created_at).toLocaleString(undefined, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          wordBreak: 'break-all',
+                          color: 'grey.600',
+                          fontFamily:
+                            'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                          letterSpacing: 0.02,
+                        }}
+                      >
+                        Item ID: {item.id}
+                      </Typography>
+                    </Box>
+                  </Collapse>
+                </Box>
+              </Box>
+            </Box>
+
+            <Box
               sx={{
-                width: '100%',
-                height: '5vh',
-                backgroundColor: 'gold',
-                color: 'black',
+                px: { xs: 2.5, sm: 4 },
+                py: 3,
+                borderTop: 1,
+                borderColor: 'divider',
+                bgcolor: 'grey.50',
               }}
             >
-              Add to wishlist
-            </Button>
+              <Reviews id={item.id} />
+            </Box>
           </Box>
-
-          {/* USE THIS MAYBE?
-          <Box>
-            <Typography>Item ID</Typography>
-            <Typography>{item.id}</Typography>
-          </Box> */}
-
-          <Box>
-            <Typography sx={{ color: 'gray' }}>
-              Created {new Date(item.created_at).toLocaleDateString()}
-            </Typography>
-          </Box>
-        </Box>
-        {/* REVIEWS GO HERE */}
-        <Reviews id={item.id} />
+        </Paper>
       </Box>
-    </Paper>
+    </Box>
   );
 };
 
