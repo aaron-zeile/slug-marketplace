@@ -1,5 +1,5 @@
 import cors from 'cors'
-import express, { Express, Request, Response } from 'express'
+import express, { Express, NextFunction, Request, Response } from 'express'
 import fs from 'fs'
 import path from 'path'
 import swaggerUi from 'swagger-ui-express'
@@ -21,6 +21,14 @@ app.use(
 const router = express.Router()
 RegisterRoutes(router)
 app.use('/api/v0', router)
+
+app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  // console.error('[login-service] Request failed', error)
+
+  res.status(500).json({
+    message: error instanceof Error ? error.message : 'Login service error',
+  })
+})
 
 app.use('/docs', swaggerUi.serve, async (_req: Request, res: Response) => {
   const swaggerDocument = JSON.parse(

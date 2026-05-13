@@ -45,9 +45,23 @@ function shouldUseSecureLoginCookie() {
 
 export async function login(credentials: Credentials): Promise<LoginResult> {
   let response: Response;
+  const loginServiceUrl = getLoginServiceUrl();
+
+  // console.debug('[login] Shopper server action starting login', {
+  //   hasCredential: Boolean(credentials.credential),
+  //   loginServiceUrl,
+  // });
+
+  if (!loginServiceUrl) {
+    // console.error('[login] LOGIN_SERVICE_URL is not configured for shopper');
+
+    return {
+      error: 'Login service unavailable',
+    };
+  }
 
   try {
-    response = await fetch(`${getLoginServiceUrl()}/login`, {
+    response = await fetch(`${loginServiceUrl}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,14 +70,41 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
       cache: 'no-store',
     });
   } catch {
+    // console.error('[login] Shopper could not reach login service', error);
+
     return {
       error: 'Login service unavailable',
     };
   }
 
+  // console.debug('[login] Login service responded', {
+  //   ok: response.ok,
+  //   status: response.status,
+  // });
+
   if (!response.ok) {
+    const responseBody = await response.text();
+    let loginError: string | undefined;
+
+    try {
+      const parsedBody = JSON.parse(responseBody) as { message?: unknown };
+      loginError =
+        typeof parsedBody.message === 'string' ? parsedBody.message : undefined;
+    } catch {
+      loginError = undefined;
+    }
+
+    // console.error('[login] Login service rejected login', {
+    //   status: response.status,
+    //   statusText: response.statusText,
+    //   loginError,
+    //   responseBody,
+    // });
+
     return {
-      error: 'Login failed',
+      error: loginError
+        ? `Login failed: ${loginError}`
+        : `Login failed with status ${response.status}`,
     };
   }
 
@@ -89,23 +130,42 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
 export async function checkLogin(): Promise<CheckLoginResult> {
   const cookieStore = await getLoginCookieStore();
   const token = cookieStore.get('session')?.value;
+  const loginServiceUrl = getLoginServiceUrl();
+
+  // console.debug('[login] Checking login session', {
+  //   hasToken: Boolean(token),
+  //   loginServiceUrl,
+  // });
 
   if (!token) {
+    return {};
+  }
+
+  if (!loginServiceUrl) {
+    // console.error('[login] LOGIN_SERVICE_URL is not configured for session check');
+
     return {};
   }
 
   let response: Response;
 
   try {
-    response = await fetch(`${getLoginServiceUrl()}/login/check`, {
+    response = await fetch(`${loginServiceUrl}/login/check`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       cache: 'no-store',
     });
   } catch {
+    // console.error('[login] Shopper could not reach login service for session check', error);
+
     return {};
   }
+
+  // console.debug('[login] Login check responded', {
+  //   ok: response.ok,
+  //   status: response.status,
+  // });
 
   if (!response.ok) {
     return {};
