@@ -6,7 +6,7 @@ import ReportsPage from '@/app/dashboard/reports/page';
 import ReviewsPage from '@/app/dashboard/reviews/page';
 import ListingsPage from '@/app/dashboard/listings/page';
 import LoginPage from '@/app/login/page';
-import { LogoutPage } from '@/app/dashboard/logout';
+import { LogoutPage } from '@/components/dashboard/LogoutPage';
 
 describe('AccountsPage', () => {
   it('renders the Accounts heading', () => {

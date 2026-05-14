@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
-import DashboardShell from './DashboardShell';
+import DashboardShell from '@/components/dashboard/DashboardShell';
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const store = await cookies();

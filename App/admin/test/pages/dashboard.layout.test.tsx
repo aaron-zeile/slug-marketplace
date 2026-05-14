@@ -7,7 +7,7 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
-vi.mock('@/app/dashboard/DashboardShell', () => ({
+vi.mock('@/components/dashboard/DashboardShell', () => ({
   default: ({ children, currentLocale }: { children: React.ReactNode; currentLocale: string }) => (
     <div data-testid="dashboard-shell" data-locale={currentLocale}>
       {children}

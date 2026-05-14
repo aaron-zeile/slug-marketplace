@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useSyncExternalStore } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Resolver, Query } from 'type-graphql';
-import { MonthlyProfit } from './types';
+import { MonthlyProfit } from '../types';
 import sql from '@/lib/db';
 
 @Resolver()

@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { createYoga, type Plugin } from 'graphql-yoga';
-import { AdminResolver } from './schema/admin.resolver';
-import { ProfitResolver } from './schema/profit.resolver';
+import { AdminResolver } from './resolvers/admin.resolver';
+import { ProfitResolver } from './resolvers/profit.resolver';
 
 export type GraphQLContext = {
   request: Request;

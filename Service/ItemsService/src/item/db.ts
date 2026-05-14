@@ -1,6 +1,36 @@
 import { pool } from '../db';
 import { Item, ItemId, RandomItemsInput, SearchItemsInput, SellerId } from './schema';
 
+
+export const getAllItems = async (): Promise<Item[]> => {
+  const select = `
+    SELECT
+      id,
+      jsonb_build_object(
+        'id', data->>'sellerId',
+        'name', data->>'sellerName'
+      ) AS seller,
+      data->>'name' AS name,
+      data->>'description' AS description,
+      data->'images' AS images,
+      (data->>'price')::numeric AS price,
+      (data->>'created_at')::timestamptz AS created_at
+    FROM item
+    ORDER BY (data->>'created_at')::timestamptz DESC NULLS LAST
+  `;
+  const { rows } = await pool.query<Item>(select);
+  return rows;
+};
+
+export const deleteItembyID = async (itemId: ItemId): Promise<void> => {
+  const select = `
+    DELETE FROM item
+    WHERE id = $1;
+  `;
+  const values = [itemId.id];
+  await pool.query(select, values);
+}
+
 export const getItem = async (itemId: ItemId): Promise<Item> => {
   const select = `
     SELECT

@@ -6,15 +6,15 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock('@/app/dashboard/LogoutButton', () => ({
+vi.mock('@/components/dashboard/LogoutButton', () => ({
   default: () => <button>Logout</button>,
 }));
 
-vi.mock('@/app/dashboard/charts/chart', () => ({
+vi.mock('@/components/dashboard/charts/chart', () => ({
   default: () => <div data-testid="simple-charts" />,
 }));
 
-import DashboardShell from '@/app/dashboard/DashboardShell';
+import DashboardShell from '@/components/dashboard/DashboardShell';
 
 describe('DashboardShell', () => {
   beforeEach(() => {

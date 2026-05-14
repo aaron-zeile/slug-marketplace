@@ -5,7 +5,7 @@ vi.mock('@mui/x-charts/BarChart', () => ({
   BarChart: () => <div data-testid="bar-chart" />,
 }));
 
-import SimpleCharts from '@/app/dashboard/charts/chart';
+import SimpleCharts from '@/components/dashboard/charts/chart';
 
 function mockFetch(monthlyProfit: { month: string; profit: number }[]) {
   global.fetch = vi.fn().mockResolvedValue({

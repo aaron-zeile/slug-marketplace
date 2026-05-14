@@ -6,7 +6,7 @@ vi.mock('@/lib/db', () => ({ default: mockSql }));
 vi.mock('bcryptjs', () => ({ default: { compare: vi.fn() } }));
 vi.mock('iron-session', () => ({ getIronSession: vi.fn() }));
 
-import { AdminResolver } from '@/graphql/schema/admin.resolver';
+import { AdminResolver } from '@/graphql/resolvers/admin.resolver';
 import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
 

@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { cookies } from 'next/headers';
-import LocaleSwitcher from './localeSwitcher/localeSwitcher';
+import LocaleSwitcher from '@/components/dashboard/localeSwitcher/localeSwitcher';
 
 
 export default async function DashboardPage() {

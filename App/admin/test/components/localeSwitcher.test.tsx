@@ -6,7 +6,7 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: mockRefresh }),
 }));
 
-import LocaleSwitcher from '@/app/dashboard/localeSwitcher/localeSwitcher';
+import LocaleSwitcher from '@/components/dashboard/localeSwitcher/localeSwitcher';
 
 describe('LocaleSwitcher', () => {
   beforeEach(() => {

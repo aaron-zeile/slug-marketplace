@@ -4,7 +4,7 @@ import 'reflect-metadata';
 const { mockSql } = vi.hoisted(() => ({ mockSql: vi.fn() }));
 vi.mock('@/lib/db', () => ({ default: mockSql }));
 
-import { ProfitResolver } from '@/graphql/schema/profit.resolver';
+import { ProfitResolver } from '@/graphql/resolvers/profit.resolver';
 
 describe('ProfitResolver.monthlyProfit', () => {
   const resolver = new ProfitResolver();

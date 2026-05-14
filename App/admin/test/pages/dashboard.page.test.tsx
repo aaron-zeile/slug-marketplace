@@ -7,7 +7,7 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
-vi.mock('@/app/dashboard/localeSwitcher/localeSwitcher', () => ({
+vi.mock('@/components/dashboard/localeSwitcher/localeSwitcher', () => ({
   default: ({ currentLocale }: { currentLocale: string }) => (
     <div data-testid="locale-switcher" data-locale={currentLocale} />
   ),

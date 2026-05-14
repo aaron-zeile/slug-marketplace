@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Resolver, Query, Mutation, Arg, Ctx } from 'type-graphql';
 import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
-import { AuthPayload } from './types';
+import { AuthPayload } from '../types';
 import sql from '@/lib/db';
 import { sessionOptions, type AdminSession } from '@/lib/auth';
 import type { GraphQLContext } from '../server';
@@ -44,11 +44,11 @@ export class AdminResolver {
 
     return { success: true };
   }
-  
+
   @Mutation(() => AuthPayload)
   async logout(
     @Ctx() ctx: GraphQLContext,
-  ) : Promise<AuthPayload> {
+  ): Promise<AuthPayload> {
     const tempResponse = new Response();
     const session = await getIronSession<AdminSession>(ctx.request, tempResponse, sessionOptions);
     await session.destroy();

@@ -1,4 +1,4 @@
-import { Arg, Query, Resolver } from 'type-graphql';
+import { Arg, Query, Resolver, Mutation } from 'type-graphql';
 import {
   Item,
   ItemId,
@@ -18,6 +18,18 @@ export class ItemResolver {
   @Query(() => [Item])
   async sellerItems(@Arg('input') sellerId: SellerId): Promise<Item[]> {
     return new ItemService().getSellerItems(sellerId);
+  }
+
+
+  @Mutation(() => Boolean)
+  async deleteItem(@Arg('input') itemId: ItemId): Promise<boolean> {
+    await new ItemService().deleteItem(itemId);
+    return true;
+  }
+
+  @Query(() => [Item])
+  async allItems(): Promise<Item[]> {
+    return new ItemService().getAllItems();
   }
 
   @Query(() => [Item])
