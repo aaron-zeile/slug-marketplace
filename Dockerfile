@@ -46,7 +46,7 @@ COPY App/admin/next-env.d.ts /home/app/App/admin/
 
 # Seller
 COPY App/seller/shared/ /home/app/App/seller/shared/
-COPY App/seller/dist/ /home/app/App/seller/dist/
+# COPY App/seller/dist/ /home/app/App/seller/dist/
 COPY App/seller/client/ /home/app/App/seller/client/
 COPY App/seller/server/ /home/app/App/seller/server/
 COPY App/seller/package.json /home/app/App/seller/
@@ -62,5 +62,6 @@ ARG ADMIN_DATABASE_URL
 ENV ADMIN_DATABASE_URL=$ADMIN_DATABASE_URL
 
 RUN cd App/admin && npm run build
+RUN cd App/seller && npm run build
 
 CMD ["npm", "start"]
