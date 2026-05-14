@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 
-import { checkLogin, logout } from '../login/actions';
+import { checkLogin, logout, type CheckLoginResult } from '../login/actions';
 import GoogleLogin from '../login/GoogleLogin';
 import { useRouter } from 'next/navigation';
 import CartButton from './CartButton';
@@ -41,7 +41,7 @@ export default function Topbar() {
 
     async function loadSession() {
       const storedName = window.sessionStorage.getItem('name');
-      const result = await checkLogin().catch(() => ({}));
+      const result: CheckLoginResult = await checkLogin().catch(() => ({}));
 
       if (!active) {
         return;
