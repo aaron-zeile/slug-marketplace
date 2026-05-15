@@ -2,17 +2,19 @@ import React from 'react'
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-import { DashboardContext } from './Context'
+import { TabContext } from './Context'
 
-interface DashboardProviderProps {
+interface TabProviderProps {
   children: ReactNode;
 }
 
-export const DashboardProvider: React.FC<DashboardProviderProps> = ({ children }) => {
+export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
   const [tabValue, setTab] = useState(0);
   return (
-    <DashboardContext.Provider value={{ tabValue, setTab }}>
+    <TabContext.Provider value={{ tabValue, setTab }}>
       {children}
-    </DashboardContext.Provider>
+    </TabContext.Provider>
   );
 };
+
+export const DashboardProvider = TabProvider;

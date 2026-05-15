@@ -25,6 +25,7 @@ export default function NavTabs() {
         <Tab label="Listings" {...tabProps(0)} />
         <Tab label="Sales" {...tabProps(1)} />
         <Tab label="Feedback" {...tabProps(2)} />
+        <Tab label="Create Listing" {...tabProps(3)} />
       </Tabs>
     </Box>
   );

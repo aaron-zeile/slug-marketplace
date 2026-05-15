@@ -1,7 +1,11 @@
 import React from 'react'
 
 import { ErrorProvider } from './error/Provider'
-import Dashboard from './dashboard';
+import TopBar from './dashboard/Appbar'
+import SellerListings from './dashboard/Listings'
+import CreateListing from './dashboard/CreateListing'
+import { TabProvider } from './dashboard/Provider'
+import { useDashboard } from './dashboard/useDashboard'
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -16,11 +20,31 @@ const theme = createTheme({
   },
 });
 
+function AppContent() {
+  const { tabValue } = useDashboard()
+
+  let content = null
+  if (tabValue === 0) {
+    content = <SellerListings/>
+  }
+  if (tabValue === 3) {
+    content = <CreateListing/>
+  }
+  return (
+    <>
+      <TopBar/>
+      {content}
+    </>
+  )
+}
+
 export function App() {
   return (
     <ThemeProvider theme={theme}>
       <ErrorProvider>
-        <Dashboard/>
+        <TabProvider>
+          <AppContent/>
+        </TabProvider>
       </ErrorProvider>
     </ThemeProvider>
   );

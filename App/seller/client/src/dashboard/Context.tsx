@@ -1,8 +1,8 @@
 import { createContext } from "react";
 
-interface DashboardContextProps {
+interface TabContextProps {
   tabValue: number
   setTab: (value: number) => void
 }
 
-export const DashboardContext = createContext<DashboardContextProps | undefined>(undefined);
+export const TabContext = createContext<TabContextProps | undefined>(undefined);
