@@ -1,12 +1,27 @@
-import { Arg, Query, Resolver } from 'type-graphql';
-import { Review } from './schema';
-import { ReviewService } from './service';
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+
+import type { ItemsGraphQLContext } from '../auth/context';
 import { ItemId } from '../item/schema';
+import { NewReview, Review } from './schema';
+import { ReviewService } from './service';
 
 @Resolver()
 export class ReviewResolver {
   @Query(() => [Review])
   async reviews(@Arg('input') item: ItemId): Promise<Review[]> {
     return new ReviewService().getReviews(item);
+  }
+
+  @Mutation(() => Review)
+  @Authorized()
+  async createReview(
+    @Arg('input') input: NewReview,
+    @Ctx() ctx: ItemsGraphQLContext,
+  ): Promise<Review> {
+    const user = ctx.user;
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+    return new ReviewService().createReview(user, input);
   }
 }

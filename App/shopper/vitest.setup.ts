@@ -32,7 +32,6 @@ vi.mock('next/navigation', () => {
   };
 });
 
-// 🚨 THIS IS THE MISSING PIECE (your crash fix)
 vi.mock('next/headers', () => {
   return {
     cookies: () => ({

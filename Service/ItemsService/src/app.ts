@@ -6,8 +6,8 @@ import expressPlayground from 'graphql-playground-middleware-express';
 import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 
+import { expressAuthChecker } from './auth/checker';
 import { resolvers } from './resolvers';
-// import { expressAuthChecker } from './auth/checker'
 
 const app: Express = express();
 
@@ -25,7 +25,7 @@ async function bootstrap() {
   const schema = await buildSchema({
     resolvers: resolvers,
     validate: true,
-    // authChecker: expressAuthChecker,
+    authChecker: expressAuthChecker,
 
     emitSchemaFile: {
       path: path.resolve(__dirname, '../build/schema.gql'),

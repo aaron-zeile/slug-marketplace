@@ -1,5 +1,6 @@
 'use server';
 
+import { check, getSessionToken, type SessionUser } from '../../../server/auth/service';
 import { getLoginCookieStore } from './cookies';
 
 export interface Authenticated {
@@ -10,12 +11,6 @@ export interface Authenticated {
 
 export interface Credentials {
   credential: string;
-}
-
-export interface SessionUser {
-  id: string;
-  email: string;
-  name: string;
 }
 
 interface RestAuthenticated extends Authenticated {
@@ -103,47 +98,27 @@ export async function login(credentials: Credentials): Promise<LoginResult> {
 }
 
 export async function checkLogin(): Promise<CheckLoginResult> {
-  const cookieStore = await getLoginCookieStore();
-  const token = cookieStore.get('session')?.value;
-  const loginServiceUrl = getLoginServiceUrl();
+  const token = await getSessionToken();
 
   // console.debug('[login] Checking login session', {
   //   hasToken: Boolean(token),
-  //   loginServiceUrl,
+  //   loginServiceUrl: getLoginServiceUrl(),
   // });
 
   if (!token) {
     return {};
   }
 
-
-  let response: Response;
-
   try {
-    response = await fetch(`${loginServiceUrl}/login/check`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      cache: 'no-store',
-    });
+    const user = await check(token);
+    if (!user) {
+      return {};
+    }
+    return { user };
   } catch {
     // console.error('[login] Shopper could not reach login service for session check', error);
-
     return {};
   }
-
-  // console.debug('[login] Login check responded', {
-  //   ok: response.ok,
-  //   status: response.status,
-  // });
-
-  if (!response.ok) {
-    return {};
-  }
-
-  return {
-    user: (await response.json()) as SessionUser,
-  };
 }
 
 export async function logout() {
