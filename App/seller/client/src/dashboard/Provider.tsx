@@ -16,5 +16,3 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children }) => {
     </TabContext.Provider>
   );
 };
-
-export const DashboardProvider = TabProvider;
