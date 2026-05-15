@@ -14,9 +14,12 @@ import {
   Collapse,
   Chip,
   Rating,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import { Item } from '../../../item';
 import { fetchItemAction, fetchItemReviewsAction } from './actions';
+import { addCartItemAction } from '../../cart/actions';
 import Reviews from './Reviews';
 
 interface Props {
@@ -45,6 +48,8 @@ const ItemDisplay = ({ id }: Props) => {
 
   const [mainImage, setMainImage] = useState<string>('');
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
   const [reviewSummaryPayload, setReviewSummaryPayload] = useState<{
     itemId: string;
     average: number;
@@ -128,6 +133,19 @@ const ItemDisplay = ({ id }: Props) => {
 
   const handleMainImageChange = (image: string) => {
     setMainImage(image);
+  };
+
+  const handleAddToCart = async () => {
+    setAddingToCart(true);
+    const result = await addCartItemAction(item.id);
+
+    if (result.success) {
+      setCartMessage('Added to cart.');
+    } else {
+      setCartMessage('Please sign in to add to cart.');
+    } 
+
+    setAddingToCart(false);
   };
 
   const priceFixed = item.price.toFixed(2);
@@ -423,6 +441,9 @@ const ItemDisplay = ({ id }: Props) => {
                   }}
                 >
                   <Button
+                    aria-label={`add ${item.name} to cart`}
+                    disabled={addingToCart}
+                    onClick={handleAddToCart}
                     variant="contained"
                     sx={{
                       width: { xs: '100%', sm: 'auto' },
@@ -560,6 +581,24 @@ const ItemDisplay = ({ id }: Props) => {
           </Box>
         </Paper>
       </Box>
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        autoHideDuration={4000}
+        open={cartMessage !== null}
+      >
+        <Alert
+          aria-label={cartMessage ?? undefined}
+          severity={
+            cartMessage === 'Added to cart.'
+              ? 'success'
+              : 'warning'
+          }
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {cartMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

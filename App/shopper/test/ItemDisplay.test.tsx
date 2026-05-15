@@ -1,5 +1,6 @@
 import { act, render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { expect, it, beforeEach, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import ItemDisplay from '../src/app/items/[id]/ItemDisplay';
 import { Item } from '../src/item';
 import { Review } from '../src/item/review';
@@ -9,10 +10,15 @@ vi.mock('../src/app/items/[id]/actions', () => ({
   fetchItemReviewsAction: vi.fn(),
 }));
 
+vi.mock('../src/app/cart/actions', () => ({
+  addCartItemAction: vi.fn(),
+}));
+
 import {
   fetchItemAction,
   fetchItemReviewsAction,
 } from '../src/app/items/[id]/actions';
+import { addCartItemAction } from '../src/app/cart/actions';
 
 const mockItem: Item = {
   id: '550e8400-e29b-41d4-a716-446655440000',
@@ -44,6 +50,15 @@ beforeEach(() => {
   vi.mocked(fetchItemReviewsAction).mockResolvedValue({
     success: true,
     data: [],
+  });
+  vi.mocked(addCartItemAction).mockResolvedValue({
+    success: true,
+    data: {
+      id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      member: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      item: mockItem.id,
+      quantity: 1,
+    },
   });
 });
 
@@ -338,4 +353,49 @@ it('calls fetchItemReviewsAction when id changes', async () => {
   await waitFor(() => {
     expect(fetchItemReviewsAction).toHaveBeenCalledWith(otherId);
   });
+});
+
+it('adds the item to cart when Add to cart is clicked', async () => {
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await userEvent.click(
+    await screen.findByLabelText(`add ${mockItem.name} to cart`),
+  );
+
+  expect(addCartItemAction).toHaveBeenCalledWith(mockItem.id);
+  expect(await screen.findByLabelText('Added to cart.')).toBeDefined();
+});
+
+it('shows a sign in alert when Add to cart is clicked while signed out', async () => {
+  vi.mocked(addCartItemAction).mockResolvedValue({
+    success: false,
+    error: 'Not signed in',
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await userEvent.click(
+    await screen.findByLabelText(`add ${mockItem.name} to cart`),
+  );
+
+  expect(
+    await screen.findByLabelText('Please sign in to add to cart.'),
+  ).toBeDefined();
+});
+
+it('does not show added message when signed out add to cart fails', async () => {
+  vi.mocked(addCartItemAction).mockResolvedValue({
+    success: false,
+    error: 'Not signed in',
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await userEvent.click(
+    await screen.findByLabelText(`add ${mockItem.name} to cart`),
+  );
+
+  expect(addCartItemAction).toHaveBeenCalledWith(mockItem.id);
+  await screen.findByLabelText('Please sign in to add to cart.');
+  expect(screen.queryByLabelText('Added to cart.')).toBeNull();
 });

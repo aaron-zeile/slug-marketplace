@@ -10,9 +10,12 @@ import {
   Typography,
 } from '@mui/material';
 import { Item } from '../../item';
+import { addCartItemAction, removeCartItemAction } from './actions';
 
 interface CartItemProps {
   item: Item;
+  quantity?: number;
+  onQuantityChange?: (itemId: string, quantity: number) => void;
 }
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -20,13 +23,34 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-export default function CartItem({ item }: CartItemProps) {
+export default function CartItem({
+  item,
+  quantity = 1,
+  onQuantityChange,
+}: CartItemProps) {
   const router = useRouter();
   const image = item.images[0];
+
+  const handleDecrease = async () => {
+    const result = await removeCartItemAction(item.id);
+
+    if (result.success) {
+      onQuantityChange?.(item.id, quantity - 1);
+    }
+  };
+
+  const handleIncrease = async () => {
+    const result = await addCartItemAction(item.id);
+
+    if (result.success) {
+      onQuantityChange?.(item.id, quantity + 1);
+    }
+  };
 
   return (
     <Box
       sx={{
+        boxSizing: 'border-box',
         display: 'grid',
         gridTemplateColumns: { xs: '116px 1fr', sm: '168px 1fr' },
         alignItems: 'stretch',
@@ -149,6 +173,7 @@ export default function CartItem({ item }: CartItemProps) {
         >
           <IconButton
             aria-label={`decrease quantity ${item.name}`}
+            onClick={handleDecrease}
             size="small"
             sx={{ borderRadius: 0 }}
           >
@@ -164,10 +189,11 @@ export default function CartItem({ item }: CartItemProps) {
               lineHeight: 1,
             }}
           >
-            1
+            {quantity}
           </Typography>
           <IconButton
             aria-label={`increase quantity ${item.name}`}
+            onClick={handleIncrease}
             size="small"
             sx={{ borderRadius: 0 }}
           >
