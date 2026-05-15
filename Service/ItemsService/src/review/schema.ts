@@ -1,5 +1,11 @@
 import { Length, Max, Min } from 'class-validator';
-import { Field, Float, GraphQLISODateTime, ObjectType } from 'type-graphql';
+import {
+  Field,
+  Float,
+  GraphQLISODateTime,
+  InputType,
+  ObjectType,
+} from 'type-graphql';
 
 @ObjectType()
 export class ReviewUser {
@@ -29,4 +35,19 @@ export class Review {
 
   @Field(() => GraphQLISODateTime)
   created_at!: Date;
+}
+
+@InputType()
+export class NewReview {
+  @Field()
+  itemId!: string;
+
+  @Field(() => Float)
+  @Min(1)
+  @Max(5)
+  rating!: number;
+
+  @Field()
+  @Length(1, 1024)
+  comment!: string;
 }
