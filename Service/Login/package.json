@@ -49,6 +49,7 @@
     "build": "tsc",
     "predev": "npm run swagger",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
+    "dev:serve": "nodemon --watch server.ts --watch app.ts --watch service.ts --watch src --ignore src/generated --ignore generated --ignore swagger.json --exec ts-node server.ts",
     "swagger": "tsoa spec-and-routes",
     "lint": "eslint *.ts --fix"
   }

@@ -1,5 +1,12 @@
 import { Length, Min } from 'class-validator';
-import { Field, GraphQLISODateTime, InputType, Int, ObjectType } from 'type-graphql';
+import {
+  Field,
+  Float,
+  GraphQLISODateTime,
+  InputType,
+  Int,
+  ObjectType,
+} from 'type-graphql';
 
 @ObjectType()
 export class Seller {
@@ -40,6 +47,24 @@ export class Item {
 export class ItemId {
   @Field()
   id!: string;
+}
+
+@InputType()
+export class NewItem {
+  @Field()
+  @Length(1, 256)
+  name!: string;
+
+  @Field()
+  @Length(1, 1024)
+  description!: string;
+
+  @Field(() => [String])
+  images!: string[];
+
+  @Field(() => Float)
+  @Min(0)
+  price!: number;
 }
 
 @InputType('SellerId')

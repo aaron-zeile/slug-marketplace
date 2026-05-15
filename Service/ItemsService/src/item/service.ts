@@ -1,5 +1,21 @@
-import { getItem, getRandomItems, getSearchItems, getSellerItems, getAllItems, deleteItembyID } from './db';
-import { Item, ItemId, RandomItemsInput, SearchItemsInput, SellerId } from './schema';
+import type { SessionUser } from '../auth/service';
+import {
+  createItem,
+  deleteItembyID,
+  getAllItems,
+  getItem,
+  getRandomItems,
+  getSearchItems,
+  getSellerItems,
+} from './db';
+import {
+  Item,
+  ItemId,
+  NewItem,
+  RandomItemsInput,
+  SearchItemsInput,
+  SellerId,
+} from './schema';
 
 export class ItemService {
   public async getAllItems(): Promise<Item[]> {
@@ -7,8 +23,26 @@ export class ItemService {
     return allItems;
   }
 
-  public async deleteItem(itemId: ItemId): Promise<void> {
-    await deleteItembyID(itemId);
+  public async deleteItem(
+    sessionUser: SessionUser,
+    itemId: ItemId,
+  ): Promise<void> {
+    const deleted = await deleteItembyID(itemId, sessionUser.id);
+
+    if (!deleted) {
+      throw new Error('Item not found or user does not own item');
+    }
+  }
+
+  public async createItem(
+    sessionUser: SessionUser,
+    input: NewItem,
+  ): Promise<Item> {
+    const item = await createItem({
+      input,
+      seller: { id: sessionUser.id, name: sessionUser.name },
+    });
+    return item;
   }
 
   public async getItem(itemId: ItemId): Promise<Item> {

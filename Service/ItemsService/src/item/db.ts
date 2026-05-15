@@ -1,5 +1,12 @@
 import { pool } from '../db';
-import { Item, ItemId, RandomItemsInput, SearchItemsInput, SellerId } from './schema';
+import {
+  Item,
+  ItemId,
+  NewItem,
+  RandomItemsInput,
+  SearchItemsInput,
+  SellerId,
+} from './schema';
 
 
 export const getAllItems = async (): Promise<Item[]> => {
@@ -22,14 +29,59 @@ export const getAllItems = async (): Promise<Item[]> => {
   return rows;
 };
 
-export const deleteItembyID = async (itemId: ItemId): Promise<void> => {
+export const deleteItembyID = async (
+  itemId: ItemId,
+  sellerId: string,
+): Promise<boolean> => {
   const select = `
     DELETE FROM item
-    WHERE id = $1;
+    WHERE id = $1
+      AND data->>'sellerId' = $2;
   `;
-  const values = [itemId.id];
-  await pool.query(select, values);
+  const values = [itemId.id, sellerId];
+  const result = await pool.query(select, values);
+  return (result.rowCount ?? 0) > 0;
 }
+
+export const createItem = async (params: {
+  input: NewItem;
+  seller: { id: string; name: string };
+}): Promise<Item> => {
+  const data = {
+    sellerId: params.seller.id,
+    sellerName: params.seller.name,
+    name: params.input.name,
+    description: params.input.description,
+    images: params.input.images,
+    price: params.input.price,
+    created_at: new Date().toISOString(),
+  };
+
+  const insert = `
+    INSERT INTO item (data)
+    VALUES ($1::jsonb)
+    RETURNING
+      id,
+      jsonb_build_object(
+        'id', data->>'sellerId',
+        'name', data->>'sellerName'
+      ) AS seller,
+      data->>'name' AS name,
+      data->>'description' AS description,
+      data->'images' AS images,
+      (data->>'price')::numeric AS price,
+      (data->>'created_at')::timestamptz AS created_at;
+  `;
+
+  const { rows } = await pool.query<Item>(insert, [JSON.stringify(data)]);
+
+  const item = rows[0];
+  if (!item) {
+    throw new Error('Failed to create item');
+  }
+
+  return item;
+};
 
 export const getItem = async (itemId: ItemId): Promise<Item> => {
   const select = `

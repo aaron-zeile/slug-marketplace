@@ -6,6 +6,7 @@ const TEMP_SELLER_ID = process.env.TEMP_SELLER_ID || 'dbdb10af-685c-41ff-b8e1-67
 declare module 'express-serve-static-core' {
   interface Request {
     user?: SessionUser
+    sessionToken?: string
   }
 }
 
@@ -40,6 +41,7 @@ export async function doCheck(
     return
   }
 
+  req.sessionToken = token
   const user = await check(token)
 
   if (!user) {

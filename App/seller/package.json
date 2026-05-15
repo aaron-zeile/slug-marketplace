@@ -7,7 +7,9 @@
   "license": "UNLICENSED",
   "repository": "none",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development concurrently -k -n client,server -c blue,green \"vite\" \"tsx watch server/index.ts\"",
+    "predev": "docker compose --env-file ../../Service/Login/.env -f ../../Service/Login/docker-compose.yml up -d items-service login-db",
+    "dev": "cross-env NODE_ENV=development concurrently -k -n seller-client,seller-server,login-service -c blue,green,yellow \"vite\" \"tsx watch server/index.ts\" \"npm --prefix ../../Service/Login run dev:serve\"",
+    "dev:seller": "cross-env NODE_ENV=development concurrently -k -n client,server -c blue,green \"vite\" \"tsx watch server/index.ts\"",
     "build": "npm run clean && vite build && tsc -p tsconfig.server.build.json",
     "start": "cross-env NODE_ENV=production node dist/server/index.js",
     "server": "tsx watch --clear-screen=false server/index.ts",

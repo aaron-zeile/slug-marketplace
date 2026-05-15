@@ -1,7 +1,10 @@
-import { Arg, Query, Resolver, Mutation } from 'type-graphql';
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+
+import type { ItemsGraphQLContext } from '../auth/context';
 import {
   Item,
   ItemId,
+  NewItem,
   RandomItemsInput,
   SearchItemsInput,
   SellerId,
@@ -22,9 +25,30 @@ export class ItemResolver {
 
 
   @Mutation(() => Boolean)
-  async deleteItem(@Arg('input') itemId: ItemId): Promise<boolean> {
-    await new ItemService().deleteItem(itemId);
+  @Authorized()
+  async deleteItem(
+    @Arg('input') itemId: ItemId,
+    @Ctx() ctx: ItemsGraphQLContext,
+  ): Promise<boolean> {
+    const user = ctx.user;
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+    await new ItemService().deleteItem(user, itemId);
     return true;
+  }
+
+  @Mutation(() => Item)
+  @Authorized()
+  async createItem(
+    @Arg('input') input: NewItem,
+    @Ctx() ctx: ItemsGraphQLContext,
+  ): Promise<Item> {
+    const user = ctx.user;
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+    return new ItemService().createItem(user, input);
   }
 
   @Query(() => [Item])

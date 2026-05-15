@@ -14,6 +14,8 @@ app.use(express.json());
 /** API ENDPOINTS HERE **/
 // app.get('/api/listings', listings.get);
 app.get('/seller/api/listings', doCheck, listings.get);
+app.post('/seller/api/listings', doCheck, listings.post);
+app.delete('/seller/api/listings/:id', doCheck, listings.remove);
 
 
 export default app;
