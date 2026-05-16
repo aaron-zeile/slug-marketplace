@@ -27,9 +27,13 @@
 
 DROP TABLE IF EXISTS review;
 DROP TABLE IF EXISTS item;
+DROP TYPE IF EXISTS item_status;
+
+CREATE TYPE item_status AS ENUM ('active', 'sold');
 
 CREATE TABLE item(
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  status item_status NOT NULL DEFAULT 'active',
   data jsonb
 );
 
