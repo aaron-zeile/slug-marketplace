@@ -1,6 +1,11 @@
 'use server';
 
-import { check, getSessionToken, type SessionUser } from '../../../server/auth/service';
+import {
+  check,
+  getLoginServiceBaseUrl,
+  getSessionToken,
+  type SessionUser,
+} from '../../../server/auth/service';
 import { getLoginCookieStore } from './cookies';
 
 export interface Authenticated {
@@ -26,10 +31,6 @@ export interface CheckLoginResult {
   user?: SessionUser;
 }
 
-function getLoginServiceUrl() {
-  return process.env.LOGIN_SERVICE_URL;
-}
-
 function shouldUseSecureLoginCookie() {
 
   return process.env.NODE_ENV === 'production';
@@ -37,7 +38,7 @@ function shouldUseSecureLoginCookie() {
 
 export async function login(credentials: Credentials): Promise<LoginResult> {
   let response: Response;
-  const loginServiceUrl = getLoginServiceUrl();
+  const loginServiceUrl = getLoginServiceBaseUrl();
 
   // console.debug('[login] Shopper server action starting login', {
   //   hasCredential: Boolean(credentials.credential),
@@ -102,7 +103,7 @@ export async function checkLogin(): Promise<CheckLoginResult> {
 
   // console.debug('[login] Checking login session', {
   //   hasToken: Boolean(token),
-  //   loginServiceUrl: getLoginServiceUrl(),
+  //   loginServiceUrl: getLoginServiceBaseUrl(),
   // });
 
   if (!token) {

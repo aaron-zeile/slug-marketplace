@@ -2,7 +2,8 @@ import 'server-only';
 
 import { getLoginCookieStore } from '../../app/buyer/login/cookies';
 
-function loginServiceBaseUrl() {
+/** Same base URL for login/check and login/sign-in flows (respects LOGIN_SERVICE_URL when set). */
+export function getLoginServiceBaseUrl(): string {
   return process.env.LOGIN_SERVICE_URL || 'http://localhost:4010/api/v0';
 }
 
@@ -23,7 +24,7 @@ export async function getSessionToken(): Promise<string | undefined> {
 
 /** Validates a session token with the login service (same contract as seller). */
 export async function check(token: string): Promise<SessionUser | undefined> {
-  const response = await fetch(`${loginServiceBaseUrl()}/login/check`, {
+  const response = await fetch(`${getLoginServiceBaseUrl()}/login/check`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

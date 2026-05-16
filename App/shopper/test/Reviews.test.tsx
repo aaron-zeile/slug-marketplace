@@ -5,9 +5,14 @@ import { Review } from '../src/item/review';
 
 vi.mock('../src/app/items/[id]/actions', () => ({
   fetchItemReviewsAction: vi.fn(),
+  fetchItemReviewSessionAction: vi.fn(),
+  createItemReviewAction: vi.fn(),
 }));
 
-import { fetchItemReviewsAction } from '../src/app/items/[id]/actions';
+import {
+  fetchItemReviewSessionAction,
+  fetchItemReviewsAction,
+} from '../src/app/items/[id]/actions';
 
 const itemId = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -40,6 +45,9 @@ const reviewTwoWordName: Review = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+    loggedIn: false,
+  });
 });
 
 describe('Reviews', () => {

@@ -14,7 +14,8 @@ export const getReviews = async (item: ItemId) => {
   const select = `
     SELECT ${reviewSelectShape}
     FROM review r
-    WHERE r.item = $1;
+    WHERE r.item = $1
+    ORDER BY (r.data->>'created_at')::timestamptz DESC NULLS LAST;
   `;
   const values = [item.id];
   const { rows } = await pool.query<Review>(select, values);

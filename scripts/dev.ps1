@@ -54,5 +54,5 @@ if ($NoStart) {
 Write-Host "Starting login database..."
 docker compose -f Service/Login/docker-compose.yml up -d login-db
 
-Write-Host "Starting marketplace..."
-& npm.cmd start
+Write-Host "Starting marketplace (shopper + ItemsService in dev mode)..."
+& npm.cmd run dev:local

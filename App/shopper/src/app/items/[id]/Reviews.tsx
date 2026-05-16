@@ -10,9 +10,13 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Review } from '../../../item/review';
-import { fetchItemReviewsAction } from './actions';
+import {
+  fetchItemReviewSessionAction,
+  fetchItemReviewsAction,
+} from './actions';
 import ReviewCard from './ReviewCard';
 import ReviewSummary from './ReviewSummary';
+import ReviewWriteForm from './ReviewWriteForm';
 
 interface Props {
   id: string;
@@ -20,25 +24,37 @@ interface Props {
 
 const Reviews = ({ id }: Props) => {
   const [reviews, setReviews] = useState<Review[] | null>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    fetchItemReviewsAction(id).then((result) => {
-      setLoading(true);
-      setErr('');
-      setReviews(null);
-      if (result.success && result.data !== undefined) {
-        setReviews(result.data);
-        setErr('');
-      } else {
+    let cancelled = false;
+
+    setLoading(true);
+    setErr('');
+    setReviews(null);
+
+    Promise.all([
+      fetchItemReviewsAction(id),
+      fetchItemReviewSessionAction(),
+    ]).then(([revRes, sessRes]) => {
+      if (cancelled) {
+        return;
+      }
+      if (!revRes.success || revRes.data === undefined) {
         setErr('Failed to fetch reviews');
         console.error('Failed to fetch reviews');
+      } else {
+        setReviews(revRes.data);
       }
+      setLoggedIn(sessRes.loggedIn);
       setLoading(false);
     });
 
-    return () => {};
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (loading) {
@@ -74,6 +90,21 @@ const Reviews = ({ id }: Props) => {
       >
         Reviews
       </Typography>
+
+      {loggedIn ? (
+        <ReviewWriteForm
+          itemId={id}
+          onReviewCreated={(review) => {
+            setReviews((prev) => (prev ? [review, ...prev] : [review]));
+          }}
+        />
+      ) : (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Sign in with the account button in the top bar to write a review.
+          </Typography>
+        </Box>
+      )}
 
       {list.length === 0 ? (
         <Box

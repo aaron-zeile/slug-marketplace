@@ -8,6 +8,8 @@ import { Review } from '../src/item/review';
 vi.mock('../src/app/items/[id]/actions', () => ({
   fetchItemAction: vi.fn(),
   fetchItemReviewsAction: vi.fn(),
+  fetchItemReviewSessionAction: vi.fn(),
+  createItemReviewAction: vi.fn(),
 }));
 
 vi.mock('../src/app/cart/actions', () => ({
@@ -16,6 +18,7 @@ vi.mock('../src/app/cart/actions', () => ({
 
 import {
   fetchItemAction,
+  fetchItemReviewSessionAction,
   fetchItemReviewsAction,
 } from '../src/app/items/[id]/actions';
 import { addCartItemAction } from '../src/app/cart/actions';
@@ -50,6 +53,9 @@ beforeEach(() => {
   vi.mocked(fetchItemReviewsAction).mockResolvedValue({
     success: true,
     data: [],
+  });
+  vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+    loggedIn: false,
   });
   vi.mocked(addCartItemAction).mockResolvedValue({
     success: true,

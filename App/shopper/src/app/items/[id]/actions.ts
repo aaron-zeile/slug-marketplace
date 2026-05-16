@@ -1,6 +1,7 @@
 'use server';
 
-import { getReviews } from '../../../item/review/service';
+import { checkLogin } from '../../buyer/login/actions';
+import { createReview, getReviews } from '../../../item/review/service';
 import { getItem, getRandomItems } from '../../../item/service';
 
 export async function fetchItemAction(id: string) {
@@ -33,5 +34,32 @@ export async function fetchItemReviewsAction(id: string) {
     console.error('fetchItemReviewsAction error:', error);
     const message = error instanceof Error && error.message;
     return { success: false, error: message };
+  }
+}
+
+export async function fetchItemReviewSessionAction() {
+  try {
+    const { user } = await checkLogin();
+    return { loggedIn: Boolean(user) };
+  } catch {
+    return { loggedIn: false };
+  }
+}
+
+export async function createItemReviewAction(
+  itemId: string,
+  rating: number,
+  comment: string,
+) {
+  try {
+    const review = await createReview(itemId, rating, comment.trim());
+    return { success: true as const, data: review };
+  } catch (error) {
+    console.error('createItemReviewAction error:', error);
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : 'Could not submit review';
+    return { success: false as const, error: message };
   }
 }
