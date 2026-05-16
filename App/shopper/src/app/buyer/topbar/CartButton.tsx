@@ -1,9 +1,11 @@
 'use client';
 
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { IconButton, Tooltip } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+
+const brandColor = '#0f766e';
 
 export default function CartButton() {
   const router = useRouter();
@@ -12,13 +14,20 @@ export default function CartButton() {
   return (
     <Tooltip title={t('tooltip')}>
       <IconButton
-        aria-label="cart button"
+        aria-label={t('openCart')}
         onClick={() => {
           router.push('/cart');
         }}
-        size="small"
+        sx={{
+          bgcolor: 'action.hover',
+          color: 'text.primary',
+          '&:hover': {
+            bgcolor: 'action.selected',
+            color: brandColor,
+          },
+        }}
       >
-        <ShoppingCartIcon />
+        <ShoppingCartOutlinedIcon aria-hidden sx={{ fontSize: 20 }} />
       </IconButton>
     </Tooltip>
   );

@@ -5,19 +5,27 @@
   "Topbar": {
     "hello": "Bonjour {name}",
     "guest": "Invité",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "navigation": "Navigation principale",
+    "openProfileMenu": "Ouvrir le menu du compte",
+    "profileMenu": "Menu du compte"
   },
   "Home": {
     "featuredItems": "Articles en vedette"
   },
   "Search": {
     "placeholder": "Rechercher sur SlugMarketplace",
+    "searchForm": "Rechercher des produits",
+    "searchInput": "Recherche",
+    "submitSearch": "Lancer la recherche",
     "resultsFor": "Résultats de recherche pour {query}",
     "itemsFound": "{count} article(s) trouvé(s)",
     "noResults": "Aucun article ne correspond à votre recherche."
   },
   "Cart": {
     "tooltip": "Panier",
+    "openCart": "Ouvrir le panier",
     "title": "Panier",
     "itemsInCart_one": "{count} article dans votre panier",
     "itemsInCart_other": "{count} articles dans votre panier",
@@ -31,6 +39,7 @@
   },
   "LocaleSwitcher": {
     "label": "Langue",
+    "selectLocale": "Choisir la langue",
     "en": "English",
     "fr": "Français"
   }

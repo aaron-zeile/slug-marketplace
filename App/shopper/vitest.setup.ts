@@ -26,16 +26,28 @@ vi.mock('server-only', () => ({}));
 
 const intlMessages: Record<string, Record<string, string>> = {
   App: { title: 'SlugMarketplace' },
-  Topbar: { hello: 'Hello {name}', guest: 'Guest', logout: 'Logout' },
+  Topbar: {
+    hello: 'Hello {name}',
+    guest: 'Guest',
+    logout: 'Logout',
+    login: 'Login',
+    navigation: 'Main navigation',
+    openProfileMenu: 'Open account menu',
+    profileMenu: 'Account menu',
+  },
   Home: { featuredItems: 'Featured Items' },
   Search: {
     placeholder: 'Search SlugMarketplace',
+    searchForm: 'Search products',
+    searchInput: 'Search',
+    submitSearch: 'Submit search',
     resultsFor: 'Search results for {query}',
     itemsFound: '{count} items found',
     noResults: 'No items match your search.',
   },
   Cart: {
     tooltip: 'Cart',
+    openCart: 'Open cart',
     title: 'Cart',
     itemsInCart_one: '{count} item in your cart',
     itemsInCart_other: '{count} items in your cart',
@@ -47,7 +59,12 @@ const intlMessages: Record<string, Record<string, string>> = {
     increaseQuantityAria: 'Increase quantity for {name}',
     quantityAria: 'Quantity for {name}',
   },
-  LocaleSwitcher: { label: 'Locale', en: 'English', fr: 'Français' },
+  LocaleSwitcher: {
+    label: 'Locale',
+    selectLocale: 'Select language',
+    en: 'English',
+    fr: 'Français',
+  },
 };
 
 function formatMessage(

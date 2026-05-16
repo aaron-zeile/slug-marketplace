@@ -1,10 +1,13 @@
 "use client";
 
 import SearchIcon from "@mui/icons-material/Search";
-import { Box, IconButton, TextField } from "@mui/material";
+import { Box, IconButton, InputAdornment, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SyntheticEvent, useState } from "react";
+
+const brandColor = "#0f766e";
+const brandColorDark = "#0d5c56";
 
 export default function SearchBar() {
   const t = useTranslations("Search");
@@ -25,39 +28,70 @@ export default function SearchBar() {
 
   return (
     <Box
-      aria-label="search form"
+      aria-label={t("searchForm")}
       component="form"
       onSubmit={handleSubmit}
       role="search"
-      sx={{ 
-        display: "flex",
+      sx={{
+        alignItems: "center",
+        bgcolor: "action.hover",
         border: 1,
         borderColor: "divider",
-        borderRadius: 2
+        borderRadius: 999,
+        display: "flex",
+        px: 0.5,
+        transition: (theme) =>
+          theme.transitions.create(["border-color", "background-color", "box-shadow"], {
+            duration: theme.transitions.duration.shorter,
+          }),
+        "&:focus-within": {
+          bgcolor: "background.paper",
+          borderColor: brandColor,
+          boxShadow: `0 0 0 3px ${brandColor}22`,
+        },
       }}
     >
       <TextField
-        fullWidth
         onChange={(event) => setSearchText(event.target.value)}
         placeholder={t("placeholder")}
-        size="small"
         slotProps={{
           htmlInput: {
-            "aria-label": "search",
+            "aria-label": t("searchInput"),
+          },
+          input: {
+            disableUnderline: true,
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={t("submitSearch")}
+                  type="submit"
+                  sx={{
+                    bgcolor: brandColor,
+                    borderRadius: "50%",
+                    color: "#fff",
+                    height: 32,
+                    mr: 0.25,
+                    width: 32,
+                    "&:hover": {
+                      bgcolor: brandColorDark,
+                    },
+                  }}
+                >
+                  <SearchIcon aria-hidden sx={{ fontSize: 18 }} />
+                </IconButton>
+              </InputAdornment>
+            ),
+            sx: {
+              fontSize: "0.95rem",
+              py: 0.75,
+              px: 1.5,
+            },
           },
         }}
+        sx={{ width: "100%" }}
         value={searchText}
+        variant="standard"
       />
-      <IconButton
-        aria-label="submit search"
-        sx={{
-          height: 40,
-          width: 40,
-        }}
-        type="submit"
-      >
-        <SearchIcon />
-      </IconButton>
     </Box>
   );
 }
