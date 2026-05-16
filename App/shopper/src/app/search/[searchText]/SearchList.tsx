@@ -1,4 +1,5 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
+import { getTranslations } from 'next-intl/server';
 import { fetchSearchItemsAction } from './actions';
 import SearchItem from './SearchItem';
 
@@ -7,6 +8,7 @@ interface SearchListProps {
 }
 
 export default async function SearchList({ searchText }: SearchListProps) {
+  const t = await getTranslations('Search');
   const decodedSearchText = decodeURIComponent(searchText);
   const result = await fetchSearchItemsAction(decodedSearchText);
   const items = result.success && result.data ? result.data : [];
@@ -15,16 +17,16 @@ export default async function SearchList({ searchText }: SearchListProps) {
     <Container sx={{ py: 3 }}>
       <Box sx={{ mb: 2 }}>
         <Typography component="h1" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
-          Search results for {decodedSearchText}
+          {t('resultsFor', { query: decodedSearchText })}
         </Typography>
         <Typography sx={{ color: 'text.secondary' }}>
-          {items.length} items found
+          {t('itemsFound', { count: items.length })}
         </Typography>
       </Box>
 
       {items.length === 0 ? (
         <Typography sx={{ color: 'text.secondary' }}>
-          No items match your search.
+          {t('noResults')}
         </Typography>
       ) : (
         <Stack spacing={1}>

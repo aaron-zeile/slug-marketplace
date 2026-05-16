@@ -1,0 +1,37 @@
+{
+  "App": {
+    "title": "SlugMarketplace"
+  },
+  "Topbar": {
+    "hello": "Bonjour {name}",
+    "guest": "Invité",
+    "logout": "Déconnexion"
+  },
+  "Home": {
+    "featuredItems": "Articles en vedette"
+  },
+  "Search": {
+    "placeholder": "Rechercher sur SlugMarketplace",
+    "resultsFor": "Résultats de recherche pour {query}",
+    "itemsFound": "{count} article(s) trouvé(s)",
+    "noResults": "Aucun article ne correspond à votre recherche."
+  },
+  "Cart": {
+    "tooltip": "Panier",
+    "title": "Panier",
+    "itemsInCart_one": "{count} article dans votre panier",
+    "itemsInCart_other": "{count} articles dans votre panier",
+    "loading": "Chargement de votre panier...",
+    "loadError": "Impossible de charger votre panier.",
+    "empty": "Votre panier est vide.",
+    "itemAriaLabel": "Article du panier : {name}",
+    "decreaseQuantityAria": "Diminuer la quantité pour {name}",
+    "increaseQuantityAria": "Augmenter la quantité pour {name}",
+    "quantityAria": "Quantité pour {name}"
+  },
+  "LocaleSwitcher": {
+    "label": "Langue",
+    "en": "English",
+    "fr": "Français"
+  }
+}

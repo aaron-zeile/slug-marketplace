@@ -2,7 +2,9 @@
 
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 import {
   Box,
   CardMedia,
@@ -18,10 +20,12 @@ interface CartItemProps {
   onQuantityChange?: (itemId: string, quantity: number) => void;
 }
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-});
+function localeTagForNumbers(locale: string): string {
+  if (locale.startsWith('fr')) {
+    return 'fr-FR';
+  }
+  return 'en-US';
+}
 
 export default function CartItem({
   item,
@@ -29,6 +33,18 @@ export default function CartItem({
   onQuantityChange,
 }: CartItemProps) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations('Cart');
+
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat(localeTagForNumbers(locale), {
+        style: 'currency',
+        currency: 'USD',
+      }),
+    [locale],
+  );
+
   const image = item.images[0];
 
   const handleDecrease = async () => {
@@ -65,7 +81,7 @@ export default function CartItem({
     >
       <Box
         component="button"
-        aria-label={`Cart Item ${item.name}`}
+        aria-label={t('itemAriaLabel', { name: item.name })}
         onClick={() => router.push(`/items/${item.id}`)}
         sx={{
           appearance: 'none',
@@ -104,7 +120,7 @@ export default function CartItem({
       >
         <Box
           component="button"
-          aria-label={`Cart Item ${item.name}`}
+          aria-label={t('itemAriaLabel', { name: item.name })}
           onClick={() => router.push(`/items/${item.id}`)}
           sx={{
             appearance: 'none',
@@ -172,7 +188,7 @@ export default function CartItem({
           }}
         >
           <IconButton
-            aria-label={`decrease quantity ${item.name}`}
+            aria-label={t('decreaseQuantityAria', { name: item.name })}
             onClick={handleDecrease}
             size="small"
             sx={{ borderRadius: 0 }}
@@ -180,7 +196,7 @@ export default function CartItem({
             <RemoveIcon fontSize="small" />
           </IconButton>
           <Typography
-            aria-label={`quantity ${item.name}`}
+            aria-label={t('quantityAria', { name: item.name })}
             sx={{
               alignItems: 'center',
               display: 'flex',
@@ -192,7 +208,7 @@ export default function CartItem({
             {quantity}
           </Typography>
           <IconButton
-            aria-label={`increase quantity ${item.name}`}
+            aria-label={t('increaseQuantityAria', { name: item.name })}
             onClick={handleIncrease}
             size="small"
             sx={{ borderRadius: 0 }}

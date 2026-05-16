@@ -1,12 +1,14 @@
 'use client';
 
 import { Box, Container, Stack, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import type { CartItem as CartListItem } from '../../cart';
 import CartItem from './CartItem';
 import { fetchCartItemsAction } from './actions';
 
 export default function CartList() {
+  const t = useTranslations('Cart');
   const [cartItems, setCartItems] = useState<CartListItem[]>([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -30,6 +32,11 @@ export default function CartList() {
     total + cartItem.quantity
   ), 0);
 
+  const itemsInCartSummary =
+    itemCount === 1
+      ? t('itemsInCart_one', { count: itemCount })
+      : t('itemsInCart_other', { count: itemCount });
+
   const handleQuantityChange = (itemId: string, quantity: number) => {
     setCartItems((currentCartItems) => (
       currentCartItems
@@ -46,24 +53,24 @@ export default function CartList() {
     <Container sx={{ py: 3 }}>
       <Box sx={{ mb: 2 }}>
         <Typography component="h1" sx={{ fontSize: '1.5rem', fontWeight: 700 }}>
-          Cart
+          {t('title')}
         </Typography>
         <Typography sx={{ color: 'text.secondary' }}>
-          {itemCount} items in your cart
+          {itemsInCartSummary}
         </Typography>
       </Box>
 
       {loading ? (
         <Typography sx={{ color: 'text.secondary' }}>
-          Loading your cart...
+          {t('loading')}
         </Typography>
       ) : error ? (
         <Typography sx={{ color: 'text.secondary' }}>
-          Unable to load your cart.
+          {t('loadError')}
         </Typography>
       ) : cartItems.length === 0 ? (
         <Typography sx={{ color: 'text.secondary' }}>
-          Your cart is empty.
+          {t('empty')}
         </Typography>
       ) : (
         <Stack spacing={1}>

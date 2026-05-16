@@ -83,12 +83,12 @@ it('renders the image', () => {
 
 it('renders the quantity controls', () => {
   renderCartItem();
-  screen.getByLabelText(`quantity GIGABYTE GeForce RTX 5070 WINDFORCE OC SFF 12G Graphics Card`);
+  screen.getByLabelText(`Quantity for ${item.name}`);
 });
 
 it('routes to the item page when the image is clicked', async () => {
   renderCartItem();
-  const [imageLink] = screen.getAllByLabelText(`Cart Item GIGABYTE GeForce RTX 5070 WINDFORCE OC SFF 12G Graphics Card`);
+  const [imageLink] = screen.getAllByLabelText(`Cart item ${item.name}`);
 
   await userEvent.click(imageLink);
 
@@ -97,7 +97,7 @@ it('routes to the item page when the image is clicked', async () => {
 
 it('routes to the item page when the text is clicked', async () => {
   renderCartItem();
-  const [, textLink] = screen.getAllByLabelText(`Cart Item GIGABYTE GeForce RTX 5070 WINDFORCE OC SFF 12G Graphics Card`);
+  const [, textLink] = screen.getAllByLabelText(`Cart item ${item.name}`);
 
   await userEvent.click(textLink);
 
@@ -107,7 +107,7 @@ it('routes to the item page when the text is clicked', async () => {
 it('calls add action and increases quantity when increase is clicked', async () => {
   const onQuantityChange = renderCartItem(2);
 
-  await userEvent.click(screen.getByLabelText(`increase quantity ${item.name}`));
+  await userEvent.click(screen.getByLabelText(`Increase quantity for ${item.name}`));
 
   expect(onQuantityChange).toHaveBeenCalledWith(item.id, 3);
 });
@@ -115,7 +115,7 @@ it('calls add action and increases quantity when increase is clicked', async () 
 it('calls remove action and decreases quantity when decrease is clicked', async () => {
   const onQuantityChange = renderCartItem(2);
 
-  await userEvent.click(screen.getByLabelText(`decrease quantity ${item.name}`));
+  await userEvent.click(screen.getByLabelText(`Decrease quantity for ${item.name}`));
 
   expect(onQuantityChange).toHaveBeenCalledWith(item.id, 1);
 });
@@ -127,7 +127,7 @@ it('does not change quantity when increase action fails', async () => {
   });
   const onQuantityChange = renderCartItem(2);
 
-  await userEvent.click(screen.getByLabelText(`increase quantity ${item.name}`));
+  await userEvent.click(screen.getByLabelText(`Increase quantity for ${item.name}`));
 
   expect(onQuantityChange).not.toHaveBeenCalled();
 });
@@ -139,7 +139,7 @@ it('does not change quantity when decrease action fails', async () => {
   });
   const onQuantityChange = renderCartItem(2);
 
-  await userEvent.click(screen.getByLabelText(`decrease quantity ${item.name}`));
+  await userEvent.click(screen.getByLabelText(`Decrease quantity for ${item.name}`));
 
   expect(onQuantityChange).not.toHaveBeenCalled();
 });

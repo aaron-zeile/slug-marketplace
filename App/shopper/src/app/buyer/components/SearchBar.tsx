@@ -3,9 +3,11 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { Box, IconButton, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { SyntheticEvent, useState } from "react";
 
 export default function SearchBar() {
+  const t = useTranslations("Search");
   const [searchText, setSearchText] = useState("");
   const router = useRouter();
 
@@ -37,7 +39,7 @@ export default function SearchBar() {
       <TextField
         fullWidth
         onChange={(event) => setSearchText(event.target.value)}
-        placeholder="Search SlugMarketplace"
+        placeholder={t("placeholder")}
         size="small"
         slotProps={{
           htmlInput: {

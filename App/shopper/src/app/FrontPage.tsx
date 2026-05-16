@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import ItemCard from './buyer/components/ItemCard';
 import ItemCarousel from './buyer/components/ItemCarousel';
 import { fetchRandomItemsAction } from './items/[id]/actions';
@@ -15,6 +16,7 @@ const toCardItem = (item: Item): CardItem => ({
 });
 
 export default function FrontPage() {
+  const t = useTranslations('Home');
   const [singleItem, setSingleItem] = React.useState<CardItem>();
   const [carouselItems, setCarouselItems] = React.useState<CardItem[]>([]);
 
@@ -35,7 +37,7 @@ export default function FrontPage() {
   return (
     <div>
       {singleItem && <ItemCard item={singleItem} />}
-      <ItemCarousel items={carouselItems} carouselTitle="Featured Items" />
+      <ItemCarousel items={carouselItems} carouselTitle={t('featuredItems')} />
     </div>
   );
 }

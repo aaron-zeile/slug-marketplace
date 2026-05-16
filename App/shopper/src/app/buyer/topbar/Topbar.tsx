@@ -11,11 +11,13 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
+import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import { checkLogin, logout, type CheckLoginResult } from '../login/actions';
 import GoogleLogin from '../login/GoogleLogin';
-import { useRouter } from 'next/navigation';
 import CartButton from './CartButton';
 
 function getAvatarLabel(name: string | null) {
@@ -24,6 +26,8 @@ function getAvatarLabel(name: string | null) {
 
 export default function Topbar() {
   const router = useRouter();
+  const tApp = useTranslations('App');
+  const tTopbar = useTranslations('Topbar');
 
   const [name, setName] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<null | {
@@ -64,6 +68,10 @@ export default function Topbar() {
     handleMenuClose();
   };
 
+  const greeting = name
+    ? tTopbar('hello', { name })
+    : tTopbar('hello', { name: tTopbar('guest') });
+
   return (
     <AppBar position="static" color="default" elevation={1}>
       <Toolbar sx={{ justifyContent: 'space-between', gap: 2 }}>
@@ -73,12 +81,14 @@ export default function Topbar() {
           onClick={() => {
             router.push('/');
           }}
+          sx={{ cursor: 'pointer' }}
         >
-          SlugMarketplace
+          {tApp('title')}
         </Typography>
         <Box sx={{ alignItems: 'center', display: 'flex', gap: 2 }}>
+          <LocaleSwitcher />
           <CartButton />
-          <Typography variant="body1">Hello {name ?? 'Guest'}</Typography>
+          <Typography variant="body1">{greeting}</Typography>
           <IconButton
             aria-label="profile"
             aria-controls={isMenuOpen ? 'profile-menu' : undefined}
@@ -117,7 +127,7 @@ export default function Topbar() {
         >
           {name ? (
             <MenuItem aria-label="logout" onClick={handleLogout}>
-              Logout
+              {tTopbar('logout')}
             </MenuItem>
           ) : (
             <MenuItem aria-label="login" disableRipple>
