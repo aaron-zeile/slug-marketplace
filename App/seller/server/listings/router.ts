@@ -8,8 +8,10 @@ export const get = async (req: Request, res: Response) => {
     return;
   }
 
+  const status = req.query.status === 'sold' ? 'sold' : 'active'
+
   res.json({
-    listings: await new ListingService().getListings(req.user.id),
+    listings: await new ListingService().getListings(req.user.id, status),
   });
 };
 

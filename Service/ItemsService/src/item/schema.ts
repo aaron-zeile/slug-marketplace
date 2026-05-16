@@ -67,10 +67,13 @@ export class NewItem {
   price!: number;
 }
 
-@InputType('SellerId')
-export class SellerId {
+@InputType('SellerItemsInput')
+export class SellerItemsInput {
   @Field()
   id!: string;
+
+  @Field()
+  status!: string;
 }
 
 @InputType('RandomItemsInput')

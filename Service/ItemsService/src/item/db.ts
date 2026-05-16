@@ -5,7 +5,7 @@ import {
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerId,
+  SellerItemsInput
 } from './schema';
 
 
@@ -105,7 +105,7 @@ export const getItem = async (itemId: ItemId): Promise<Item> => {
   return rows[0];
 };
 
-export const getSellerItems = async (sellerId: SellerId): Promise<Item[]> => {
+export const getSellerItems = async (itemsInput: SellerItemsInput): Promise<Item[]> => {
   const select = `
   SELECT
     id,
@@ -120,11 +120,11 @@ export const getSellerItems = async (sellerId: SellerId): Promise<Item[]> => {
     (data->>'created_at')::timestamptz AS created_at
   FROM item
   WHERE data->>'sellerId' = $1
-  AND status = 'active'
+  AND status = $2
   `
   const query = {
     text: select,
-    values: [sellerId.id],
+    values: [itemsInput.id, itemsInput.status],
   }
   const {rows} = await pool.query<Item>(query)
   return rows

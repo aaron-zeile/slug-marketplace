@@ -14,7 +14,7 @@ import {
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerId,
+  SellerItemsInput,
 } from './schema';
 
 export class ItemService {
@@ -51,8 +51,8 @@ export class ItemService {
     return item;
   }
 
-  public async getSellerItems(sellerId: SellerId): Promise<Item[]> {
-    const sellerItems = await getSellerItems(sellerId);
+  public async getSellerItems(itemsInput: SellerItemsInput): Promise<Item[]> {
+    const sellerItems = await getSellerItems(itemsInput);
     return sellerItems;
   }
 

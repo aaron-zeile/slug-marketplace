@@ -7,7 +7,7 @@ import {
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerId,
+  SellerItemsInput
 } from './schema';
 import { ItemService } from './service';
 
@@ -19,8 +19,9 @@ export class ItemResolver {
   }
 
   @Query(() => [Item])
-  async sellerItems(@Arg('input') sellerId: SellerId): Promise<Item[]> {
-    return new ItemService().getSellerItems(sellerId);
+  async sellerItems(
+    @Arg('input') input: SellerItemsInput): Promise<Item[]> {
+    return new ItemService().getSellerItems(input);
   }
 
 
