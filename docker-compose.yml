@@ -31,3 +31,5 @@ services:
       - ./App/admin/db/databases.sql:/docker-entrypoint-initdb.d/08.databases.sql
       - ./App/admin/db/schema.sql:/docker-entrypoint-initdb.d/09.schema.sql
       - ./App/admin/db/data.sql:/docker-entrypoint-initdb.d/10.data.sql
+      - ./Service/Cart/src/sql/databases.sql:/docker-entrypoint-initdb.d/11.databases.sql
+      - ./Service/Cart/src/sql/schema.sql:/docker-entrypoint-initdb.d/12.schema.sql

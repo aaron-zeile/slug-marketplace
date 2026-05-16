@@ -25,6 +25,13 @@ COPY Service/ItemsService/tsconfig.json /home/app/Service/ItemsService/
 COPY Service/ItemsService/package.json /home/app/Service/ItemsService/
 COPY Service/ItemsService/package-lock.json /home/app/Service/ItemsService/
 
+# Cart Service
+COPY Service/Cart/build/ /home/app/Service/Cart/build/
+COPY Service/Cart/src/ /home/app/Service/Cart/src/
+COPY Service/Cart/tsconfig.json /home/app/Service/Cart/
+COPY Service/Cart/package.json /home/app/Service/Cart/
+COPY Service/Cart/package-lock.json /home/app/Service/Cart/
+
 # Shopper
 COPY App/shopper/.next/ /home/app/App/shopper/.next/
 COPY App/shopper/src/ /home/app/App/shopper/src/
