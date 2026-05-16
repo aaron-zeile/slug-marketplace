@@ -48,7 +48,7 @@ Object.defineProperty(HTMLElement.prototype, 'scrollBy', {
 it('scrolls left when left button is clicked', async () => {
   await userEvent.click(screen.getByLabelText('Scroll Featured Items left'));
   expect(scrollBy).toHaveBeenCalledWith({
-    left: -320,
+    left: -280,
     behavior: 'smooth',
   });
 });
@@ -56,7 +56,7 @@ it('scrolls left when left button is clicked', async () => {
 it('scrolls right when right button is clicked', async () => {
   await userEvent.click(screen.getByLabelText('Scroll Featured Items right'));
   expect(scrollBy).toHaveBeenCalledWith({
-    left: 320,
+    left: 280,
     behavior: 'smooth',
   });
 });

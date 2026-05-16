@@ -19,3 +19,10 @@ export function averageRating(reviews: Review[]): number {
 export function formatAverage(value: number): string {
   return (Math.round(value * 10) / 10).toFixed(1);
 }
+
+export function prependReview(
+  prev: Review[] | null,
+  review: Review,
+): Review[] {
+  return prev ? [review, ...prev] : [review];
+}

@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Reviews from '../src/app/items/[id]/Reviews';
 import { Review } from '../src/item/review';
@@ -10,6 +11,7 @@ vi.mock('../src/app/items/[id]/actions', () => ({
 }));
 
 import {
+  createItemReviewAction,
   fetchItemReviewSessionAction,
   fetchItemReviewsAction,
 } from '../src/app/items/[id]/actions';
@@ -30,6 +32,14 @@ const reviewB: Review = {
   rating: 5,
   content: 'Loved it!',
   created_at: '2026-05-02T12:00:00.000Z',
+};
+
+const newReview: Review = {
+  id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+  user: { id: 'u3dddddd-dddd-4ddd-8ddd-dddddddddddd', name: 'Casey' },
+  rating: 5,
+  content: 'Just bought this — works great!',
+  created_at: '2026-05-10T12:00:00.000Z',
 };
 
 const reviewTwoWordName: Review = {
@@ -192,6 +202,153 @@ describe('Reviews', () => {
     await waitFor(() => {
       expect(fetchItemReviewsAction).toHaveBeenCalledWith(itemId);
     });
+  });
+
+  it('shows a sign-in prompt when logged out', async () => {
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: [],
+    });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Sign in with the account button in the top bar to write a review.',
+        ),
+      ).toBeDefined();
+    });
+    expect(screen.queryByText('Write a review')).toBeNull();
+  });
+
+  it('shows the write form when logged in', async () => {
+    vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+      loggedIn: true,
+    });
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: [],
+    });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Write a review')).toBeDefined();
+    });
+    expect(screen.getByLabelText('Comment')).toBeDefined();
+    expect(
+      screen.queryByText(
+        'Sign in with the account button in the top bar to write a review.',
+      ),
+    ).toBeNull();
+  });
+
+  it('submits a review and prepends it to the list', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+      loggedIn: true,
+    });
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: [reviewA],
+    });
+    vi.mocked(createItemReviewAction).mockResolvedValue({
+      success: true,
+      data: newReview,
+    });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(reviewA.content)).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByDisplayValue('5'));
+    fireEvent.change(screen.getByLabelText('Comment'), {
+      target: { value: 'Just bought this — works great!' },
+    });
+    await user.click(screen.getByRole('button', { name: 'Submit review' }));
+
+    await waitFor(() => {
+      expect(createItemReviewAction).toHaveBeenCalledWith(
+        itemId,
+        5,
+        'Just bought this — works great!',
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByText(newReview.content)).toBeDefined();
+    });
+    expect(screen.getByText(reviewA.content)).toBeDefined();
+    expect(screen.getByText(/2 reviews/)).toBeDefined();
+  });
+
+  it('prepends a review when the previous list state was null', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+      loggedIn: true,
+    });
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: null as unknown as Review[],
+    });
+    vi.mocked(createItemReviewAction).mockResolvedValue({
+      success: true,
+      data: newReview,
+    });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Write a review')).toBeDefined();
+    });
+    expect(screen.getByText('No reviews yet.')).toBeDefined();
+
+    fireEvent.click(screen.getByDisplayValue('5'));
+    fireEvent.change(screen.getByLabelText('Comment'), {
+      target: { value: 'Just bought this — works great!' },
+    });
+    await user.click(screen.getByRole('button', { name: 'Submit review' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(newReview.content)).toBeDefined();
+    });
+    expect(screen.queryByText('No reviews yet.')).toBeNull();
+    expect(screen.getByText(/1 review/)).toBeDefined();
+  });
+
+  it('submits the first review when the list was empty', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+      loggedIn: true,
+    });
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: [],
+    });
+    vi.mocked(createItemReviewAction).mockResolvedValue({
+      success: true,
+      data: newReview,
+    });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('No reviews yet.')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByDisplayValue('5'));
+    fireEvent.change(screen.getByLabelText('Comment'), {
+      target: { value: 'Just bought this — works great!' },
+    });
+    await user.click(screen.getByRole('button', { name: 'Submit review' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(newReview.content)).toBeDefined();
+    });
+    expect(screen.queryByText('No reviews yet.')).toBeNull();
+    expect(screen.getByText(/1 review/)).toBeDefined();
   });
 
   it('refetches when id changes', async () => {

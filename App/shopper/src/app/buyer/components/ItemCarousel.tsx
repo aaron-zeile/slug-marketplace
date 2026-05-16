@@ -10,20 +10,22 @@ import ItemCard, { type CardItem } from "./ItemCard";
 interface ItemCarouselProps {
   items: CardItem[];
   carouselTitle: string;
+  subtitle?: string;
 }
 
 export default function ItemCarousel({
-  items, carouselTitle
+  items,
+  carouselTitle,
+  subtitle,
 }: ItemCarouselProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
 
   const scrollCarousel = (direction: -1 | 1) => {
     const rail = railRef.current;
+    const scrollAmount = Math.min(rail?.clientWidth ?? 280, 280);
 
-    // @ts-expect-error: .
-    rail.scrollBy({
-      // @ts-expect-error: .
-      left: direction * rail.clientWidth,
+    rail?.scrollBy({
+      left: direction * scrollAmount,
       behavior: "smooth",
     });
   };
@@ -33,70 +35,104 @@ export default function ItemCarousel({
       aria-label={"Carousel " + carouselTitle}
       component="section"
       sx={{
-        width: "100%",
-        py: "20px",
-        pb: "28px",
-        mx: { md: "auto" },
+        bgcolor: 'background.paper',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 3,
+        boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
+        overflow: 'hidden',
+        pb: 2,
+        pt: 2,
+        width: '100%',
       }}
     >
       <Box
         sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          alignItems: 'flex-start',
+          display: 'flex',
           gap: 1,
+          justifyContent: 'space-between',
           px: 2,
           pb: 1.5,
         }}
       >
-        <Typography
-          component="h2"
-          sx={{
-            fontSize: "1.15rem",
-            fontWeight: 750,
-            lineHeight: 1.2,
-          }}
-        >
-          {carouselTitle}
-        </Typography>
-        <Box sx={{ display: "flex", gap: 0.5 }}>
+        <Box sx={{ minWidth: 0, pr: 1 }}>
+          <Typography
+            component="h2"
+            sx={{
+              fontSize: '1.05rem',
+              fontWeight: 700,
+              letterSpacing: '-0.01em',
+              lineHeight: 1.2,
+            }}
+          >
+            {carouselTitle}
+          </Typography>
+          {subtitle ? (
+            <Typography
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.8rem',
+                lineHeight: 1.4,
+                mt: 0.5,
+              }}
+            >
+              {subtitle}
+            </Typography>
+          ) : null}
+        </Box>
+        <Box sx={{ display: 'flex', flexShrink: 0, gap: 0.5 }}>
           <IconButton
             aria-label={`Scroll ${carouselTitle} left`}
             onClick={() => scrollCarousel(-1)}
-            size="small"
+            sx={{
+              bgcolor: 'action.hover',
+              border: 1,
+              borderColor: 'divider',
+              height: 36,
+              width: 36,
+              '&:hover': { bgcolor: 'action.selected' },
+            }}
           >
-            <ChevronLeft />
+            <ChevronLeft sx={{ fontSize: 20 }} />
           </IconButton>
           <IconButton
             aria-label={`Scroll ${carouselTitle} right`}
             onClick={() => scrollCarousel(1)}
-            size="small"
+            sx={{
+              bgcolor: 'action.hover',
+              border: 1,
+              borderColor: 'divider',
+              height: 36,
+              width: 36,
+              '&:hover': { bgcolor: 'action.selected' },
+            }}
           >
-            <ChevronRight />
+            <ChevronRight sx={{ fontSize: 20 }} />
           </IconButton>
         </Box>
       </Box>
       <Box
         ref={railRef}
         sx={{
-          display: "grid",
-          gridAutoColumns: { xs: "minmax(170px, 78vw)", md: "190px" },
-          gridAutoFlow: "column",
-          gap: 1.75,
-          overflowX: "auto",
-          overscrollBehaviorX: "contain",
+          '& > *': {
+            scrollSnapAlign: 'start',
+          },
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          display: 'grid',
+          gap: 1.5,
+          gridAutoColumns: 'minmax(168px, 72vw)',
+          gridAutoFlow: 'column',
+          overflowX: 'auto',
+          overscrollBehaviorX: 'contain',
+          pb: 0.5,
           px: 2,
-          pb: 1.5,
           scrollPaddingInline: 16,
-          scrollSnapType: "x mandatory",
-          scrollbarWidth: "none",
-          WebkitOverflowScrolling: "touch",
-          "&::-webkit-scrollbar": {
-            display: "none",
-          },
-          "& > *": {
-            scrollSnapAlign: "start",
-          },
+          scrollSnapType: 'x mandatory',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         {items.map((item) => (

@@ -12,7 +12,20 @@
     "profileMenu": "Menu du compte"
   },
   "Home": {
-    "featuredItems": "Articles en vedette"
+    "heroAriaLabel": "Bienvenue",
+    "heroBadge": "SlugMarketplace",
+    "heroTitleLine1": "Trouvez votre",
+    "heroTitleLine2": "prochain coup de cœur",
+    "heroSubtitle": "Une sélection de vendeurs de confiance — bons produits, prix justes, achats simplifiés.",
+    "heroChipCurated": "Sélection soignée",
+    "heroChipPrices": "Prix justes",
+    "heroChipEasy": "Navigation facile",
+    "heroTitle": "Trouvez votre prochain coup de cœur",
+    "spotlightTitle": "Coup de projecteur du jour",
+    "spotlightEmpty": "Notre sélection du jour arrive bientôt. Découvrez les articles en vedette ci-dessous.",
+    "featuredItems": "Articles en vedette",
+    "featuredSubtitle": "Faites défiler pour découvrir d'autres produits choisis pour vous.",
+    "viewDetails": "Appuyez pour voir les détails"
   },
   "Search": {
     "placeholder": "Rechercher sur SlugMarketplace",

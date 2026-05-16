@@ -17,6 +17,7 @@ import {
 import ReviewCard from './ReviewCard';
 import ReviewSummary from './ReviewSummary';
 import ReviewWriteForm from './ReviewWriteForm';
+import { prependReview } from './reviewDisplayUtils';
 
 interface Props {
   id: string;
@@ -79,7 +80,7 @@ const Reviews = ({ id }: Props) => {
     );
   }
 
-  const list = reviews as Review[];
+  const list = reviews ?? [];
 
   return (
     <Box>
@@ -95,7 +96,7 @@ const Reviews = ({ id }: Props) => {
         <ReviewWriteForm
           itemId={id}
           onReviewCreated={(review) => {
-            setReviews((prev) => (prev ? [review, ...prev] : [review]));
+            setReviews((prev) => prependReview(prev, review));
           }}
         />
       ) : (
