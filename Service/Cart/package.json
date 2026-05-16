@@ -44,7 +44,7 @@
     "exec": "ts-node src/server.ts"
   },
   "scripts": {
-    "dev": "nodemon",
+    "dev": "npx nodemon",
     "build": "tsc",
     "start": "node build/server.js",
     "lint": "eslint src/**/*.[jt]s --fix",

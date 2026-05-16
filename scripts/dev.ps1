@@ -13,7 +13,9 @@ $containerNames = @(
   "marketplace_shopper_service",
   "marketplace_items_service",
   "marketplace_login_service",
-  "marketplace_items_db"
+  "marketplace_items_db",
+  "items-service-db",
+  "cart-service-db"
 )
 
 Write-Host "Stopping old marketplace Docker containers..."
@@ -26,7 +28,7 @@ foreach ($containerName in $containerNames) {
   }
 }
 
-$ports = @(3000, 3002, 3010, 4000, 4010)
+$ports = @(3000, 3002, 3010, 4000, 4010, 4500, 4600)
 $connections = Get-NetTCPConnection -LocalPort $ports -State Listen -ErrorAction SilentlyContinue
 $processIds = $connections |
   Select-Object -ExpandProperty OwningProcess -Unique |
@@ -51,8 +53,10 @@ if ($NoStart) {
   exit 0
 }
 
-Write-Host "Starting login database..."
+Write-Host "Starting databases (login-db, items-db, cart-db)..."
 docker compose -f Service/Login/docker-compose.yml up -d login-db
+docker compose -f Service/ItemsService/docker-compose.yml up -d postgres
+docker compose -f Service/Cart/docker-compose.yml up -d postgres
 
-Write-Host "Starting marketplace (shopper + ItemsService in dev mode)..."
+Write-Host "Starting marketplace (admin, seller, shopper, ItemsService, Cart, Login)..."
 & npm.cmd run dev:local
