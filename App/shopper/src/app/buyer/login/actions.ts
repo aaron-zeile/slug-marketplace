@@ -32,6 +32,9 @@ export interface CheckLoginResult {
 }
 
 function shouldUseSecureLoginCookie() {
+  if (process.env.LOGIN_COOKIE_SECURE !== undefined) {
+    return process.env.LOGIN_COOKIE_SECURE === 'true';
+  }
 
   return process.env.NODE_ENV === 'production';
 }

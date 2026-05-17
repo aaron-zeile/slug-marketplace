@@ -54,6 +54,7 @@ COPY App/admin/next-env.d.ts /home/app/App/admin/
 # Seller
 COPY App/seller/shared/ /home/app/App/seller/shared/
 # COPY App/seller/dist/ /home/app/App/seller/dist/
+COPY App/seller/messages/ /home/app/App/seller/messages/
 COPY App/seller/client/ /home/app/App/seller/client/
 COPY App/seller/server/ /home/app/App/seller/server/
 COPY App/seller/package.json /home/app/App/seller/
@@ -62,6 +63,7 @@ COPY App/seller/tsconfig.base.json /home/app/App/seller/
 COPY App/seller/tsconfig.client.json /home/app/App/seller/
 COPY App/seller/tsconfig.server.build.json /home/app/App/seller/
 COPY App/seller/tsconfig.server.json /home/app/App/seller/
+COPY App/seller/vite.config.ts /home/app/App/seller/
 
 RUN npm run cis
 
