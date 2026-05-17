@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import CloseIcon from '@mui/icons-material/Close'
 import IconButton from '@mui/material/IconButton'
 import type { SnackbarCloseReason } from '@mui/material/Snackbar'
@@ -13,6 +14,7 @@ interface ErrorProviderProps {
 }
 
 export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
+  const t = useTranslations('Error')
   const [error, setError] = useState<string|undefined>(undefined)
 
   const handleClose = (
@@ -29,7 +31,7 @@ export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
     <Fragment>
       <IconButton
         size="small"
-        aria-label="close error"
+        aria-label={t('closeAria')}
         color="inherit"
         onClick={handleClose}
       >

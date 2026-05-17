@@ -5,5 +5,10 @@
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "noEmit": true
   },
-  "include": ["client/src/**/*.ts", "client/src/**/*.tsx", "shared/**/*.ts"]
+  "include": [
+    "client/src/**/*.ts",
+    "client/src/**/*.tsx",
+    "shared/**/*.ts",
+    "messages/**/*.json"
+  ]
 }

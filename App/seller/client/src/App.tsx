@@ -1,4 +1,7 @@
 import React from 'react'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import { useTranslations } from 'next-intl'
 
 import { ErrorProvider } from './error/Provider'
 import TopBar from './dashboard/Appbar'
@@ -6,33 +9,36 @@ import SellerListings from './dashboard/Listings'
 import CreateListing from './dashboard/CreateListing'
 import { TabProvider } from './dashboard/Provider'
 import { useDashboard } from './dashboard/useDashboard'
+import AppProviders from './providers/AppProviders'
 
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+function TabPlaceholder({ messageKey }: { messageKey: 'sales' | 'feedback' }) {
+  const t = useTranslations('Placeholders')
+  return (
+    <Box sx={{ p: 3 }}>
+      <Typography color="text.secondary">{t(messageKey)}</Typography>
+    </Box>
+  )
+}
 
-const navyBlue = '#003c6c'
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: navyBlue,
-      contrastText: '#fff',
-    },
-  },
-});
-
-function AppContent() {
+export function AppContent() {
   const { tabValue } = useDashboard()
 
   let content = null
   if (tabValue === 0) {
-    content = <SellerListings/>
+    content = <SellerListings />
+  }
+  if (tabValue === 1) {
+    content = <TabPlaceholder messageKey="sales" />
+  }
+  if (tabValue === 2) {
+    content = <TabPlaceholder messageKey="feedback" />
   }
   if (tabValue === 3) {
-    content = <CreateListing/>
+    content = <CreateListing />
   }
   return (
     <>
-      <TopBar/>
+      <TopBar />
       {content}
     </>
   )
@@ -40,12 +46,12 @@ function AppContent() {
 
 export function App() {
   return (
-    <ThemeProvider theme={theme}>
+    <AppProviders>
       <ErrorProvider>
         <TabProvider>
-          <AppContent/>
+          <AppContent />
         </TabProvider>
       </ErrorProvider>
-    </ThemeProvider>
+    </AppProviders>
   );
 }

@@ -1,5 +1,7 @@
 import React from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { enUS, frFR } from '@mui/x-data-grid/locales'
 import {
   // Alert,
   Avatar,
@@ -16,7 +18,17 @@ import { ErrorContext } from '../error/Context'
 import { list, remove } from './model'
 
 export default function SellerListings() {
+  const locale = useLocale()
+  const t = useTranslations('Listings')
   const errorCtx = useContext(ErrorContext)
+  const priceFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'USD',
+      }),
+    [locale],
+  )
   // const taskCtx = useContext(TaskContext)
   const [listings, setListings] = useState<Listing[]>([])
   const [deletingId, setDeletingId] = useState<string | undefined>()
@@ -41,7 +53,7 @@ export default function SellerListings() {
   const columns = useMemo<GridColDef<Listing>[]>(() => [
     {
       field: 'image',
-      headerName: 'Image',
+      headerName: t('image'),
       width: 90,
       sortable: false,
       renderCell: (params) => (
@@ -54,21 +66,21 @@ export default function SellerListings() {
     },
     {
       field: 'name',
-      headerName: 'Name',
+      headerName: t('name'),
       flex: 1,
       minWidth: 180,
     },
     {
       field: 'description',
-      headerName: 'Description',
+      headerName: t('description'),
       flex: 2,
       minWidth: 260,
     },
     {
       field: 'price',
-      headerName: 'Price',
+      headerName: t('price'),
       width: 120,
-      valueFormatter: (value) => `$${Number(value).toFixed(2)}`,
+      valueFormatter: (value) => priceFormatter.format(Number(value)),
     },
     {
       field: 'actions',
@@ -78,10 +90,10 @@ export default function SellerListings() {
       filterable: false,
       disableColumnMenu: true,
       renderCell: (params) => (
-        <Tooltip title="Delete listing">
+        <Tooltip title={t('deleteTooltip')}>
           <span>
             <IconButton
-              aria-label={`Delete ${params.row.name}`}
+              aria-label={t('deleteAria', { name: params.row.name })}
               color="error"
               disabled={deletingId === params.row.id}
               size="small"
@@ -93,7 +105,7 @@ export default function SellerListings() {
         </Tooltip>
       ),
     },
-  ], [deletingId])
+  ], [deletingId, priceFormatter, t])
 
   useEffect(() => {
     const loadListings = async () => {
@@ -129,7 +141,9 @@ export default function SellerListings() {
           getRowId={(row) => row.id}
           loading={loading}
           localeText={{
-            noRowsLabel: loadError ? 'Listings failed to load' : 'No listings found'
+            ...(locale === 'fr' ? frFR : enUS).components.MuiDataGrid.defaultProps
+              .localeText,
+            noRowsLabel: loadError ? t('gridLoadError') : t('gridNoRows'),
           }}
           pageSizeOptions={[5, 10, 25]}
           initialState={{

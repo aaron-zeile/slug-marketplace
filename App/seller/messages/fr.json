@@ -1,0 +1,48 @@
+{
+  "App": {
+    "title": "Tableau de bord",
+    "openMenu": "Ouvrir le menu"
+  },
+  "Tabs": {
+    "listings": "Annonces",
+    "sales": "Ventes",
+    "feedback": "Commentaires",
+    "createListing": "Créer une annonce",
+    "ariaLabel": "Onglets du tableau de bord vendeur"
+  },
+  "Listings": {
+    "image": "Image",
+    "name": "Nom",
+    "description": "Description",
+    "price": "Prix",
+    "deleteTooltip": "Supprimer l'annonce",
+    "deleteAria": "Supprimer {name}",
+    "gridLoadError": "Échec du chargement des annonces",
+    "gridNoRows": "Aucune annonce active"
+  },
+  "CreateListing": {
+    "title": "Créer une annonce",
+    "createdSuccess": "{name} a été créée.",
+    "viewListings": "Voir",
+    "nameLabel": "Nom",
+    "descriptionLabel": "Description",
+    "priceLabel": "Prix",
+    "priceError": "Le prix doit être d'au moins 0,01 $.",
+    "imagesLabel": "URL des images",
+    "imagesHelper": "Saisissez une URL d'image par ligne.",
+    "submit": "Créer l'annonce",
+    "submitting": "Création en cours..."
+  },
+  "Error": {
+    "closeAria": "Fermer le message d'erreur"
+  },
+  "LocaleSwitcher": {
+    "label": "Langue",
+    "en": "English",
+    "fr": "Français"
+  },
+  "Placeholders": {
+    "sales": "Ventes — bientôt disponible",
+    "feedback": "Commentaires — bientôt disponible"
+  }
+}

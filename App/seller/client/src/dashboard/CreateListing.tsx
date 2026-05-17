@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Alert,
   Box,
@@ -20,6 +21,7 @@ const emptyForm = {
 }
 
 export default function CreateListing() {
+  const t = useTranslations('CreateListing')
   const errorCtx = useContext(ErrorContext)
   const { setTab } = useDashboard()
   const [form, setForm] = useState(emptyForm)
@@ -79,7 +81,7 @@ export default function CreateListing() {
         onSubmit={submit}
       >
         <Typography variant="h5" component="h2">
-          Create Listing
+          {t('title')}
         </Typography>
 
         {createdName && (
@@ -87,16 +89,16 @@ export default function CreateListing() {
             severity="success"
             action={
               <Button color="inherit" size="small" onClick={() => setTab(0)}>
-                View
+                {t('viewListings')}
               </Button>
             }
           >
-            Created {createdName}.
+            {t('createdSuccess', { name: createdName })}
           </Alert>
         )}
 
         <TextField
-          label="Name"
+          label={t('nameLabel')}
           value={form.name}
           onChange={updateField('name')}
           required
@@ -104,7 +106,7 @@ export default function CreateListing() {
         />
 
         <TextField
-          label="Description"
+          label={t('descriptionLabel')}
           value={form.description}
           onChange={updateField('description')}
           required
@@ -114,23 +116,23 @@ export default function CreateListing() {
         />
 
         <TextField
-          label="Price"
+          label={t('priceLabel')}
           value={form.price}
           onChange={updateField('price')}
           required
           type="number"
           error={priceError}
-          helperText={priceError ? 'Price must be at least $0.01.' : undefined}
+          helperText={priceError ? t('priceError') : undefined}
           inputProps={{ min: 0.01, step: '0.01' }}
         />
 
         <TextField
-          label="Image URLs"
+          label={t('imagesLabel')}
           value={form.images}
           onChange={updateField('images')}
           multiline
           minRows={3}
-          helperText="Enter one image URL per line."
+          helperText={t('imagesHelper')}
         />
 
         <Box>
@@ -139,7 +141,7 @@ export default function CreateListing() {
             variant="contained"
             disabled={saving || priceError}
           >
-            {saving ? 'Creating...' : 'Create Listing'}
+            {saving ? t('submitting') : t('submit')}
           </Button>
         </Box>
       </Stack>

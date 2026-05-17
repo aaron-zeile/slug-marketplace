@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -13,19 +14,20 @@ function tabProps(index: number) {
 
 export default function NavTabs() {
   const {tabValue, setTab} = useDashboard()
+  const t = useTranslations('Tabs')
 
   return (
     <Box sx={{ width: '100%'}}>
       <Tabs
         value={tabValue}
         onChange={(_, newValue) => setTab(newValue)}
-        aria-label="basic tabs example"
+        aria-label={t('ariaLabel')}
         sx={{backgroundColor: '#E5E5E5'}}
       >
-        <Tab label="Listings" {...tabProps(0)} />
-        <Tab label="Sales" {...tabProps(1)} />
-        <Tab label="Feedback" {...tabProps(2)} />
-        <Tab label="Create Listing" {...tabProps(3)} />
+        <Tab label={t('listings')} {...tabProps(0)} />
+        <Tab label={t('sales')} {...tabProps(1)} />
+        <Tab label={t('feedback')} {...tabProps(2)} />
+        <Tab label={t('createListing')} {...tabProps(3)} />
       </Tabs>
     </Box>
   );

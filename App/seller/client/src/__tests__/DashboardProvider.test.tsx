@@ -11,6 +11,6 @@ function UsesDashboard() {
 
 it('throws when useDashboard is used outside DashboardProvider', () => {
   expect(() => render(<UsesDashboard />)).toThrow(
-    'useDashboard must be used within DashboardProvider',
+    'useDashboard must be used within TabProvider',
   )
 })

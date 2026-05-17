@@ -2,8 +2,8 @@ import {render, screen, fireEvent} from '@testing-library/react'
 import {it, test, vi, expect} from 'vitest'
 import React from 'react'
 
-import Dashboard from '../dashboard'
-import { ErrorProvider } from '../error/Provider'
+import Listings from '../dashboard/Listings'
+import { renderWithProviders } from '../test/renderWithProviders'
 
 it('throws error on failed fetch', async () => {
   vi.stubGlobal(
@@ -15,11 +15,7 @@ it('throws error on failed fetch', async () => {
     })),
   )
 
-  render(
-    <ErrorProvider>
-      <Dashboard />
-    </ErrorProvider>
-  )
+  renderWithProviders(<Listings />)
 
   await screen.findByText('Error: Internal Server Error')
 })
@@ -34,13 +30,9 @@ test('close error snackbar', async () => {
     })),
   )
 
-  render(
-    <ErrorProvider>
-      <Dashboard />
-    </ErrorProvider>
-  )
+  renderWithProviders(<Listings />)
 
-  const close = await screen.findByLabelText('close error')
+  const close = await screen.findByLabelText('Close error message')
   fireEvent.click(close)
   expect(screen.queryByText('Error: Not Found')).toBeNull
 })
@@ -55,11 +47,7 @@ test('keeps error snackbar open on clickaway', async () => {
     })),
   )
 
-  render(
-    <ErrorProvider>
-      <Dashboard />
-    </ErrorProvider>
-  )
+  renderWithProviders(<Listings />)
 
   await screen.findByText('Error: Service Unavailable')
   fireEvent.mouseDown(document.body)

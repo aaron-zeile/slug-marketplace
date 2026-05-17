@@ -1,0 +1,48 @@
+{
+  "App": {
+    "title": "Dashboard",
+    "openMenu": "Open menu"
+  },
+  "Tabs": {
+    "listings": "Listings",
+    "sales": "Sales",
+    "feedback": "Feedback",
+    "createListing": "Create Listing",
+    "ariaLabel": "Seller dashboard tabs"
+  },
+  "Listings": {
+    "image": "Image",
+    "name": "Name",
+    "description": "Description",
+    "price": "Price",
+    "deleteTooltip": "Delete listing",
+    "deleteAria": "Delete {name}",
+    "gridLoadError": "Listings failed to load",
+    "gridNoRows": "No active listings"
+  },
+  "CreateListing": {
+    "title": "Create Listing",
+    "createdSuccess": "Created {name}.",
+    "viewListings": "View",
+    "nameLabel": "Name",
+    "descriptionLabel": "Description",
+    "priceLabel": "Price",
+    "priceError": "Price must be at least $0.01.",
+    "imagesLabel": "Image URLs",
+    "imagesHelper": "Enter one image URL per line.",
+    "submit": "Create Listing",
+    "submitting": "Creating..."
+  },
+  "Error": {
+    "closeAria": "Close error message"
+  },
+  "LocaleSwitcher": {
+    "label": "Locale",
+    "en": "English",
+    "fr": "Français"
+  },
+  "Placeholders": {
+    "sales": "Sales — coming soon",
+    "feedback": "Feedback — coming soon"
+  }
+}

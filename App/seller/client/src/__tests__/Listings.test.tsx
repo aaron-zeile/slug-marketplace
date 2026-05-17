@@ -3,6 +3,7 @@ import {it, vi} from 'vitest'
 import React from 'react'
 
 import Listings from '../dashboard/Listings'
+import { renderWithProviders } from '../test/renderWithProviders'
 
 it('renders listings', async () => {
   const listings = [
@@ -26,7 +27,7 @@ it('renders listings', async () => {
 
   vi.stubGlobal('fetch', fetchMock)
 
-  render(<Listings />)
+  renderWithProviders(<Listings />)
 
   await screen.findByText('USB Hub 937')
 })
