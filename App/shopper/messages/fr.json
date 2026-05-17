@@ -5,6 +5,7 @@
   "Topbar": {
     "hello": "Bonjour {name}",
     "guest": "Invité",
+    "sellerDashboard": "Tableau de bord vendeur",
     "logout": "Déconnexion",
     "login": "Connexion",
     "navigation": "Navigation principale",

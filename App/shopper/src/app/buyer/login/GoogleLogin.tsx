@@ -12,11 +12,13 @@ const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
 interface GoogleLoginProps {
   setName: Dispatch<SetStateAction<string | null>>;
+  onAuthenticated?: () => void;
   onLogin?: () => void;
 }
 
 export default function GoogleLogin({
   setName,
+  onAuthenticated,
   onLogin,
 }: GoogleLoginProps) {
   return (
@@ -48,6 +50,7 @@ export default function GoogleLogin({
           if (result.authenticated) {
             window.sessionStorage.setItem("name", result.authenticated.name);
             setName(result.authenticated.name);
+            onAuthenticated?.();
             onLogin?.();
           }
         }}

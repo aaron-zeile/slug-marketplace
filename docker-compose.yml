@@ -12,9 +12,17 @@ services:
       - "3000:3000"
       - "3002:3002"
       - "3010:3010"
+      - "4010:4010"
+    environment:
+      E2E_MOCK_GOOGLE_CREDENTIAL: ${E2E_MOCK_GOOGLE_CREDENTIAL:-}
+      ITEMS_SERVICE_URL: http://localhost:4500/graphql
+      LOGIN_SERVICE_URL: http://localhost:4010/api/v0
+      POSTGRES_HOST: postgres
   postgres:
     container_name: postgres
     image: postgres:alpine
+    ports:
+      - "5433:5432"
     environment:
       POSTGRES_PORT: ${POSTGRES_PORT}
       POSTGRES_DB: ${POSTGRES_DB}
