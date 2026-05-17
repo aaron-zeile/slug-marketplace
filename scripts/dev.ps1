@@ -28,7 +28,7 @@ foreach ($containerName in $containerNames) {
   }
 }
 
-$ports = @(3000, 3002, 3010, 4000, 4010, 4500, 4600)
+$ports = @(3000, 3002, 3010, 4000, 4010, 4500, 4600, 5173)
 $connections = Get-NetTCPConnection -LocalPort $ports -State Listen -ErrorAction SilentlyContinue
 $processIds = $connections |
   Select-Object -ExpandProperty OwningProcess -Unique |

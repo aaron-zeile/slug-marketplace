@@ -7,6 +7,7 @@ import {
   AppBar,
   Avatar,
   Box,
+  Button,
   Container,
   Divider,
   IconButton,
@@ -195,6 +196,22 @@ export default function Topbar() {
               >
                 {greeting}
               </Typography>
+              {isAuthenticated && (
+                <Button
+                  component="a"
+                  href={sellerDashboardUrl}
+                  size="small"
+                  startIcon={<StorefrontOutlinedIcon aria-hidden />}
+                  sx={{
+                    display: { xs: 'none', sm: 'inline-flex' },
+                    flexShrink: 0,
+                    textTransform: 'none',
+                  }}
+                  variant="outlined"
+                >
+                  {tTopbar('sellerDashboard')}
+                </Button>
+              )}
               <CartButton />
               <IconButton
                 aria-label={tTopbar('openProfileMenu')}
