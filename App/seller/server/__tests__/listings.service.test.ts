@@ -34,25 +34,31 @@ describe('ListingService', () => {
 
     const listings = await new ListingService().getListings('seller-1', 'active')
 
-    expect(listings).toEqual([listing])
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:4000/graphql',
-      expect.objectContaining({
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }),
-    )
-
     const [, request] = fetchMock.mock.calls[0]
     const body = JSON.parse(request.body)
 
-    expect(body.variables).toEqual({
-      id: 'seller-1',
-      status: 'active',
+    expect({
+      listings,
+      fetchCall: fetchMock.mock.calls[0],
+      variables: body.variables,
+      queryIncludesSellerItems: body.query.includes('sellerItems'),
+    }).toEqual({
+      listings: [listing],
+      fetchCall: [
+        'http://localhost:4000/graphql',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }),
+      ],
+      variables: {
+        id: 'seller-1',
+        status: 'active',
+      },
+      queryIncludesSellerItems: true,
     })
-    expect(body.query).toContain('sellerItems')
   })
 
   it('throws the graphql error message when listings fail', async () => {
@@ -135,16 +141,21 @@ describe('ListingService', () => {
       'session-token',
     )
 
-    expect(created).toEqual(listing)
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:4000/graphql',
-      expect.objectContaining({
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer session-token',
-        },
-      }),
-    )
+    expect({
+      created,
+      fetchCall: fetchMock.mock.calls[0],
+    }).toEqual({
+      created: listing,
+      fetchCall: [
+        'http://localhost:4000/graphql',
+        expect.objectContaining({
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer session-token',
+          },
+        }),
+      ],
+    })
   })
 
   it('deletes a listing with the session token', async () => {
@@ -162,11 +173,17 @@ describe('ListingService', () => {
     const [, request] = fetchMock.mock.calls[0]
     const body = JSON.parse(request.body)
 
-    expect(request.headers.Authorization).toBe('Bearer session-token')
-    expect(body.variables).toEqual({
-      id: 'item-1',
+    expect({
+      authorization: request.headers.Authorization,
+      variables: body.variables,
+      queryIncludesDeleteItem: body.query.includes('deleteItem'),
+    }).toEqual({
+      authorization: 'Bearer session-token',
+      variables: {
+        id: 'item-1',
+      },
+      queryIncludesDeleteItem: true,
     })
-    expect(body.query).toContain('deleteItem')
   })
 
   it('throws when the create listing response does not match the schema', async () => {

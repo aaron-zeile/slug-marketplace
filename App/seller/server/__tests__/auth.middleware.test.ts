@@ -39,13 +39,19 @@ describe('doCheck', () => {
 
     await doCheck(req, res, next)
 
-    expect(req.user).toEqual({
-      id: 'dbdb10af-685c-41ff-b8e1-676b98c1732a',
-      email: 'test-seller@email.com',
-      name: 'Test Seller',
+    expect({
+      user: req.user,
+      nextCalls: next.mock.calls.length,
+      checkCalls: authMocks.check.mock.calls,
+    }).toEqual({
+      user: {
+        id: 'dbdb10af-685c-41ff-b8e1-676b98c1732a',
+        email: 'test-seller@email.com',
+        name: 'Test Seller',
+      },
+      nextCalls: 1,
+      checkCalls: [],
     })
-    expect(next).toHaveBeenCalledOnce()
-    expect(authMocks.check).not.toHaveBeenCalled()
   })
 
   it('rejects requests without a session cookie outside development', async () => {
@@ -58,8 +64,13 @@ describe('doCheck', () => {
 
     await doCheck(req, res, next)
 
-    expect(res.sendStatus).toHaveBeenCalledWith(401)
-    expect(next).not.toHaveBeenCalled()
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      nextCalls: next.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      nextCalls: [],
+    })
   })
 
   it('sets the authenticated user and session token from login check', async () => {
@@ -79,14 +90,21 @@ describe('doCheck', () => {
 
     await doCheck(req, res, next)
 
-    expect(authMocks.check).toHaveBeenCalledWith('session-token')
-    expect(req.sessionToken).toBe('session-token')
-    expect(req.user).toEqual({
-      id: 'seller-1',
-      email: 'seller@example.com',
-      name: 'Test Seller',
+    expect({
+      checkCall: authMocks.check.mock.calls[0],
+      sessionToken: req.sessionToken,
+      user: req.user,
+      nextCalls: next.mock.calls.length,
+    }).toEqual({
+      checkCall: ['session-token'],
+      sessionToken: 'session-token',
+      user: {
+        id: 'seller-1',
+        email: 'seller@example.com',
+        name: 'Test Seller',
+      },
+      nextCalls: 1,
     })
-    expect(next).toHaveBeenCalledOnce()
   })
 
   it('rejects requests when login check does not return a user', async () => {
@@ -102,8 +120,14 @@ describe('doCheck', () => {
 
     await doCheck(req, res, next)
 
-    expect(authMocks.check).toHaveBeenCalledWith('session-token')
-    expect(res.sendStatus).toHaveBeenCalledWith(401)
-    expect(next).not.toHaveBeenCalled()
+    expect({
+      checkCall: authMocks.check.mock.calls[0],
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      nextCalls: next.mock.calls,
+    }).toEqual({
+      checkCall: ['session-token'],
+      statusCall: [401],
+      nextCalls: [],
+    })
   })
 })

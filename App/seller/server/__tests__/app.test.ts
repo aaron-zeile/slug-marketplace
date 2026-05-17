@@ -37,23 +37,22 @@ describe('seller app', () => {
   it('registers seller listing routes behind auth middleware', async () => {
     const {default: app} = await import('../app.js')
 
-    expect(app).toBe(expressMocks.app)
-    expect(expressMocks.json).toHaveBeenCalledOnce()
-    expect(expressMocks.app.use).toHaveBeenCalledWith('json-middleware')
-    expect(expressMocks.app.get).toHaveBeenCalledWith(
-      '/seller/api/listings',
-      'auth-middleware',
-      'get-listings',
-    )
-    expect(expressMocks.app.post).toHaveBeenCalledWith(
-      '/seller/api/listings',
-      'auth-middleware',
-      'post-listing',
-    )
-    expect(expressMocks.app.delete).toHaveBeenCalledWith(
-      '/seller/api/listings/:id',
-      'auth-middleware',
-      'remove-listing',
-    )
+    expect({
+      app,
+      jsonCalls: expressMocks.json.mock.calls,
+      useCalls: expressMocks.app.use.mock.calls,
+      getCalls: expressMocks.app.get.mock.calls,
+      postCalls: expressMocks.app.post.mock.calls,
+      deleteCalls: expressMocks.app.delete.mock.calls,
+    }).toEqual({
+      app: expressMocks.app,
+      jsonCalls: [[]],
+      useCalls: [['json-middleware']],
+      getCalls: [['/seller/api/listings', 'auth-middleware', 'get-listings']],
+      postCalls: [['/seller/api/listings', 'auth-middleware', 'post-listing']],
+      deleteCalls: [
+        ['/seller/api/listings/:id', 'auth-middleware', 'remove-listing'],
+      ],
+    })
   })
 })

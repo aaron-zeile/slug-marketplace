@@ -17,7 +17,7 @@ it('throws error on failed fetch', async () => {
 
   renderWithProviders(<Listings />)
 
-  await screen.findByText('Error: Internal Server Error')
+  expect(await screen.findByText('Error: Internal Server Error')).toBeInTheDocument()
 })
 
 test('close error snackbar', async () => {
@@ -34,7 +34,7 @@ test('close error snackbar', async () => {
 
   const close = await screen.findByLabelText('Close error message')
   fireEvent.click(close)
-  expect(screen.queryByText('Error: Not Found')).toBeNull
+  expect(screen.queryByText('Error: Not Found')).toBeNull()
 })
 
 test('keeps error snackbar open on clickaway', async () => {

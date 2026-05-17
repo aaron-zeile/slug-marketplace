@@ -28,10 +28,17 @@ describe('server index', () => {
 
     await import('../index.js')
 
-    expect(app.listen).toHaveBeenCalledWith(4010, expect.any(Function))
-    expect(app.use).not.toHaveBeenCalled()
-    expect(app.get).not.toHaveBeenCalled()
-    expect(log).toHaveBeenCalledWith('Server listening on http://localhost:4010')
+    expect({
+      listenPort: app.listen.mock.calls[0]?.[0],
+      useCalls: app.use.mock.calls,
+      getCalls: app.get.mock.calls,
+      logCalls: log.mock.calls,
+    }).toEqual({
+      listenPort: 4010,
+      useCalls: [],
+      getCalls: [],
+      logCalls: [['Server listening on http://localhost:4010']],
+    })
   })
 
   it('serves the built client in production', async () => {
@@ -59,18 +66,21 @@ describe('server index', () => {
 
     await import('../index.js')
 
-    expect(expressStatic).toHaveBeenCalledWith(
-      expect.stringContaining('/client/dist'),
-    )
-    expect(app.use).toHaveBeenCalledWith(staticMiddleware)
-    expect(app.get).toHaveBeenCalledWith(/.*/, expect.any(Function))
-
     const [, fallbackHandler] = app.get.mock.calls[0]
     fallbackHandler({}, {sendFile})
 
-    expect(sendFile).toHaveBeenCalledWith(
-      expect.stringContaining('/client/dist/index.html'),
-    )
-    expect(app.listen).toHaveBeenCalledWith(3010, expect.any(Function))
+    expect({
+      staticDir: expressStatic.mock.calls[0]?.[0],
+      usedStaticMiddleware: app.use.mock.calls[0]?.[0],
+      fallbackPattern: app.get.mock.calls[0]?.[0],
+      sentFile: sendFile.mock.calls[0]?.[0],
+      listenPort: app.listen.mock.calls[0]?.[0],
+    }).toEqual({
+      staticDir: expect.stringContaining('/client/dist'),
+      usedStaticMiddleware: staticMiddleware,
+      fallbackPattern: /.*/,
+      sentFile: expect.stringContaining('/client/dist/index.html'),
+      listenPort: 3010,
+    })
   })
 })

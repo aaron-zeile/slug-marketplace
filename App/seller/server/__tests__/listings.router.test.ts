@@ -54,9 +54,12 @@ describe('listings router', () => {
 
     await get(req, res)
 
-    expect(serviceMocks.getListings).toHaveBeenCalledWith('seller-1', 'active')
-    expect(res.json).toHaveBeenCalledWith({
-      listings: [listing],
+    expect({
+      serviceCall: serviceMocks.getListings.mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: ['seller-1', 'active'],
+      jsonCall: [{listings: [listing]}],
     })
   })
 
@@ -74,7 +77,7 @@ describe('listings router', () => {
 
     await get(req, res)
 
-    expect(serviceMocks.getListings).toHaveBeenCalledWith('seller-1', 'sold')
+    expect(serviceMocks.getListings.mock.calls[0]).toEqual(['seller-1', 'sold'])
   })
 
   it('rejects listing requests without an authenticated user', async () => {
@@ -85,8 +88,13 @@ describe('listings router', () => {
 
     await get(req, res)
 
-    expect(res.sendStatus).toHaveBeenCalledWith(401)
-    expect(serviceMocks.getListings).not.toHaveBeenCalled()
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.getListings.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      serviceCalls: [],
+    })
   })
 
   it('creates a listing for an authenticated seller session', async () => {
@@ -108,13 +116,14 @@ describe('listings router', () => {
 
     await post(req, res)
 
-    expect(serviceMocks.createListing).toHaveBeenCalledWith(
-      input,
-      'session-token',
-    )
-    expect(res.status).toHaveBeenCalledWith(201)
-    expect(res.json).toHaveBeenCalledWith({
-      listing,
+    expect({
+      serviceCall: serviceMocks.createListing.mock.calls[0],
+      statusCall: (res.status as ReturnType<typeof vi.fn>).mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: [input, 'session-token'],
+      statusCall: [201],
+      jsonCall: [{listing}],
     })
   })
 
@@ -129,8 +138,13 @@ describe('listings router', () => {
 
     await post(req, res)
 
-    expect(res.sendStatus).toHaveBeenCalledWith(401)
-    expect(serviceMocks.createListing).not.toHaveBeenCalled()
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.createListing.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      serviceCalls: [],
+    })
   })
 
   it('deletes a listing for an authenticated seller session', async () => {
@@ -148,11 +162,13 @@ describe('listings router', () => {
 
     await remove(req, res)
 
-    expect(serviceMocks.deleteListing).toHaveBeenCalledWith(
-      'item-1',
-      'session-token',
-    )
-    expect(res.sendStatus).toHaveBeenCalledWith(204)
+    expect({
+      serviceCall: serviceMocks.deleteListing.mock.calls[0],
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: ['item-1', 'session-token'],
+      statusCall: [204],
+    })
   })
 
   it('rejects delete listing requests without an item id', async () => {
@@ -167,8 +183,13 @@ describe('listings router', () => {
 
     await remove(req, res)
 
-    expect(res.sendStatus).toHaveBeenCalledWith(400)
-    expect(serviceMocks.deleteListing).not.toHaveBeenCalled()
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.deleteListing.mock.calls,
+    }).toEqual({
+      statusCall: [400],
+      serviceCalls: [],
+    })
   })
 
   it('rejects delete listing requests without a session token', async () => {
@@ -184,7 +205,12 @@ describe('listings router', () => {
 
     await remove(req, res)
 
-    expect(res.sendStatus).toHaveBeenCalledWith(401)
-    expect(serviceMocks.deleteListing).not.toHaveBeenCalled()
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.deleteListing.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      serviceCalls: [],
+    })
   })
 })

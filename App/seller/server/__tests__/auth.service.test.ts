@@ -20,15 +20,22 @@ describe('auth service', () => {
       json: async () => user,
     })
 
-    await expect(check('session-token')).resolves.toEqual(user)
-    expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:4010/api/v0/login/check',
-      {
-        headers: {
-          Authorization: 'Bearer session-token',
+    const result = await check('session-token')
+
+    expect({
+      result,
+      fetchCall: fetchMock.mock.calls[0],
+    }).toEqual({
+      result: user,
+      fetchCall: [
+        'http://localhost:4010/api/v0/login/check',
+        {
+          headers: {
+            Authorization: 'Bearer session-token',
+          },
         },
-      },
-    )
+      ],
+    })
   })
 
   it('returns undefined when the login service rejects the session', async () => {

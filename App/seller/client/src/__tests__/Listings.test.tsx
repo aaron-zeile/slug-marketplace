@@ -1,4 +1,4 @@
-import {render, screen} from '@testing-library/react'
+import {screen} from '@testing-library/react'
 import {it, vi} from 'vitest'
 import React from 'react'
 
@@ -29,5 +29,5 @@ it('renders listings', async () => {
 
   renderWithProviders(<Listings />)
 
-  await screen.findByText('USB Hub 937')
+  expect(await screen.findByText('USB Hub 937')).toBeInTheDocument()
 })

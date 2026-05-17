@@ -6,12 +6,12 @@ import Dashboard from '../dashboard'
 
 it('renders top bar', async () => {
   render(<Dashboard/>)
-  await screen.findByText('Dashboard')
+  expect(await screen.findByText('Dashboard')).toBeInTheDocument()
 })
 
 it('renders tabs', async () => {
   render(<Dashboard/>)
-  await screen.findByText('Listings')
+  expect(await screen.findByText('Listings')).toBeInTheDocument()
 })
 
 it('tab selection changes on click', () => {

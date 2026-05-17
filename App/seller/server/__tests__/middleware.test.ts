@@ -34,8 +34,13 @@ describe('validate', () => {
 
     validate(schema)(req, res, next)
 
-    expect(next).toHaveBeenCalledOnce()
-    expect(res.status).not.toHaveBeenCalled()
+    expect({
+      nextCalls: (next as ReturnType<typeof vi.fn>).mock.calls.length,
+      statusCalls: (res.status as ReturnType<typeof vi.fn>).mock.calls,
+    }).toEqual({
+      nextCalls: 1,
+      statusCalls: [],
+    })
   })
 
   it('returns a 400 when validation fails', () => {
@@ -49,8 +54,14 @@ describe('validate', () => {
 
     validate(schema)(req, res, next)
 
-    expect(next).not.toHaveBeenCalled()
-    expect(res.status).toHaveBeenCalledWith(400)
-    expect(res.json).toHaveBeenCalledWith(expect.any(z.ZodError))
+    expect({
+      nextCalls: (next as ReturnType<typeof vi.fn>).mock.calls,
+      statusCall: (res.status as ReturnType<typeof vi.fn>).mock.calls[0],
+      jsonError: (res.json as ReturnType<typeof vi.fn>).mock.calls[0]?.[0],
+    }).toEqual({
+      nextCalls: [],
+      statusCall: [400],
+      jsonError: expect.any(z.ZodError),
+    })
   })
 })
