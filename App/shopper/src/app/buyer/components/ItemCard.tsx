@@ -1,7 +1,13 @@
 "use client";
 
-import { useRouter } from 'next/navigation'
-import { Box, CardActionArea, CardMedia, Typography } from "@mui/material";
+import { useRouter } from 'next/navigation';
+import {
+  Box,
+  CardActionArea,
+  CardMedia,
+  Typography,
+} from "@mui/material";
+import { useTranslations } from 'next-intl';
 
 export interface CardItem {
   id: string;
@@ -12,63 +18,116 @@ export interface CardItem {
 
 interface ItemCardProps {
   item: CardItem;
+  variant?: 'default' | 'featured';
 }
+
+const brandColor = '#0f766e';
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
 
-export default function ItemCard({ item }: ItemCardProps) {
+export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
   const router = useRouter();
+  const t = useTranslations('Home');
   const firstImage = item.imageurl[0];
+  const isFeatured = variant === 'featured';
 
   return (
     <CardActionArea
       aria-label={"Item Card " + item.id}
       onClick={() => router.push(`/items/${item.id}`)}
       sx={{
-        display: "grid",
-        minWidth: 170,
-        maxWidth: 190,
-        overflow: "hidden",
+        bgcolor: 'background.paper',
         border: 1,
-        borderColor: "divider",
+        borderColor: 'divider',
         borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(15, 118, 110, 0.08)',
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        maxWidth: '100%',
+        minWidth: isFeatured ? 'auto' : 168,
+        overflow: 'hidden',
+        transition: (theme) =>
+          theme.transitions.create(['box-shadow', 'transform', 'border-color'], {
+            duration: theme.transitions.duration.shorter,
+          }),
+        '&:hover': {
+          borderColor: `${brandColor}44`,
+          boxShadow: '0 10px 28px rgba(15, 118, 110, 0.14)',
+          transform: 'translateY(-2px)',
+        },
+        ...(isFeatured
+          ? {
+              '@media (min-width: 600px)': {
+                gridTemplateColumns: 'minmax(200px, 38%) 1fr',
+              },
+            }
+          : {
+              maxWidth: 190,
+            }),
       }}
     >
       <CardMedia
+        alt={item.name}
         component="img"
         src={firstImage}
-        alt={item.name}
         sx={{
-          height: 150,
-          objectFit: "cover",
+          height: isFeatured ? 220 : 148,
+          objectFit: 'cover',
+          width: '100%',
+          ...(isFeatured
+            ? {
+                '@media (min-width: 600px)': {
+                  height: '100%',
+                  minHeight: 220,
+                },
+              }
+            : {}),
         }}
       />
       <Box
         sx={{
-          display: "grid",
-          gap: 0.5,
-          p: 1,
+          display: 'grid',
+          gap: isFeatured ? 0.75 : 0.5,
+          p: isFeatured ? 2 : 1.25,
         }}
       >
         <Typography
-          component="h2"
+          component="h3"
           sx={{
-            overflow: "hidden",
-            fontSize: "0.95rem",
-            fontWeight: 650,
+            fontSize: isFeatured ? '1.15rem' : '0.9rem',
+            fontWeight: isFeatured ? 700 : 650,
             lineHeight: 1.25,
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: isFeatured ? 2 : 1,
           }}
         >
           {item.name}
         </Typography>
-        <Typography sx={{color: "#6e6e6e"}}>
+        <Typography
+          sx={{
+            color: brandColor,
+            fontSize: isFeatured ? '1.2rem' : '0.95rem',
+            fontWeight: 700,
+          }}
+        >
           {currencyFormatter.format(item.price)}
         </Typography>
+        {isFeatured ? (
+          <Typography
+            sx={{
+              color: 'text.secondary',
+              fontSize: '0.85rem',
+              fontWeight: 500,
+            }}
+          >
+            {t('viewDetails')}
+          </Typography>
+        ) : null}
       </Box>
     </CardActionArea>
   );

@@ -7,7 +7,7 @@ import { routerSpy } from './mockRouter';
 it('routes to the cart page when clicked', () => {
   render(<CartButton />);
 
-  fireEvent.click(screen.getByLabelText('cart button'));
+  fireEvent.click(screen.getByLabelText('Open cart'));
 
   expect(routerSpy).toHaveBeenCalledWith('/cart');
 });

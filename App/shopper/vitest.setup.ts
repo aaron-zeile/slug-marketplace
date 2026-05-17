@@ -26,16 +26,45 @@ vi.mock('server-only', () => ({}));
 
 const intlMessages: Record<string, Record<string, string>> = {
   App: { title: 'SlugMarketplace' },
-  Topbar: { hello: 'Hello {name}', guest: 'Guest', logout: 'Logout' },
-  Home: { featuredItems: 'Featured Items' },
+  Topbar: {
+    hello: 'Hello {name}',
+    guest: 'Guest',
+    logout: 'Logout',
+    login: 'Login',
+    navigation: 'Main navigation',
+    openProfileMenu: 'Open account menu',
+    profileMenu: 'Account menu',
+  },
+  Home: {
+    heroAriaLabel: 'Welcome',
+    heroBadge: 'SlugMarketplace',
+    heroTitleLine1: 'Find your next',
+    heroTitleLine2: 'favorite find',
+    heroSubtitle:
+      'Curated picks from trusted sellers — great gear, fair prices, shopping made simple.',
+    heroChipCurated: 'Curated picks',
+    heroChipPrices: 'Fair prices',
+    heroChipEasy: 'Easy browsing',
+    heroTitle: 'Find your next favorite find',
+    spotlightTitle: "Today's spotlight",
+    spotlightEmpty:
+      'Our spotlight pick is loading soon. Explore featured items below.',
+    featuredItems: 'Featured items',
+    featuredSubtitle: 'Scroll to discover more products hand-picked for you.',
+    viewDetails: 'Tap to view details',
+  },
   Search: {
     placeholder: 'Search SlugMarketplace',
+    searchForm: 'Search products',
+    searchInput: 'Search',
+    submitSearch: 'Submit search',
     resultsFor: 'Search results for {query}',
     itemsFound: '{count} items found',
     noResults: 'No items match your search.',
   },
   Cart: {
     tooltip: 'Cart',
+    openCart: 'Open cart',
     title: 'Cart',
     itemsInCart_one: '{count} item in your cart',
     itemsInCart_other: '{count} items in your cart',
@@ -47,7 +76,12 @@ const intlMessages: Record<string, Record<string, string>> = {
     increaseQuantityAria: 'Increase quantity for {name}',
     quantityAria: 'Quantity for {name}',
   },
-  LocaleSwitcher: { label: 'Locale', en: 'English', fr: 'Français' },
+  LocaleSwitcher: {
+    label: 'Locale',
+    selectLocale: 'Select language',
+    en: 'English',
+    fr: 'Français',
+  },
 };
 
 function formatMessage(

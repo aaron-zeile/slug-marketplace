@@ -21,14 +21,12 @@ export const getCart = async (input: MemberCartInput): Promise<CartItem[]> => {
     WHERE member = $1
     ORDER BY id
   `;
-
+  
   const { rows } = await pool.query<CartItem>(query, [input.member]);
   return rows;
 };
 
-export const addToCart = async (
-  input: AddToCartInput,
-): Promise<CartItem> => {
+export const addToCart = async (input: AddToCartInput): Promise<CartItem> => {
   const query = `
     INSERT INTO cart_item (member, item, data)
     VALUES ($1, $2, jsonb_build_object('quantity', 1))

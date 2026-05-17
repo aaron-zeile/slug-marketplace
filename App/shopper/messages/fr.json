@@ -5,19 +5,40 @@
   "Topbar": {
     "hello": "Bonjour {name}",
     "guest": "Invité",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "navigation": "Navigation principale",
+    "openProfileMenu": "Ouvrir le menu du compte",
+    "profileMenu": "Menu du compte"
   },
   "Home": {
-    "featuredItems": "Articles en vedette"
+    "heroAriaLabel": "Bienvenue",
+    "heroBadge": "SlugMarketplace",
+    "heroTitleLine1": "Trouvez votre",
+    "heroTitleLine2": "prochain coup de cœur",
+    "heroSubtitle": "Une sélection de vendeurs de confiance — bons produits, prix justes, achats simplifiés.",
+    "heroChipCurated": "Sélection soignée",
+    "heroChipPrices": "Prix justes",
+    "heroChipEasy": "Navigation facile",
+    "heroTitle": "Trouvez votre prochain coup de cœur",
+    "spotlightTitle": "Coup de projecteur du jour",
+    "spotlightEmpty": "Notre sélection du jour arrive bientôt. Découvrez les articles en vedette ci-dessous.",
+    "featuredItems": "Articles en vedette",
+    "featuredSubtitle": "Faites défiler pour découvrir d'autres produits choisis pour vous.",
+    "viewDetails": "Appuyez pour voir les détails"
   },
   "Search": {
     "placeholder": "Rechercher sur SlugMarketplace",
+    "searchForm": "Rechercher des produits",
+    "searchInput": "Recherche",
+    "submitSearch": "Lancer la recherche",
     "resultsFor": "Résultats de recherche pour {query}",
     "itemsFound": "{count} article(s) trouvé(s)",
     "noResults": "Aucun article ne correspond à votre recherche."
   },
   "Cart": {
     "tooltip": "Panier",
+    "openCart": "Ouvrir le panier",
     "title": "Panier",
     "itemsInCart_one": "{count} article dans votre panier",
     "itemsInCart_other": "{count} articles dans votre panier",
@@ -31,6 +52,7 @@
   },
   "LocaleSwitcher": {
     "label": "Langue",
+    "selectLocale": "Choisir la langue",
     "en": "English",
     "fr": "Français"
   }

@@ -143,7 +143,7 @@ const ItemDisplay = ({ id }: Props) => {
       setCartMessage('Added to cart.');
     } else {
       setCartMessage('Please sign in to add to cart.');
-    } 
+    }
 
     setAddingToCart(false);
   };
@@ -461,7 +461,9 @@ const ItemDisplay = ({ id }: Props) => {
                     Add to cart
                   </Button>
                   <Button
-                    variant="outlined"
+                    // REMOVE DISABLED WHEN FUNCTIONALITY ADDED
+                    disabled
+                    variant="contained"
                     sx={{
                       width: { xs: '100%', sm: 'auto' },
                       flex: { sm: 1 },
@@ -588,11 +590,7 @@ const ItemDisplay = ({ id }: Props) => {
       >
         <Alert
           aria-label={cartMessage ?? undefined}
-          severity={
-            cartMessage === 'Added to cart.'
-              ? 'success'
-              : 'warning'
-          }
+          severity={cartMessage === 'Added to cart.' ? 'success' : 'warning'}
           variant="filled"
           sx={{ width: '100%' }}
         >

@@ -52,7 +52,7 @@ export default function ReviewWriteForm({ itemId, onReviewCreated }: Props) {
       setRating(null);
       setComment('');
     } else {
-      setError(result.error ?? 'Could not submit review.');
+      setError(result.error);
     }
   };
 

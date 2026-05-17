@@ -215,16 +215,16 @@ it('Renders Page', async () => {
 it('shows login when logged out', async () => {
   render(<Topbar />);
 
-  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(screen.getByLabelText('Open account menu'));
 
-  expect(await screen.findByLabelText('login')).toBeTruthy();
-  expect(screen.queryByLabelText('logout')).toBeNull();
+  expect(await screen.findByLabelText('Login')).toBeTruthy();
+  expect(screen.queryByRole('menuitem', { name: 'Logout' })).toBeNull();
 });
 
 it('updates the greeting after Google login succeeds', async () => {
   render(<Topbar />);
 
-  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(screen.getByLabelText('Open account menu'));
   fireEvent.click(await screen.findByLabelText(googleButtonLabel));
 
   expect(await screen.findByText('Hello username')).toBeTruthy();
@@ -242,13 +242,13 @@ it('stays logged out when Google login fails', async () => {
 
   render(<Topbar />);
 
-  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(screen.getByLabelText('Open account menu'));
   fireEvent.click(await screen.findByLabelText(googleButtonLabel));
 
   await google.lastLogin;
   expect(await screen.findByText('Hello Guest')).toBeTruthy();
   expect(window.sessionStorage.getItem('name')).toBeNull();
-  expect(screen.queryByLabelText('logout')).toBeNull();
+  expect(screen.queryByRole('menuitem', { name: 'Logout' })).toBeNull();
 });
 
 it('stays logged out when Google does not return a credential', async () => {
@@ -256,14 +256,14 @@ it('stays logged out when Google does not return a credential', async () => {
 
   render(<Topbar />);
 
-  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(screen.getByLabelText('Open account menu'));
   fireEvent.click(await screen.findByLabelText(googleButtonLabel));
 
   await google.lastLogin;
   expect(await screen.findByText('Hello Guest')).toBeTruthy();
   expect(window.sessionStorage.getItem('name')).toBeNull();
   expect(loginService.verifyIdToken).not.toHaveBeenCalled();
-  expect(screen.queryByLabelText('logout')).toBeNull();
+  expect(screen.queryByRole('menuitem', { name: 'Logout' })).toBeNull();
 });
 
 // it('returns a generic login error when the service response has no message', async () => {
@@ -332,12 +332,12 @@ it('does not show login when logged in', async () => {
   render(<Topbar />);
 
   await screen.findByText('Hello username');
-  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(screen.getByLabelText('Open account menu'));
 
   await waitFor(() => {
-    expect(screen.queryByLabelText('login')).toBeNull();
+    expect(screen.queryByLabelText('Login')).toBeNull();
   });
-  expect(await screen.findByLabelText('logout')).toBeTruthy();
+  expect(await screen.findByRole('menuitem', { name: 'Logout' })).toBeTruthy();
 });
 
 it('uses the session cookie when opening a new tab', async () => {
@@ -346,10 +346,10 @@ it('uses the session cookie when opening a new tab', async () => {
   render(<Topbar />);
 
   await screen.findByText('Hello username');
-  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(screen.getByLabelText('Open account menu'));
 
-  expect(await screen.findByLabelText('logout')).toBeTruthy();
-  expect(screen.queryByLabelText('login')).toBeNull();
+  expect(await screen.findByRole('menuitem', { name: 'Logout' })).toBeTruthy();
+  expect(screen.queryByLabelText('Login')).toBeNull();
 });
 
 it('ignores a session check result after unmount', async () => {
@@ -395,13 +395,13 @@ it('shows login after logging out', async () => {
   render(<Topbar />);
 
   await screen.findByText('Hello username');
-  fireEvent.click(screen.getByLabelText('profile'));
+  fireEvent.click(screen.getByLabelText('Open account menu'));
 
-  fireEvent.click(screen.getByLabelText('logout'));
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Logout' }));
 
   await screen.findByText('Hello Guest');
   expect(deletedCookies).toEqual(['session']);
-  fireEvent.click(screen.getByLabelText('profile'));
-  expect(await screen.findByLabelText('login')).toBeTruthy();
-  expect(screen.queryByLabelText('logout')).toBeNull();
+  fireEvent.click(screen.getByLabelText('Open account menu'));
+  expect(await screen.findByLabelText('Login')).toBeTruthy();
+  expect(screen.queryByRole('menuitem', { name: 'Logout' })).toBeNull();
 });

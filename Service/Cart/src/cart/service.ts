@@ -1,9 +1,4 @@
-import {
-  addToCart,
-  clearCart,
-  getCart,
-  removeFromCart,
-} from './db';
+import { addToCart, clearCart, getCart, removeFromCart } from './db';
 import {
   AddToCartInput,
   CartItem,
