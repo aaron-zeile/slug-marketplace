@@ -21,9 +21,33 @@ async function logInWithMockGoogle() {
   }
 
   const authenticated = await response.json() as {
+    email: string
+    id: string
     name: string
     token: string
   }
+
+  const sessionCheck = await fetch(`${loginServiceUrl}/login/check`, {
+    headers: {
+      Authorization: `Bearer ${authenticated.token}`,
+    },
+  })
+
+  if (!sessionCheck.ok) {
+    throw new Error(`Session check failed: ${sessionCheck.status}`)
+  }
+
+  const checkedUser = await sessionCheck.json() as {
+    email: string
+    id: string
+    name: string
+  }
+
+  expect(checkedUser).toMatchObject({
+    email: authenticated.email,
+    id: authenticated.id,
+    name: authenticated.name,
+  })
 
   await page.setCookie({
     httpOnly: true,
@@ -33,10 +57,12 @@ async function logInWithMockGoogle() {
     url: 'http://localhost:3000',
     value: authenticated.token,
   })
-  await page.evaluate(() => {
-    window.sessionStorage.setItem('name', 'username')
-  })
+  await page.evaluate((name) => {
+    window.sessionStorage.setItem('name', name)
+  }, authenticated.name)
   await page.reload({ waitUntil: 'networkidle2' })
+
+  return authenticated
 }
 
 async function openAccountMenu() {
@@ -53,21 +79,21 @@ describe('Authentication', () => {
   })
 
   test('Mock Google login session updates the greeting', async () => {
-    await logInWithMockGoogle()
+    const authenticated = await logInWithMockGoogle()
 
-    await waitForText('Hello username')
+    await waitForText(`Hello ${authenticated.name}`)
   })
 
   test('New tab does not require re-authentication', async () => {
-    await logInWithMockGoogle()
+    const authenticated = await logInWithMockGoogle()
     const tab = await browser.newPage()
 
     await tab.goto(await page.url(), { waitUntil: 'networkidle2' })
-    await tab.evaluate(() => {
-      window.sessionStorage.setItem('name', 'username')
-    })
+    await tab.evaluate((name) => {
+      window.sessionStorage.setItem('name', name)
+    }, authenticated.name)
     await tab.reload({ waitUntil: 'networkidle2' })
-    await tab.waitForSelector('text/Hello username')
+    await tab.waitForSelector(`text/Hello ${authenticated.name}`)
     await tab.close()
   })
 
