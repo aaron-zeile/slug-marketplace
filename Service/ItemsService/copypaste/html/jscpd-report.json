@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2026-05-18T23:17:13.284Z",
+    "detectionDate": "2026-05-18T23:30:45.592Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -357,7 +357,7 @@
         },
         "endLoc": {
           "line": 24,
-          "column": 33,
+          "column": 38,
           "position": 213
         }
       },
@@ -372,7 +372,7 @@
         },
         "endLoc": {
           "line": 24,
-          "column": 32,
+          "column": 37,
           "position": 213
         }
       }
@@ -465,7 +465,7 @@
         },
         "endLoc": {
           "line": 65,
-          "column": 2,
+          "column": 11,
           "position": 446
         }
       },
@@ -480,11 +480,10 @@
         },
         "endLoc": {
           "line": 39,
-          "column": 2,
+          "column": 11,
           "position": 263
         }
       }
     }
-  ],
-  "filename": "C:\\Users\\rezae\\AppData\\Roaming\\npm\\node_modules\\jscpd\\node_modules\\@jscpd\\html-reporter\\dist\\templates\\main.pug"
+  ]
 }
