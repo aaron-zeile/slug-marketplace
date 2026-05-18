@@ -9,7 +9,7 @@
     "start": "next start",
     "test": "vitest run --dir test --no-file-parallelism --testTimeout=3000 --coverage",
     "lint": "eslint",
-    "cpd": "jscpd src test --silent"
+    "cpd": "npx jscpd src test --silent"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -47,6 +47,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "eslint-config-typescript": "^3.0.0",
+    "jscpd": "^4.2.3",
     "jsdom": "^26.1.0",
     "typescript": "^5",
     "typescript-eslint": "^8.46.2",
