@@ -11,6 +11,7 @@ import {
 import type { Request as ExpressRequest } from 'express'
 
 import {Credentials, Authenticated, SessionUser} from '.'
+import type {CorporateApiKeyCreated, CorporateApiKeyRequest} from '.'
 import {AuthService} from '../service'
 
 interface AuthenticatedRequest extends ExpressRequest {
@@ -45,5 +46,38 @@ export class AuthController extends Controller {
     @Request() request: AuthenticatedRequest,
   ): Promise<SessionUser> {
     return request.user!
+  }
+}
+
+@Route('corporate-keys')
+export class CorporateApiKeyController extends Controller {
+  @Post()
+  @Security('jwt', ['member'])
+  @Response('401', 'Unauthorised')
+  public async create(
+    @Request() request: ExpressRequest,
+    @Body() body: CorporateApiKeyRequest,
+  ): Promise<CorporateApiKeyCreated> {
+    return new AuthService().createCorporateApiKey(
+      request.headers.authorization,
+      body,
+    )
+  }
+
+  @Get('check')
+  @Response('401', 'Unauthorised')
+  public async check(
+    @Request() request: ExpressRequest,
+  ): Promise<Authenticated|LoginError> {
+    try {
+      return await new AuthService().checkCorporateApiKey(
+        request.headers.authorization,
+      )
+    } catch (error) {
+      this.setStatus(401)
+      return {
+        message: error instanceof Error ? error.message : 'Invalid API key',
+      }
+    }
   }
 }

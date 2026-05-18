@@ -6,7 +6,7 @@ import {
   type NewListing,
 } from '../../shared/index.js';
 
-const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
+const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
 
 const GET_ITEMS_QUERY = `
   query GetSellerItems($id: String!, $status: String!) {

@@ -2,6 +2,7 @@ import express from 'express';
 // import path from 'path';
 // import { fileURLToPath } from 'url';
 
+import * as apiKeys from './apiKeys/router.js';
 import * as listings from './listings/router.js';
 import {doCheck} from './auth/middleware.js'
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.get('/seller/api/listings', doCheck, listings.get);
 app.post('/seller/api/listings', doCheck, listings.post);
 app.delete('/seller/api/listings/:id', doCheck, listings.remove);
+app.post('/seller/api/keys', doCheck, apiKeys.post);
 
 
 export default app;
