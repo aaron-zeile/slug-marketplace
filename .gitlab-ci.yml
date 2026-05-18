@@ -33,6 +33,7 @@ quality:
   script:
     - npm run lint
     - npm --prefix Service/ItemsService run lint
+    - npm --prefix Service/ItemsService run cpd
     - npm --prefix App/shopper run cpd
 
 build:
@@ -40,8 +41,14 @@ build:
   script:
     - npm run build
 
-test:
+test:apps:
   stage: test
   script:
     - npm run test
+
+test:services:
+  stage: test
+  script:
     - npm --prefix Service/ItemsService test
+    - npm --prefix Service/Login test
+    - npm --prefix Service/Cart test
