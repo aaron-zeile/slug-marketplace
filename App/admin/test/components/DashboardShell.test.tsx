@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import type { ReactNode } from 'react';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -29,7 +28,11 @@ describe('DashboardShell', () => {
   });
 
   it('renders children after mounting', async () => {
-    render(<DashboardShell><div>child content</div></DashboardShell>);
+    render(
+      <DashboardShell>
+        <div>child content</div>
+      </DashboardShell>,
+    );
     await waitFor(() => {
       expect(screen.getByText('child content')).toBeInTheDocument();
     });

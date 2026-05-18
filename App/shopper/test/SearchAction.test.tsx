@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import { fetchSearchItemsAction } from '../src/app/search/[searchText]/actions';
 import { Item } from '../src/item';
 

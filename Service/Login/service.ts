@@ -158,6 +158,7 @@ export class AuthService {
 
   public async check(
     authorization?: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _scopes?: string[],
   ): Promise<SessionUser> {
     // console.debug('[login-service] Session check received', {

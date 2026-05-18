@@ -21,19 +21,17 @@ const visuallyHiddenSx = {
   width: '1px',
 } as const;
 
-export default function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
+export default function LocaleSwitcher({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
   const currentLocale = useLocale();
-  const [locale, setLocale] = React.useState(currentLocale);
   const router = useRouter();
   const t = useTranslations('LocaleSwitcher');
 
-  React.useEffect(() => {
-    setLocale(currentLocale);
-  }, [currentLocale]);
-
   const handleChange = (event: SelectChangeEvent) => {
     const newLocale = event.target.value as string;
-    setLocale(newLocale);
     document.cookie = `locale=${newLocale}; path=/; max-age=31536000`;
     router.refresh();
   };
@@ -64,7 +62,7 @@ export default function LocaleSwitcher({ compact = false }: { compact?: boolean 
         <Select
           labelId="shopper-locale-label"
           id="shopper-locale-select"
-          value={locale}
+          value={currentLocale}
           label={compact ? t('selectLocale') : t('label')}
           onChange={handleChange}
           sx={{

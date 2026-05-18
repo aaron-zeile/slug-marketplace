@@ -1,9 +1,9 @@
-import {render, screen, fireEvent} from '@testing-library/react'
-import {it, test, vi, expect} from 'vitest'
-import React from 'react'
+import { screen, fireEvent } from '@testing-library/react';
+import { it, test, vi, expect } from 'vitest';
+import React from 'react';
 
-import Listings from '../dashboard/Listings'
-import { renderWithProviders } from '../test/renderWithProviders'
+import Listings from '../dashboard/Listings';
+import { renderWithProviders } from '../test/renderWithProviders';
 
 it('throws error on failed fetch', async () => {
   vi.stubGlobal(
@@ -13,12 +13,14 @@ it('throws error on failed fetch', async () => {
       status: 500,
       statusText: 'Internal Server Error',
     })),
-  )
+  );
 
-  renderWithProviders(<Listings />)
+  renderWithProviders(<Listings />);
 
-  expect(await screen.findByText('Error: Internal Server Error')).toBeInTheDocument()
-})
+  expect(
+    await screen.findByText('Error: Internal Server Error'),
+  ).toBeInTheDocument();
+});
 
 test('close error snackbar', async () => {
   vi.stubGlobal(
@@ -28,14 +30,14 @@ test('close error snackbar', async () => {
       status: 404,
       statusText: 'Not Found',
     })),
-  )
+  );
 
-  renderWithProviders(<Listings />)
+  renderWithProviders(<Listings />);
 
-  const close = await screen.findByLabelText('Close error message')
-  fireEvent.click(close)
-  expect(screen.queryByText('Error: Not Found')).toBeNull()
-})
+  const close = await screen.findByLabelText('Close error message');
+  fireEvent.click(close);
+  expect(screen.queryByText('Error: Not Found')).toBeNull();
+});
 
 test('keeps error snackbar open on clickaway', async () => {
   vi.stubGlobal(
@@ -45,12 +47,12 @@ test('keeps error snackbar open on clickaway', async () => {
       status: 503,
       statusText: 'Service Unavailable',
     })),
-  )
+  );
 
-  renderWithProviders(<Listings />)
+  renderWithProviders(<Listings />);
 
-  await screen.findByText('Error: Service Unavailable')
-  fireEvent.mouseDown(document.body)
-  fireEvent.click(document.body)
-  expect(screen.queryByText('Error: Service Unavailable')).not.toBeNull()
-})
+  await screen.findByText('Error: Service Unavailable');
+  fireEvent.mouseDown(document.body);
+  fireEvent.click(document.body);
+  expect(screen.queryByText('Error: Service Unavailable')).not.toBeNull();
+});

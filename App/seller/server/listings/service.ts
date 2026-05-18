@@ -48,31 +48,31 @@ const DELETE_ITEM_MUTATION = `
   }
 `;
 
-type SellerItemsResponse = {
+interface SellerItemsResponse {
   data?: {
     sellerItems?: unknown
   }
-  errors?: Array<{
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
-type CreateItemResponse = {
+interface CreateItemResponse {
   data?: {
     createItem?: unknown
   }
-  errors?: Array<{
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
-type DeleteItemResponse = {
+interface DeleteItemResponse {
   data?: {
     deleteItem?: unknown
   }
-  errors?: Array<{
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
 export class ListingService {

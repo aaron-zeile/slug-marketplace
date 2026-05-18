@@ -6,10 +6,10 @@ import {
   type AppLocale,
 } from './locale';
 
-type LocaleContextValue = {
+interface LocaleContextValue {
   locale: AppLocale;
   setLocale: (locale: AppLocale) => void;
-};
+}
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 

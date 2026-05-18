@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Skeleton, Typography } from '@mui/material';
+import { Box, Skeleton, Typography } from '@mui/material';
 import React from 'react';
 import { useTranslations } from 'next-intl';
 

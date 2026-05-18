@@ -8,7 +8,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Review } from '../../../item/review';
 import {
   fetchItemReviewSessionAction,
@@ -23,42 +23,61 @@ interface Props {
   id: string;
 }
 
+interface State {
+  reviews: Review[] | null;
+  loggedIn: boolean;
+  loading: boolean;
+  err: string;
+}
+
+const initialState: State = {
+  reviews: null,
+  loggedIn: false,
+  loading: true,
+  err: '',
+};
+
 const Reviews = ({ id }: Props) => {
-  const [reviews, setReviews] = useState<Review[] | null>(null);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState('');
+  const [state, setState] = useState<State>(initialState);
+  const prevId = useRef(id);
 
   useEffect(() => {
     let cancelled = false;
-
-    setLoading(true);
-    setErr('');
-    setReviews(null);
 
     Promise.all([
       fetchItemReviewsAction(id),
       fetchItemReviewSessionAction(),
     ]).then(([revRes, sessRes]) => {
-      if (cancelled) {
-        return;
-      }
+      if (cancelled) return;
+
       if (!revRes.success || revRes.data === undefined) {
-        setErr('Failed to fetch reviews');
         console.error('Failed to fetch reviews');
+        setState({
+          reviews: null,
+          loggedIn: false,
+          loading: false,
+          err: 'Failed to fetch reviews',
+        });
       } else {
-        setReviews(revRes.data);
+        setState({
+          reviews: revRes.data ?? null,
+          loggedIn: sessRes.loggedIn,
+          loading: false,
+          err: '',
+        });
       }
-      setLoggedIn(sessRes.loggedIn);
-      setLoading(false);
     });
 
     return () => {
       cancelled = true;
+      if (prevId.current !== id) {
+        prevId.current = id;
+        setState(initialState);
+      }
     };
   }, [id]);
 
-  if (loading) {
+  if (state.loading) {
     return (
       <Container maxWidth="md" disableGutters sx={{ py: 0 }}>
         <Paper elevation={0} sx={{ p: 4, textAlign: 'center' }}>
@@ -68,7 +87,7 @@ const Reviews = ({ id }: Props) => {
     );
   }
 
-  if (err) {
+  if (state.err) {
     return (
       <Container maxWidth="md" disableGutters sx={{ py: 0 }}>
         <Paper elevation={0} sx={{ p: 4, textAlign: 'center' }}>
@@ -80,7 +99,7 @@ const Reviews = ({ id }: Props) => {
     );
   }
 
-  const list = reviews ?? [];
+  const list = state.reviews ?? [];
 
   return (
     <Box>
@@ -92,11 +111,14 @@ const Reviews = ({ id }: Props) => {
         Reviews
       </Typography>
 
-      {loggedIn ? (
+      {state.loggedIn ? (
         <ReviewWriteForm
           itemId={id}
           onReviewCreated={(review) => {
-            setReviews((prev) => prependReview(prev, review));
+            setState((prev) => ({
+              ...prev,
+              reviews: prependReview(prev.reviews, review),
+            }));
           }}
         />
       ) : (
@@ -108,14 +130,7 @@ const Reviews = ({ id }: Props) => {
       )}
 
       {list.length === 0 ? (
-        <Box
-          sx={{
-            py: 2,
-            px: 1.5,
-            borderRadius: 1.5,
-            bgcolor: 'grey.50',
-          }}
-        >
+        <Box sx={{ py: 2, px: 1.5, borderRadius: 1.5, bgcolor: 'grey.50' }}>
           <Typography
             variant="body2"
             sx={{ color: 'text.secondary', fontSize: '0.875rem' }}
@@ -126,21 +141,11 @@ const Reviews = ({ id }: Props) => {
       ) : (
         <>
           <ReviewSummary reviews={list} />
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1.25,
-            }}
-          >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
             {list.map((review, index) => (
               <Box
                 key={review.id}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 1.25,
-                }}
+                sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}
               >
                 {index > 0 ? (
                   <Divider sx={{ alignSelf: 'stretch', width: '100%' }} />
