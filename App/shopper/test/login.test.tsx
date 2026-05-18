@@ -340,6 +340,22 @@ it('does not show login when logged in', async () => {
   expect(await screen.findByRole('menuitem', { name: 'Logout' })).toBeTruthy();
 });
 
+it('shows a seller dashboard link when logged in', async () => {
+  window.sessionStorage.setItem('name', 'username');
+  await login({ credential: 'google-token' });
+
+  render(<Topbar />);
+
+  await screen.findByText('Hello username');
+  fireEvent.click(screen.getByLabelText('Open account menu'));
+
+  const sellerLink = await screen.findByRole('menuitem', {
+    name: 'Seller Dashboard',
+  });
+
+  expect(sellerLink).toHaveAttribute('href', '/seller');
+});
+
 it('uses the session cookie when opening a new tab', async () => {
   await login({ credential: 'google-token' });
 

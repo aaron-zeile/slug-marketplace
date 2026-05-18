@@ -40,7 +40,7 @@ beforeEach(async () => {
 })
 
 afterAll(async () => {
-  db.shutdown
+  await db.shutdown()
 })
 
 export const clickOn = async (selector) => {

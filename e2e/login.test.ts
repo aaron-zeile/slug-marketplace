@@ -1,49 +1,76 @@
-import { createHmac, randomUUID } from 'crypto'
 import dotenv from 'dotenv'
-import {describe, test} from 'vitest'
+import {describe, expect, test} from 'vitest'
 import {browser, page, waitForText} from './setup'
 
 dotenv.config({ path: './Service/Login/.env' })
 
-const authSecret =
-  process.env.AUTH_SECRET ?? '0a1a55d9f089cad199acd651926bfda7'
+const loginServiceUrl =
+  process.env.LOGIN_SERVICE_URL ?? 'http://localhost:4010/api/v0'
 
-function base64UrlEncode(value: object) {
-  return Buffer.from(JSON.stringify(value)).toString('base64url')
-}
-
-function createSessionToken(user = {
-  email: 'username@example.com',
-  id: randomUUID(),
-  name: 'username',
-}) {
-  const now = Math.floor(Date.now() / 1000)
-  const header = base64UrlEncode({ alg: 'HS256', typ: 'JWT' })
-  const payload = base64UrlEncode({
-    ...user,
-    exp: now + 60 * 60,
-    iat: now,
+async function logInWithMockGoogle() {
+  const response = await fetch(`${loginServiceUrl}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({credential: 'e2e-google-token'}),
   })
-  const signature = createHmac('sha256', authSecret)
-    .update(`${header}.${payload}`)
-    .digest('base64url')
 
-  return `${header}.${payload}.${signature}`
-}
+  if (!response.ok) {
+    throw new Error(`Login failed: ${response.status}`)
+  }
 
-async function logInAsMockUser() {
+  const authenticated = await response.json() as {
+    email: string
+    id: string
+    name: string
+    token: string
+  }
+
+  const sessionCheck = await fetch(`${loginServiceUrl}/login/check`, {
+    headers: {
+      Authorization: `Bearer ${authenticated.token}`,
+    },
+  })
+
+  if (!sessionCheck.ok) {
+    throw new Error(`Session check failed: ${sessionCheck.status}`)
+  }
+
+  const checkedUser = await sessionCheck.json() as {
+    email: string
+    id: string
+    name: string
+  }
+
+  expect(checkedUser).toMatchObject({
+    email: authenticated.email,
+    id: authenticated.id,
+    name: authenticated.name,
+  })
+
   await page.setCookie({
     httpOnly: true,
     name: 'session',
     path: '/',
     sameSite: 'Lax',
     url: 'http://localhost:3000',
-    value: createSessionToken(),
+    value: authenticated.token,
   })
-  await page.evaluate(() => {
-    window.sessionStorage.setItem('name', 'username')
-  })
+  await page.evaluate((name) => {
+    window.sessionStorage.setItem('name', name)
+  }, authenticated.name)
   await page.reload({ waitUntil: 'networkidle2' })
+
+  return authenticated
+}
+
+async function openAccountMenu() {
+  await page.click('[aria-label="Open account menu"]')
+}
+
+async function findSellerDashboardButton() {
+  return page.$('text/Seller Dashboard')
 }
 
 describe('Authentication', () => {
@@ -52,21 +79,53 @@ describe('Authentication', () => {
   })
 
   test('Mock Google login session updates the greeting', async () => {
-    await logInAsMockUser()
+    const authenticated = await logInWithMockGoogle()
 
-    await waitForText('Hello username')
+    await waitForText(`Hello ${authenticated.name}`)
   })
 
   test('New tab does not require re-authentication', async () => {
-    await logInAsMockUser()
+    const authenticated = await logInWithMockGoogle()
     const tab = await browser.newPage()
 
     await tab.goto(await page.url(), { waitUntil: 'networkidle2' })
-    await tab.evaluate(() => {
-      window.sessionStorage.setItem('name', 'username')
-    })
+    await tab.evaluate((name) => {
+      window.sessionStorage.setItem('name', name)
+    }, authenticated.name)
     await tab.reload({ waitUntil: 'networkidle2' })
-    await tab.waitForSelector('text/Hello username')
+    await tab.waitForSelector(`text/Hello ${authenticated.name}`)
     await tab.close()
+  })
+
+  test('Logged in user can go to seller dashboard from the account menu', async () => {
+    await logInWithMockGoogle()
+    await openAccountMenu()
+
+    const sellerButton = await page.waitForSelector('text/Seller Dashboard')
+    const href = await sellerButton.evaluate((element) =>
+      element.closest('a')?.getAttribute('href'),
+    )
+    expect(
+      href?.includes('/seller') || href?.startsWith('http://localhost:5173'),
+    ).toBe(true)
+
+    await sellerButton.evaluate((element) => {
+      const link = element.closest('a')
+      if (!link) {
+        throw new Error('Seller dashboard button is not a link')
+      }
+      link.click()
+    })
+  })
+
+  test('Seller dashboard button is hidden after logging out', async () => {
+    await logInWithMockGoogle()
+    await openAccountMenu()
+    await page.click('text/Logout')
+
+    await waitForText('Hello Guest')
+
+    const sellerButton = await findSellerDashboardButton()
+    expect(sellerButton).toBeNull()
   })
 })

@@ -29,6 +29,7 @@ const intlMessages: Record<string, Record<string, string>> = {
   Topbar: {
     hello: 'Hello {name}',
     guest: 'Guest',
+    sellerDashboard: 'Seller Dashboard',
     logout: 'Logout',
     login: 'Login',
     navigation: 'Main navigation',

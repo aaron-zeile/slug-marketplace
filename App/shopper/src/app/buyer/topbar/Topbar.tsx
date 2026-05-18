@@ -28,6 +28,8 @@ import GoogleLogin from '../login/GoogleLogin';
 import CartButton from './CartButton';
 
 const brandColor = '#0f766e';
+const sellerDashboardUrl =
+  process.env.NEXT_PUBLIC_SELLER_URL ?? '/seller';
 
 function getAvatarLabel(name: string | null) {
   return name?.trim().charAt(0).toUpperCase() || undefined;
@@ -39,6 +41,7 @@ export default function Topbar() {
   const tTopbar = useTranslations('Topbar');
 
   const [name, setName] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [menuPosition, setMenuPosition] = useState<null | {
     left: number;
     top: number;
@@ -60,6 +63,7 @@ export default function Topbar() {
         return;
       }
 
+      setIsAuthenticated(Boolean(result.user || storedName));
       setName(result.user ? (storedName ?? result.user.name) : storedName);
     }
 
@@ -73,6 +77,7 @@ export default function Topbar() {
   const handleLogout = async () => {
     await logout();
     window.sessionStorage.removeItem('name');
+    setIsAuthenticated(false);
     setName(null);
     handleMenuClose();
   };
@@ -271,7 +276,7 @@ export default function Topbar() {
           },
         }}
       >
-        {name ? (
+        {isAuthenticated ? (
           <>
             <Box sx={{ px: 2, py: 1.5 }}>
               <Typography
@@ -296,6 +301,16 @@ export default function Topbar() {
               </Typography>
             </Box>
             <Divider />
+            <MenuItem
+              component="a"
+              href={sellerDashboardUrl}
+              sx={{ py: 1.25 }}
+            >
+              <ListItemIcon>
+                <StorefrontOutlinedIcon aria-hidden sx={{ fontSize: 20 }} />
+              </ListItemIcon>
+              {tTopbar('sellerDashboard')}
+            </MenuItem>
             <MenuItem onClick={handleLogout} sx={{ py: 1.25 }}>
               <ListItemIcon>
                 <LogoutIcon aria-hidden sx={{ fontSize: 20 }} />
@@ -310,7 +325,13 @@ export default function Topbar() {
             sx={{ py: 1.5 }}
           >
             <Box sx={{ width: '100%' }}>
-              <GoogleLogin setName={setName} onLogin={handleMenuClose} />
+              <GoogleLogin
+                setName={setName}
+                onAuthenticated={() => {
+                  setIsAuthenticated(true);
+                }}
+                onLogin={handleMenuClose}
+              />
             </Box>
           </MenuItem>
         )}
