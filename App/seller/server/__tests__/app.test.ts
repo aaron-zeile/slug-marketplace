@@ -33,6 +33,10 @@ vi.mock('../listings/router.js', () => ({
   remove: 'remove-listing',
 }))
 
+vi.mock('../apiKeys/router.js', () => ({
+  post: 'post-api-key',
+}))
+
 describe('seller app', () => {
   it('registers seller listing routes behind auth middleware', async () => {
     const {default: app} = await import('../app.js')
@@ -49,7 +53,10 @@ describe('seller app', () => {
       jsonCalls: [[]],
       useCalls: [['json-middleware']],
       getCalls: [['/seller/api/listings', 'auth-middleware', 'get-listings']],
-      postCalls: [['/seller/api/listings', 'auth-middleware', 'post-listing']],
+      postCalls: [
+        ['/seller/api/listings', 'auth-middleware', 'post-listing'],
+        ['/seller/api/keys', 'auth-middleware', 'post-api-key'],
+      ],
       deleteCalls: [
         ['/seller/api/listings/:id', 'auth-middleware', 'remove-listing'],
       ],

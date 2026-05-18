@@ -69,15 +69,22 @@ describe('server index', () => {
     const [, fallbackHandler] = app.get.mock.calls[0]
     fallbackHandler({}, {sendFile})
 
+    const staticDir = expressStatic.mock.calls[0]?.[0]?.replaceAll('\\', '/')
+    const sentFile = sendFile.mock.calls[0]?.[0]?.replaceAll('\\', '/')
+
     expect({
-      staticDir: expressStatic.mock.calls[0]?.[0],
-      usedStaticMiddleware: app.use.mock.calls[0]?.[0],
+      staticDir,
+      sellerStaticMount: app.use.mock.calls[0]?.[0],
+      usedSellerStaticMiddleware: app.use.mock.calls[0]?.[1],
+      rootStaticMiddleware: app.use.mock.calls[1]?.[0],
       fallbackPattern: app.get.mock.calls[0]?.[0],
-      sentFile: sendFile.mock.calls[0]?.[0],
+      sentFile,
       listenPort: app.listen.mock.calls[0]?.[0],
     }).toEqual({
       staticDir: expect.stringContaining('/client/dist'),
-      usedStaticMiddleware: staticMiddleware,
+      sellerStaticMount: '/seller',
+      usedSellerStaticMiddleware: staticMiddleware,
+      rootStaticMiddleware: staticMiddleware,
       fallbackPattern: /.*/,
       sentFile: expect.stringContaining('/client/dist/index.html'),
       listenPort: 3010,

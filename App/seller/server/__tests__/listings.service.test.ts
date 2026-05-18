@@ -45,7 +45,7 @@ describe('ListingService', () => {
     }).toEqual({
       listings: [listing],
       fetchCall: [
-        'http://localhost:4000/graphql',
+        'http://localhost:4500/graphql',
         expect.objectContaining({
           method: 'POST',
           headers: {
@@ -147,7 +147,7 @@ describe('ListingService', () => {
     }).toEqual({
       created: listing,
       fetchCall: [
-        'http://localhost:4000/graphql',
+        'http://localhost:4500/graphql',
         expect.objectContaining({
           headers: {
             'Content-Type': 'application/json',
