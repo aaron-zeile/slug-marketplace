@@ -12,13 +12,23 @@ variables:
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
   POSTGRES_HOST_AUTH_METHOD: trust
-
   AUTH_SECRET: test-secret
   SESSION_SECRET: test-secret2
   ADMIN_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/admin
   ITEMS_SERVICE_URL: http://localhost:4500/graphql
   NEXT_PUBLIC_GOOGLE_CLIENT_ID: test-client-id
   LOGIN_SERVICE_URL: http://localhost:4010/api/v0
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - node_modules/
+    - App/admin/node_modules/
+    - App/seller/node_modules/
+    - App/shopper/node_modules/
+    - Service/ItemsService/node_modules/
+    - Service/Login/node_modules/
+    - Service/Cart/node_modules/
 
 stages:
   - quality
@@ -41,14 +51,17 @@ build:
   script:
     - npm run build
 
-test:apps:
+test:admin:
   stage: test
   script:
-    - npm run test
+    - npm run test-admin
 
-test:services:
+test:seller:
   stage: test
   script:
-    - npm --prefix Service/ItemsService test
-    - npm --prefix Service/Login test
-    - npm --prefix Service/Cart test
+    - npm run test-seller
+
+test:shopper:
+  stage: test
+  script:
+    - npm run test-shopper
