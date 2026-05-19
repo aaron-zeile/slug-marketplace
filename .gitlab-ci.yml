@@ -22,13 +22,7 @@ variables:
 cache:
   key: $CI_COMMIT_REF_SLUG
   paths:
-    - node_modules/
-    - App/admin/node_modules/
-    - App/seller/node_modules/
-    - App/shopper/node_modules/
-    - Service/ItemsService/node_modules/
-    - Service/Login/node_modules/
-    - Service/Cart/node_modules/
+    - .npm/
 
 stages:
   - quality
@@ -36,6 +30,7 @@ stages:
   - test
 
 before_script:
+  - npm config set cache .npm
   - npm run cis
 
 quality:
