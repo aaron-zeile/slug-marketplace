@@ -86,7 +86,7 @@ export class ListingService {
         query: GET_ITEMS_QUERY,
         variables: {
           id: sellerId,
-          status: status,
+          status,
         },
       }),
     });
@@ -98,6 +98,7 @@ export class ListingService {
     const body = await response.json() as SellerItemsResponse
 
     if (body.errors?.length) {
+      console.log(JSON.stringify(body, null, 2))
       throw new Error(body.errors[0]?.message ?? 'GraphQL error');
     }
 

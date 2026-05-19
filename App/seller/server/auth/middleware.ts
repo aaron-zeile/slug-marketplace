@@ -1,8 +1,6 @@
 import type {NextFunction, Request, Response} from 'express'
 import {check, checkApiKey, type SessionUser} from './service.js'
 
-const TEMP_SELLER_ID = process.env.TEMP_SELLER_ID || 'dbdb10af-685c-41ff-b8e1-676b98c1732a';
-
 declare module 'express-serve-static-core' {
   interface Request {
     user?: SessionUser
@@ -46,16 +44,6 @@ export async function doCheck(
       name: authenticated.name,
     }
     req.sessionToken = authenticated.token
-    next()
-    return
-  }
-
-  if (!token && process.env.NODE_ENV === 'development' && TEMP_SELLER_ID) {
-    req.user = {
-      id: TEMP_SELLER_ID,
-      email: 'test-seller@email.com',
-      name: 'Test Seller'
-    }
     next()
     return
   }
