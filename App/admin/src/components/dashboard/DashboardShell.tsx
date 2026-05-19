@@ -10,8 +10,15 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import LogoutButton from './LogoutButton';
 import SimpleCharts from './charts/chart';
+import LocaleSwitcher from './localeSwitcher/localeSwitcher';
 
-export default function DashboardShell({ children }: { children: ReactNode }) {
+export default function DashboardShell({
+  children,
+  currentLocale,
+}: {
+  children: ReactNode;
+  currentLocale: string;
+}) {
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -39,6 +46,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           >
             {t('title')}
           </Typography>
+          <LocaleSwitcher currentLocale={currentLocale} />
           <LogoutButton />
         </Toolbar>
       </AppBar>
