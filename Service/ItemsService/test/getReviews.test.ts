@@ -1,53 +1,143 @@
-import { beforeAll, afterAll, test, expect } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import * as http from 'http';
 import * as db from './db';
 import { app, bootstrap } from '../src/app';
+import {
+  createItemViaGraphql,
+  expectGraphqlAuthError,
+  mockUnauthenticatedLoginOnce,
+  stubLoginFetch,
+  testUser,
+} from './helpers';
 import supertest from 'supertest';
+
+const reviewComment = 'Great item, would buy again.';
+const reviewRating = 4.5;
 
 let server: http.Server<
   typeof http.IncomingMessage,
   typeof http.ServerResponse
 >;
+let testItemId: string;
 
 beforeAll(async () => {
+  stubLoginFetch();
+
   server = http.createServer(app);
   server.listen();
   await bootstrap();
-  await db.reset();
+  await db.resetSchema();
+
+  const created = await createItemViaGraphql(server, {
+    name: 'Juice',
+    description: 'Refreshing fruit juice.',
+    images: [],
+    price: 3.56,
+  });
+  testItemId = created.id;
 });
 
 afterAll(() => {
+  vi.unstubAllGlobals();
   db.shutdown();
   server.close();
 });
-// MAKE SURE TO CREATE A REVIEW FIRST THEN STORE ITS ID, THEN USE THAT ID IN THE TEST BELOW
-// also make sure to update the expected fields in the test below to match the reviews for the item you are testing
 
-test('Testing to pull reviews for an item', async () => {
-  await supertest(server)
+test('creates a review and returns it when fetching reviews', async () => {
+  const createRes = await supertest(server)
+    .post('/graphql')
+    .set('Authorization', 'Bearer test-session-token')
+    .send({
+      query: `mutation CreateReview($input: NewReview!) {
+        createReview(input: $input) {
+          id
+          user {
+            id
+            name
+          }
+          content
+          rating
+          created_at
+        }
+      }`,
+      variables: {
+        input: {
+          itemId: testItemId,
+          rating: reviewRating,
+          comment: reviewComment,
+        },
+      },
+    });
+
+  expect(createRes.body.errors).toBeUndefined();
+  expect(createRes.body.data.createReview).toMatchObject({
+    user: {
+      id: testUser.id,
+      name: testUser.name,
+    },
+    content: reviewComment,
+    rating: reviewRating,
+  });
+
+  const createdReview = createRes.body.data.createReview;
+
+  const reviewsRes = await supertest(server)
     .post('/graphql')
     .send({
-      query: `{reviews(input: { id: "cbab3d45-b993-49c7-89cd-b6adb2d0f899" }) {
-        user {
+      query: `query Reviews($input: ItemId!) {
+        reviews(input: $input) {
           id
-          name
+          user {
+            id
+            name
+          }
+          content
+          rating
+          created_at
         }
-        content
-        rating
-        created_at
-      }}`,
-    })
-    .then((res) => {
-      console.log(res.body);
-      expect(res.body.data.reviews).toBeInstanceOf(Array);
-      expect(res.body.data.reviews[0]).toMatchObject({
-        user: {
-          id: expect.any(String),
-          name: expect.any(String),
-        },
-        content: expect.any(String),
-        rating: expect.any(Number),
-        created_at: expect.any(String),
-      });
+      }`,
+      variables: {
+        input: { id: testItemId },
+      },
     });
+
+  expect(reviewsRes.body.errors).toBeUndefined();
+  expect(reviewsRes.body.data.reviews).toBeInstanceOf(Array);
+  expect(reviewsRes.body.data.reviews).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        id: createdReview.id,
+        user: {
+          id: testUser.id,
+          name: testUser.name,
+        },
+        content: reviewComment,
+        rating: reviewRating,
+      }),
+    ]),
+  );
+});
+
+test('createReview rejects unauthenticated requests', async () => {
+  mockUnauthenticatedLoginOnce();
+
+  const response = await supertest(server)
+    .post('/graphql')
+    .send({
+      query: `mutation CreateReview($input: NewReview!) {
+        createReview(input: $input) {
+          id
+        }
+      }`,
+      variables: {
+        input: {
+          itemId: testItemId,
+          rating: 4,
+          comment: 'No auth.',
+        },
+      },
+    });
+
+  expectGraphqlAuthError(response.body);
+  expect(response.body.data?.createReview).toBeUndefined();
 });

@@ -48,7 +48,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "start": "node build/server.js",
-    "lint": "eslint src/**/*.[jt]s --fix",
+    "lint": "eslint src test --fix",
     "cpd": "npx jscpd src test --silent",
     "test": "vitest run --no-file-parallelism --testTimeout=3000 --coverage"
   }

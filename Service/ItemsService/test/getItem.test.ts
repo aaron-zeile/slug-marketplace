@@ -1,41 +1,57 @@
-import { beforeAll, afterAll, test, expect } from 'vitest';
+import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import * as http from 'http';
 import * as db from './db';
 import { app, bootstrap } from '../src/app';
+import { createItemViaGraphql, stubLoginFetch } from './helpers';
 import supertest from 'supertest';
+
+const newItem = {
+  name: 'Plant Pot 405',
+  description: 'A ceramic plant pot for indoor plants.',
+  images: ['https://example.com/plant-pot.webp'],
+  price: 14.92,
+};
 
 let server: http.Server<
   typeof http.IncomingMessage,
   typeof http.ServerResponse
 >;
+let createdItemId: string;
 
 beforeAll(async () => {
+  stubLoginFetch();
+
   server = http.createServer(app);
   server.listen();
   await bootstrap();
-  await db.reset();
+  await db.resetSchema();
+
+  const created = await createItemViaGraphql(server, newItem);
+  createdItemId = created.id;
 });
 
 afterAll(() => {
+  vi.unstubAllGlobals();
   db.shutdown();
   server.close();
 });
 
-// MAKE SURE TO CREATE AN ITEM FIRST THEN STORE ITS ID, THEN USE THAT ID IN THE TEST BELOW
-// also make sure to update the expected name in the test below to match the name of the item you created
-
-test('Testing to pull 1 item', async () => {
-  await supertest(server)
+test('returns an item by id after createItem', async () => {
+  const response = await supertest(server)
     .post('/graphql')
     .send({
-      query: `{item(input: { id: "52bbb488-1f5c-4540-b0e5-5fe51aa6fe33" }) {
-  name
-}}`,
-    })
-    .then((res) => {
-      console.log(res.body);
-      expect(res.body.data.item).toEqual({
-        name: 'Plant Pot 405',
-      });
+      query: `query Item($input: ItemId!) {
+        item(input: $input) {
+          name
+        }
+      }`,
+      variables: {
+        input: { id: createdItemId },
+      },
     });
+
+  expect(response.body.errors).toBeUndefined();
+  expect(response.body.data.item).toEqual({
+    name: newItem.name,
+  });
 });
