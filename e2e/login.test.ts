@@ -1,6 +1,11 @@
 import {describe, expect, test} from 'vitest'
-import {logInWithMockGoogle, openAccountMenu} from './auth'
-import {browser, page, waitForText} from './setup'
+import {
+  browser,
+  page,
+  logInWithMockGoogle,
+  openAccountMenu,
+  waitForText,
+} from './setup'
 
 async function findSellerDashboardButton() {
   return page.$('text/Seller Dashboard')
@@ -21,7 +26,7 @@ describe('Authentication', () => {
     const authenticated = await logInWithMockGoogle()
     const tab = await browser.newPage()
 
-    await tab.goto(await page.url(), { waitUntil: 'networkidle2' })
+    await tab.goto(await page.url())
     await tab.evaluate((name) => {
       window.sessionStorage.setItem('name', name)
     }, authenticated.name)
@@ -49,12 +54,16 @@ describe('Authentication', () => {
       }
       link.click()
     })
+    sellerButton.dispose()
   })
 
   test('Seller dashboard button is hidden after logging out', async () => {
     await logInWithMockGoogle()
     await openAccountMenu()
-    await page.click('text/Logout')
+
+    const logout = await page.waitForSelector('text/Logout')
+    await logout.click()
+    logout.dispose()
 
     await waitForText('Hello Guest')
 

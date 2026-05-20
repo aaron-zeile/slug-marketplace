@@ -41,6 +41,23 @@ const priceUnitSx = {
   color: 'text.primary',
 } as const;
 
+const itemStatusDisplay = {
+  active: {
+    label: 'In stock',
+    chipSx: {
+      bgcolor: 'success.main',
+      color: 'success.contrastText',
+    },
+  },
+  sold: {
+    label: 'Sold',
+    chipSx: {
+      bgcolor: 'grey.400',
+      color: 'grey.900',
+    },
+  },
+} as const;
+
 const ItemDisplay = ({ id }: Props) => {
   const router = useRouter();
   const [item, setItem] = useState<Item | null>(null);
@@ -150,6 +167,8 @@ const ItemDisplay = ({ id }: Props) => {
 
   const priceFixed = item.price.toFixed(2);
   const [priceDollars, priceCents] = priceFixed.split('.');
+  const statusInfo = itemStatusDisplay[item.status];
+  const isInStock = item.status === 'active';
 
   return (
     <Box sx={clipShellSx}>
@@ -419,13 +438,13 @@ const ItemDisplay = ({ id }: Props) => {
                     </Typography>
                   </Box>
                   <Chip
-                    label="In stock"
+                    aria-label={statusInfo.label}
+                    label={statusInfo.label}
                     sx={{
                       fontWeight: 600,
                       height: 28,
                       fontSize: '0.75rem',
-                      bgcolor: 'success.main',
-                      color: 'success.contrastText',
+                      ...statusInfo.chipSx,
                       '& .MuiChip-label': { px: 1.5 },
                     }}
                   />
@@ -442,7 +461,7 @@ const ItemDisplay = ({ id }: Props) => {
                 >
                   <Button
                     aria-label={`add ${item.name} to cart`}
-                    disabled={addingToCart}
+                    disabled={addingToCart || !isInStock}
                     onClick={handleAddToCart}
                     variant="contained"
                     sx={{

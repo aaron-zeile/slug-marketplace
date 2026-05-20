@@ -62,6 +62,7 @@ export default function SearchItem({ item }: SearchItemProps) {
         }}
       >
         <Typography
+          aria-label={item.name}
           component="h2"
           sx={{
             display: '-webkit-box',

@@ -34,6 +34,7 @@ const mockItem: Item = {
   images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
   price: 894.74,
   created_at: '2025-10-07T18:56:33.000Z',
+  status: 'active',
 };
 
 const mockRouter = {
@@ -92,6 +93,39 @@ it('renders the item price formatted', async () => {
       screen.getByLabelText(`$${mockItem.price.toFixed(2)}`),
     ).toBeDefined();
   });
+});
+
+it('shows In stock when item status is active', async () => {
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('In stock')).toBeDefined();
+  });
+});
+
+it('shows Sold when item status is sold', async () => {
+  vi.mocked(fetchItemAction).mockResolvedValue({
+    success: true,
+    data: { ...mockItem, status: 'sold' },
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Sold')).toBeDefined();
+  });
+});
+
+it('disables add to cart when item status is sold', async () => {
+  vi.mocked(fetchItemAction).mockResolvedValue({
+    success: true,
+    data: { ...mockItem, status: 'sold' },
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  const addButton = await screen.findByLabelText(`add ${mockItem.name} to cart`);
+  expect(addButton).toBeDisabled();
 });
 
 it('renders the seller name', async () => {

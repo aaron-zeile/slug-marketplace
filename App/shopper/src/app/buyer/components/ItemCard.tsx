@@ -95,6 +95,7 @@ export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
         }}
       >
         <Typography
+          aria-label={item.name}
           component="h3"
           sx={{
             fontSize: isFeatured ? '1.15rem' : '0.9rem',
