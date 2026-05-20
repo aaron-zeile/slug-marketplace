@@ -159,7 +159,7 @@ export const getSellerItems = async (itemsInput: SellerItemsInput): Promise<Item
     (data->>'created_at')::timestamptz AS created_at
   FROM item
   WHERE data->>'sellerId' = $1
-  AND status = $2
+  AND status = $2::item_status
   `
   const query = {
     text: select,

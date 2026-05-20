@@ -6,7 +6,7 @@ import {
   type NewListing,
 } from '../../shared/index.js';
 
-const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
+const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
 
 const GET_ITEMS_QUERY = `
   query GetSellerItems($id: String!, $status: String!) {
@@ -48,6 +48,7 @@ const DELETE_ITEM_MUTATION = `
   }
 `;
 
+<<<<<<< HEAD
 const UPDATE_ITEM_MUTATION = `
   mutation UpdateItem($input: UpdateItem!) {
     updateItem(input: $input) {
@@ -66,30 +67,33 @@ const UPDATE_ITEM_MUTATION = `
 `;
 
 type SellerItemsResponse = {
+=======
+interface SellerItemsResponse {
+>>>>>>> efb70c2cfa48858c7cbb3337694c5275c13e0dbc
   data?: {
     sellerItems?: unknown
   }
-  errors?: Array<{
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
-type CreateItemResponse = {
+interface CreateItemResponse {
   data?: {
     createItem?: unknown
   }
-  errors?: Array<{
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
-type DeleteItemResponse = {
+interface DeleteItemResponse {
   data?: {
     deleteItem?: unknown
   }
-  errors?: Array<{
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
 type UpdateItemResponse = {
@@ -112,7 +116,7 @@ export class ListingService {
         query: GET_ITEMS_QUERY,
         variables: {
           id: sellerId,
-          status: status,
+          status,
         },
       }),
     });
@@ -124,6 +128,7 @@ export class ListingService {
     const body = await response.json() as SellerItemsResponse
 
     if (body.errors?.length) {
+      console.log(JSON.stringify(body, null, 2))
       throw new Error(body.errors[0]?.message ?? 'GraphQL error');
     }
 

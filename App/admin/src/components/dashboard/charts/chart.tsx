@@ -1,7 +1,7 @@
 'use client';
 
 import { BarChart } from '@mui/x-charts/BarChart';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
@@ -19,13 +19,18 @@ interface MonthlyProfit {
   profit: number;
 }
 
+function subscribe() {
+  return () => {};
+}
+
 export default function SimpleCharts() {
   const [data, setData] = useState<MonthlyProfit[]>([]);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
   useEffect(() => {
     fetch('/admin/api/graphql', {
@@ -44,7 +49,11 @@ export default function SimpleCharts() {
   return (
     <Box>
       {data.length === 0 && (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ py: 2, textAlign: 'center' }}
+        >
           No data available
         </Typography>
       )}

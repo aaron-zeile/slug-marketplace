@@ -28,8 +28,12 @@ const run = async (file: string) => {
   }
 };
 
-const reset = async () => {
+const resetSchema = async () => {
   await run('src/sql/schema.sql');
+};
+
+const reset = async () => {
+  await resetSchema();
   await run('src/sql/data.sql');
 };
 
@@ -37,4 +41,4 @@ const shutdown = () => {
   pool.end();
 };
 
-export { reset, shutdown };
+export { reset, resetSchema, shutdown };

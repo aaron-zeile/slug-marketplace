@@ -17,6 +17,7 @@
     "eslint": "10.3.0",
     "eslint-config-typescript": "3.0.0",
     "globals": "8.18.0",
+    "jscpd": "^4.2.3",
     "nodemon": "3.1.14",
     "supertest": "7.2.2",
     "ts-node": "10.9.2",
@@ -47,8 +48,8 @@
     "dev": "nodemon",
     "build": "tsc",
     "start": "node build/server.js",
-    "lint": "eslint src/**/*.[jt]s --fix",
-    "cpd": "jscpd src test --silent",
+    "lint": "eslint src test --fix",
+    "cpd": "npx jscpd src test --silent",
     "test": "vitest run --no-file-parallelism --testTimeout=3000 --coverage"
   }
 }

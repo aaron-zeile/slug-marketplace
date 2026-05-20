@@ -1,0 +1,401 @@
+{
+  "statistics": {
+    "detectionDate": "2026-05-18T23:31:14.791Z",
+    "formats": {
+      "typescript": {
+        "sources": {
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/setup.ts": {
+            "lines": 21,
+            "tokens": 196,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/removeFromCart.test.ts": {
+            "lines": 90,
+            "tokens": 481,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 78,
+            "duplicatedTokens": 367,
+            "percentage": 86.67,
+            "percentageTokens": 76.3,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/getCart.test.ts": {
+            "lines": 42,
+            "tokens": 240,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 88,
+            "percentage": 42.86,
+            "percentageTokens": 36.67,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/db.ts": {
+            "lines": 39,
+            "tokens": 395,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/clearCart.test.ts": {
+            "lines": 60,
+            "tokens": 365,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 34,
+            "duplicatedTokens": 183,
+            "percentage": 56.67,
+            "percentageTokens": 50.14,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/addToCart.test.ts": {
+            "lines": 69,
+            "tokens": 394,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 64,
+            "duplicatedTokens": 304,
+            "percentage": 92.75,
+            "percentageTokens": 77.16,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/cart/service.ts": {
+            "lines": 24,
+            "tokens": 219,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/cart/schema.ts": {
+            "lines": 45,
+            "tokens": 312,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/cart/resolver.ts": {
+            "lines": 34,
+            "tokens": 354,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/cart/db.ts": {
+            "lines": 84,
+            "tokens": 396,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/server.ts": {
+            "lines": 12,
+            "tokens": 108,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/db.ts": {
+            "lines": 11,
+            "tokens": 110,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/app.ts": {
+            "lines": 57,
+            "tokens": 488,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 588,
+          "tokens": 4058,
+          "sources": 13,
+          "clones": 5,
+          "duplicatedLines": 97,
+          "duplicatedTokens": 471,
+          "percentage": 16.5,
+          "percentageTokens": 11.61,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "sql": {
+        "sources": {
+          "C:/Users/rezae/Desktop/marketplace/Service/Cart/src/sql/schema.sql": {
+            "lines": 10,
+            "tokens": 87,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 10,
+          "tokens": 87,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 598,
+      "tokens": 4145,
+      "sources": 14,
+      "clones": 5,
+      "duplicatedLines": 97,
+      "duplicatedTokens": 471,
+      "percentage": 16.22,
+      "percentageTokens": 11.36,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "typescript",
+      "lines": 19,
+      "fragment": ", async () => {\r\n  await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `mutation {\r\n        addToCart(input: {\r\n          member: \"${member}\"\r\n          item: \"${item}\"\r\n        }) {\r\n          id\r\n        }\r\n      }`,\r\n    });\r\n\r\n  await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `query {\r\n        cart(input: { member: \"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/getCart.test.ts",
+        "start": 9,
+        "end": 27,
+        "startLoc": {
+          "line": 9,
+          "column": 46,
+          "position": 68
+        },
+        "endLoc": {
+          "line": 27,
+          "column": 32,
+          "position": 156
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/removeFromCart.test.ts",
+        "start": 9,
+        "end": 28,
+        "startLoc": {
+          "line": 9,
+          "column": 48,
+          "position": 68
+        },
+        "endLoc": {
+          "line": 28,
+          "column": 20,
+          "position": 156
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 21,
+      "fragment": ", async () => {\r\n  await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `mutation {\r\n        addToCart(input: {\r\n          member: \"${member}\"\r\n          item: \"${item}\"\r\n        }) {\r\n          id\r\n        }\r\n      }`,\r\n    });\r\n\r\n  await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `mutation {\r\n        addToCart(input: {\r\n          member: \"${member}\"\r\n          item: \"${secondItem",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/clearCart.test.ts",
+        "start": 10,
+        "end": 30,
+        "startLoc": {
+          "line": 10,
+          "column": 52,
+          "position": 78
+        },
+        "endLoc": {
+          "line": 30,
+          "column": 30,
+          "position": 172
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/removeFromCart.test.ts",
+        "start": 9,
+        "end": 29,
+        "startLoc": {
+          "line": 9,
+          "column": 48,
+          "position": 68
+        },
+        "endLoc": {
+          "line": 29,
+          "column": 24,
+          "position": 162
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 15,
+      "fragment": "});\r\n\r\n  await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `query {\r\n        cart(input: { member: \"${member}\" }) {\r\n          item\r\n        }\r\n      }`,\r\n    })\r\n    .then((res) => {\r\n      expect(res.body.data.cart).toEqual([]);\r\n    });\r\n});",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/clearCart.test.ts",
+        "start": 47,
+        "end": 61,
+        "startLoc": {
+          "line": 47,
+          "column": 5,
+          "position": 276
+        },
+        "endLoc": {
+          "line": 61,
+          "column": 4,
+          "position": 365
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/removeFromCart.test.ts",
+        "start": 77,
+        "end": 91,
+        "startLoc": {
+          "line": 77,
+          "column": 5,
+          "position": 392
+        },
+        "endLoc": {
+          "line": 91,
+          "column": 4,
+          "position": 481
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 27,
+      "fragment": ", async () => {\r\n  await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `mutation {\r\n        addToCart(input: {\r\n          member: \"${member}\"\r\n          item: \"${item}\"\r\n        }) {\r\n          id\r\n        }\r\n      }`,\r\n    });\r\n\r\n  await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `mutation {\r\n        addToCart(input: {\r\n          member: \"${member}\"\r\n          item: \"${item}\"\r\n        }) {\r\n          member\r\n          item\r\n          quantity\r\n        }\r\n      }`",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/addToCart.test.ts",
+        "start": 34,
+        "end": 60,
+        "startLoc": {
+          "line": 34,
+          "column": 61,
+          "position": 211
+        },
+        "endLoc": {
+          "line": 60,
+          "column": 9,
+          "position": 307
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/removeFromCart.test.ts",
+        "start": 9,
+        "end": 33,
+        "startLoc": {
+          "line": 9,
+          "column": 48,
+          "position": 68
+        },
+        "endLoc": {
+          "line": 33,
+          "column": 9,
+          "position": 164
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 20,
+      "fragment": "await supertest(server)\r\n    .post('/graphql')\r\n    .send({\r\n      query: `mutation {\r\n        addToCart(input: {\r\n          member: \"${member}\"\r\n          item: \"${item}\"\r\n        }) {\r\n          member\r\n          item\r\n          quantity\r\n        }\r\n      }`,\r\n    })\r\n    .then((res) => {\r\n      expect(res.body.errors).toBeUndefined();\r\n      expect(res.body.data.addToCart).toEqual({\r\n        member,\r\n        item,\r\n        quantity: 2",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/addToCart.test.ts",
+        "start": 48,
+        "end": 67,
+        "startLoc": {
+          "line": 48,
+          "column": 3,
+          "position": 272
+        },
+        "endLoc": {
+          "line": 67,
+          "column": 20,
+          "position": 376
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/Cart/test/addToCart.test.ts",
+        "start": 10,
+        "end": 29,
+        "startLoc": {
+          "line": 10,
+          "column": 3,
+          "position": 81
+        },
+        "endLoc": {
+          "line": 29,
+          "column": 20,
+          "position": 185
+        }
+      }
+    }
+  ]
+}

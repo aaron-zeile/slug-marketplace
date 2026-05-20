@@ -1,0 +1,489 @@
+{
+  "statistics": {
+    "detectionDate": "2026-05-18T23:30:45.592Z",
+    "formats": {
+      "typescript": {
+        "sources": {
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/searchItems.test.ts": {
+            "lines": 52,
+            "tokens": 463,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 68,
+            "duplicatedTokens": 633,
+            "percentage": 130.77,
+            "percentageTokens": 136.72,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/randomItems.test.ts": {
+            "lines": 34,
+            "tokens": 303,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 23,
+            "duplicatedTokens": 213,
+            "percentage": 67.65,
+            "percentageTokens": 70.3,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/getReviews.test.ts": {
+            "lines": 52,
+            "tokens": 424,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 22,
+            "duplicatedTokens": 209,
+            "percentage": 42.31,
+            "percentageTokens": 49.29,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/getItem.test.ts": {
+            "lines": 40,
+            "tokens": 335,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 23,
+            "duplicatedTokens": 211,
+            "percentage": 57.5,
+            "percentageTokens": 62.99,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/db.ts": {
+            "lines": 39,
+            "tokens": 395,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/review/service.ts": {
+            "lines": 21,
+            "tokens": 225,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/review/schema.ts": {
+            "lines": 52,
+            "tokens": 367,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/review/resolver.ts": {
+            "lines": 26,
+            "tokens": 303,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/review/db.ts": {
+            "lines": 59,
+            "tokens": 403,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/item/service.ts": {
+            "lines": 67,
+            "tokens": 569,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/item/schema.ts": {
+            "lines": 90,
+            "tokens": 626,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 22,
+            "duplicatedTokens": 178,
+            "percentage": 24.44,
+            "percentageTokens": 28.43,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/item/resolver.ts": {
+            "lines": 68,
+            "tokens": 702,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/item/db.ts": {
+            "lines": 187,
+            "tokens": 986,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/auth/service.ts": {
+            "lines": 66,
+            "tokens": 575,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/auth/context.ts": {
+            "lines": 7,
+            "tokens": 62,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/auth/checker.ts": {
+            "lines": 17,
+            "tokens": 166,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/server.ts": {
+            "lines": 12,
+            "tokens": 108,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/resolvers.ts": {
+            "lines": 4,
+            "tokens": 51,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/db.ts": {
+            "lines": 10,
+            "tokens": 110,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/app.ts": {
+            "lines": 57,
+            "tokens": 511,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 960,
+          "tokens": 7684,
+          "sources": 20,
+          "clones": 4,
+          "duplicatedLines": 79,
+          "duplicatedTokens": 722,
+          "percentage": 8.23,
+          "percentageTokens": 9.4,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "sql": {
+        "sources": {
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/sql/schema.sql": {
+            "lines": 43,
+            "tokens": 245,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 43,
+          "tokens": 245,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "python": {
+        "sources": {
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/sql/createReviews.py": {
+            "lines": 140,
+            "tokens": 1163,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/sql/createListings.py": {
+            "lines": 537,
+            "tokens": 2132,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 677,
+          "tokens": 3295,
+          "sources": 2,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 1680,
+      "tokens": 11224,
+      "sources": 23,
+      "clones": 4,
+      "duplicatedLines": 79,
+      "duplicatedTokens": 722,
+      "percentage": 4.7,
+      "percentageTokens": 6.43,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "typescript",
+      "lines": 24,
+      "fragment": "import { beforeAll, afterAll, test, expect } from 'vitest';\r\nimport * as http from 'http';\r\nimport * as db from './db';\r\nimport { app, bootstrap } from '../src/app';\r\nimport supertest from 'supertest';\r\n\r\nlet server: http.Server<\r\n  typeof http.IncomingMessage,\r\n  typeof http.ServerResponse\r\n>;\r\n\r\nbeforeAll(async () => {\r\n  server = http.createServer(app);\r\n  server.listen();\r\n  await bootstrap();\r\n  await db.reset();\r\n});\r\n\r\nafterAll(() => {\r\n  db.shutdown();\r\n  server.close();\r\n});\r\n\r\ntest('Testing to pull 3 random items'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/randomItems.test.ts",
+        "start": 1,
+        "end": 24,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 24,
+          "column": 38,
+          "position": 213
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/searchItems.test.ts",
+        "start": 1,
+        "end": 24,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 24,
+          "column": 37,
+          "position": 213
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 23,
+      "fragment": "import { beforeAll, afterAll, test, expect } from 'vitest';\r\nimport * as http from 'http';\r\nimport * as db from './db';\r\nimport { app, bootstrap } from '../src/app';\r\nimport supertest from 'supertest';\r\n\r\nlet server: http.Server<\r\n  typeof http.IncomingMessage,\r\n  typeof http.ServerResponse\r\n>;\r\n\r\nbeforeAll(async () => {\r\n  server = http.createServer(app);\r\n  server.listen();\r\n  await bootstrap();\r\n  await db.reset();\r\n});\r\n\r\nafterAll(() => {\r\n  db.shutdown();\r\n  server.close();\r\n});\r\n// MAKE SURE TO CREATE A REVIEW FIRST THEN STORE ITS ID, THEN USE THAT ID IN THE TEST BELOW",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/getReviews.test.ts",
+        "start": 1,
+        "end": 23,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 23,
+          "column": 92,
+          "position": 209
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/searchItems.test.ts",
+        "start": 1,
+        "end": 24,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 24,
+          "column": 5,
+          "position": 211
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 24,
+      "fragment": "import { beforeAll, afterAll, test, expect } from 'vitest';\r\nimport * as http from 'http';\r\nimport * as db from './db';\r\nimport { app, bootstrap } from '../src/app';\r\nimport supertest from 'supertest';\r\n\r\nlet server: http.Server<\r\n  typeof http.IncomingMessage,\r\n  typeof http.ServerResponse\r\n>;\r\n\r\nbeforeAll(async () => {\r\n  server = http.createServer(app);\r\n  server.listen();\r\n  await bootstrap();\r\n  await db.reset();\r\n});\r\n\r\nafterAll(() => {\r\n  db.shutdown();\r\n  server.close();\r\n});\r\n\r\n// MAKE SURE TO CREATE AN ITEM FIRST THEN STORE ITS ID, THEN USE THAT ID IN THE TEST BELOW",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/getItem.test.ts",
+        "start": 1,
+        "end": 24,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 24,
+          "column": 91,
+          "position": 211
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/test/searchItems.test.ts",
+        "start": 1,
+        "end": 24,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 24,
+          "column": 5,
+          "position": 211
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 12,
+      "fragment": "@Field()\r\n  @Length(1, 256)\r\n  name!: string;\r\n\r\n  @Field()\r\n  @Length(1, 1024)\r\n  description!: string;\r\n\r\n  @Field(() => [String])\r\n  images!: string[];\r\n\r\n  @Field((",
+      "tokens": 0,
+      "firstFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/item/schema.ts",
+        "start": 54,
+        "end": 65,
+        "startLoc": {
+          "line": 54,
+          "column": 3,
+          "position": 357
+        },
+        "endLoc": {
+          "line": 65,
+          "column": 11,
+          "position": 446
+        }
+      },
+      "secondFile": {
+        "name": "C:/Users/rezae/Desktop/marketplace/Service/ItemsService/src/item/schema.ts",
+        "start": 28,
+        "end": 39,
+        "startLoc": {
+          "line": 28,
+          "column": 3,
+          "position": 174
+        },
+        "endLoc": {
+          "line": 39,
+          "column": 11,
+          "position": 263
+        }
+      }
+    }
+  ]
+}

@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import {fireEvent, screen, waitFor} from '@testing-library/react'
 import {expect, it, vi} from 'vitest'
+=======
+import {screen} from '@testing-library/react'
+import {it, vi} from 'vitest'
+>>>>>>> efb70c2cfa48858c7cbb3337694c5275c13e0dbc
 import React from 'react'
 
 import Listings from '../dashboard/Listings'
@@ -29,6 +34,7 @@ it('renders listings', async () => {
 
   renderWithProviders(<Listings />)
 
+<<<<<<< HEAD
   await screen.findByLabelText('Name for USB Hub 937')
 })
 
@@ -91,4 +97,7 @@ it('updates a listing only after edits are made', async () => {
       }),
     }),
   )
+=======
+  expect(await screen.findByText('USB Hub 937')).toBeInTheDocument()
+>>>>>>> efb70c2cfa48858c7cbb3337694c5275c13e0dbc
 })

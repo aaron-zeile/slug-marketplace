@@ -5,7 +5,9 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: ['server/**/*.test.ts'],
-    coverage: {exclude: [
+    coverage: {
+      include: ['server/**/*.ts'],
+      exclude: [
       './server/*.config.ts',
       './*.config.ts',
       './server/*.setup.ts',

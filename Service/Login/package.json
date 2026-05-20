@@ -15,11 +15,13 @@
     "@types/node": "25.6.1",
     "@types/pg": "8.20.0",
     "@types/swagger-ui-express": "4.1.8",
+    "@vitest/coverage-v8": "^4.1.5",
     "concurrently": "9.2.1",
     "eslint": "10.3.0",
     "eslint-config-typescript": "3.0.0",
     "globals": "8.18.0",
     "joi": "18.2.1",
+    "jscpd": "^4.2.3",
     "nodemon": "3.1.14",
     "supertest": "7.2.2",
     "ts-node": "10.9.2",
@@ -47,10 +49,12 @@
     "start": "node build/server.js",
     "prebuild": "npm run swagger",
     "build": "tsc",
+    "test": "vitest run --config vitest.config.ts --no-file-parallelism --coverage",
     "predev": "npm run swagger",
     "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
     "dev:serve": "nodemon --watch server.ts --watch app.ts --watch service.ts --watch src --ignore src/generated --ignore generated --ignore swagger.json --exec ts-node server.ts",
     "swagger": "tsoa spec-and-routes",
-    "lint": "eslint *.ts --fix"
+    "lint": "eslint *.ts --fix",
+    "cpd": "npx jscpd src test app.ts server.ts service.ts --silent"
   }
 }

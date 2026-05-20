@@ -1,0 +1,39 @@
+---
+description: Standards for writing tests in this project
+globs: **/*.{test.ts,test.tsx,spec.ts,spec.tsx}
+alwaysApply: false
+---
+
+# Testing standards
+
+When the user asks for tests, write **well-structured, isolated** tests following the ItemsService patterns:
+
+## File layout
+
+- **One concern per file** — e.g. `item.create.test.ts`, `getItem.test.ts`, `getReviews.test.ts`, not one giant catch-all suite.
+- **Service unit tests** — `item.service.test.ts`, `review.service.test.ts`: mock the DB layer with `vi.hoisted` + `vi.mock`, test delegation and error mapping only.
+- **DB unit tests** — `item.db.test.ts`, `review.insert.test.ts`: mock `pool.query`, cover branches (empty rows, `rowCount`, etc.).
+- **Integration tests** — dedicated files per GraphQL operation/flow; shared setup via `beforeAll` + `resetSchema()`, helpers in `test/helpers.ts`.
+
+## Isolation
+
+- Reset DB schema per suite (`db.resetSchema()`), not full `data.sql` unless required.
+- Stub auth with `stubLoginFetch()`; use `createItemViaGraphql` and similar helpers instead of duplicating GraphQL strings.
+- Mock external deps (login `fetch`, `pool`) in unit tests; do not hit real services in unit tests.
+- Use `vi.unstubAllGlobals()` in `afterAll` when stubbing `fetch`.
+
+## Quality
+
+- Clear `describe` / `it` names that state behavior, not implementation.
+- Assert outcomes (return shape, persistence, auth errors), not just “no throw”.
+- Cover happy path, auth failures, and important error branches.
+- Keep tests independent within a file; avoid order-dependent state when possible.
+
+## Copy-paste detection (CPD) — always aim for zero
+
+**Always try to get no CPD** (`jscpd` must pass with 0% duplication). After adding or changing tests, run the package’s CPD check (e.g. `npm run cpd` in `Service/ItemsService`, or root `npm run cpd-items`) and fix any clones before finishing.
+
+- **Extract shared code** — server bootstrap, `stubLoginFetch`, GraphQL helpers, and auth assertions live in `test/helpers.ts` (and `test/db.ts`), not copy-pasted across files.
+- **Avoid duplicate blocks** — repeated `beforeAll` / `afterAll`, identical supertest + query strings, or mirrored test bodies across files will fail CI; refactor into helpers or a small shared setup module instead.
+- **Differentiate when you must repeat structure** — vary naming, queries, or assertions so similar flows are not token-identical; prefer one helper with parameters over two nearly identical tests.
+- **Do not “fix” CPD by disabling the check** — reduce duplication in the tests (or shared production code if that is the source).
