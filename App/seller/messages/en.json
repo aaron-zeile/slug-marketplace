@@ -11,6 +11,7 @@
     "ariaLabel": "Seller dashboard tabs"
   },
   "Listings": {
+    "status": "Status",
     "image": "Image",
     "name": "Name",
     "description": "Description",

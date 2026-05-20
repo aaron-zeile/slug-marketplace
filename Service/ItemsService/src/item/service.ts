@@ -15,7 +15,7 @@ import {
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerItemsInput,
+  SellerId,
   UpdateItem,
 } from './schema';
 
@@ -66,8 +66,8 @@ export class ItemService {
     return item;
   }
 
-  public async getSellerItems(itemsInput: SellerItemsInput): Promise<Item[]> {
-    const sellerItems = await getSellerItems(itemsInput);
+  public async getSellerItems(sellerId: SellerId): Promise<Item[]> {
+    const sellerItems = await getSellerItems(sellerId);
     return sellerItems;
   }
 

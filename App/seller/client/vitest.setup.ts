@@ -11,6 +11,7 @@ const intlMessages: Record<string, Record<string, string>> = {
     ariaLabel: 'Seller dashboard tabs',
   },
   Listings: {
+    status: 'Status',
     image: 'Image',
     name: 'Name',
     description: 'Description',

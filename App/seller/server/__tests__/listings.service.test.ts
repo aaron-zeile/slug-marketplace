@@ -12,6 +12,7 @@ const listing = {
   price: 24.99,
   created_at: '2025-07-18 23:28:50+00',
   images: [],
+  status: 'active',
 }
 
 describe('ListingService', () => {
