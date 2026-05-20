@@ -17,6 +17,7 @@ it('renders listings', async () => {
       description: 'Crafted with care to deliver outstanding value and satisfaction.',
       price: 441.37,
       created_at: '2025-07-18T23:28:50.000Z',
+      status: 'active'
     },
   ]
 
@@ -44,6 +45,7 @@ it('updates a listing only after edits are made', async () => {
     price: 441.37,
     created_at: '2025-07-18T23:28:50.000Z',
     images: ['https://example.com/hub.jpg'],
+    status: 'active'
   }
 
   const fetchMock = vi

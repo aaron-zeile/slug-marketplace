@@ -13,6 +13,7 @@ const listing = {
   price: 24.99,
   created_at: '2025-07-18T23:28:50.000Z',
   images: [],
+  status: 'active'
 }
 
 describe('dashboard model', () => {
@@ -34,7 +35,7 @@ describe('dashboard model', () => {
       listingsCall: setListings.mock.calls[0],
       errorCall: setError.mock.calls[0],
     }).toEqual({
-      fetchCall: ['/seller/api/listings?status=active'],
+      fetchCall: ['/seller/api/listings'],
       listingsCall: [[listing]],
       errorCall: [undefined],
     })

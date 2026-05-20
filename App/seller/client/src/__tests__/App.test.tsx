@@ -17,6 +17,7 @@ const listingsResponse = {
       price: 24.99,
       created_at: '2025-07-18T23:28:50.000Z',
       images: [],
+      status: 'active'
     },
   ],
 }

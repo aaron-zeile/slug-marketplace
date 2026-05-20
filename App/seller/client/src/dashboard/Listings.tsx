@@ -154,7 +154,7 @@ export default function SellerListings() {
   const columns = useMemo<GridColDef<Listing>[]>(() => [
     {
       field: 'status',
-      headerName: 'Status',
+      headerName: t('status'),
       width: 90,
       sortable: false,
       renderCell: (params) => {

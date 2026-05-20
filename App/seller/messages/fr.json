@@ -11,6 +11,7 @@
     "ariaLabel": "Onglets du tableau de bord vendeur"
   },
   "Listings": {
+    "status": "Statut",
     "image": "Image",
     "name": "Nom",
     "description": "Description",

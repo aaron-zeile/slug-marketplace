@@ -105,7 +105,7 @@ type UpdateItemResponse = {
 }
 
 export class ListingService {
-  public async getListings(sellerId: string): Promise<Listing[]> {
+  public async getListings(sellerId: string, status: 'active' | 'sold'): Promise<Listing[]> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {
@@ -114,7 +114,8 @@ export class ListingService {
       body: JSON.stringify({
         query: GET_ITEMS_QUERY,
         variables: {
-          id: sellerId
+          id: sellerId,
+          status,
         },
       }),
     });
