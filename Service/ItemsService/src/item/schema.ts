@@ -41,6 +41,9 @@ export class Item {
 
   @Field(() => GraphQLISODateTime)
   created_at!: Date;
+
+  @Field()
+  status!: 'active' | 'sold';
 }
 
 @InputType('ItemId')

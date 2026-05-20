@@ -19,6 +19,7 @@ export async function getItem(id: string): Promise<Item> {
         images
         price
         created_at
+        status
       }
     }
   `;
@@ -64,6 +65,7 @@ export async function getRandomItems(count: number): Promise<Item[]> {
         images
         price
         created_at
+        status
       }
     }
   `;
@@ -109,6 +111,7 @@ export async function getSearchItems(searchText: string): Promise<Item[]> {
         images
         price
         created_at
+        status
       }
     }
   `;

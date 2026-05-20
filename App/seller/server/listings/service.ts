@@ -21,6 +21,7 @@ const GET_ITEMS_QUERY = `
       price
       created_at
       images
+      status
     }
   }
 `;
@@ -38,6 +39,7 @@ const CREATE_ITEM_MUTATION = `
       price
       created_at
       images
+      status
     }
   }
 `;
@@ -61,6 +63,7 @@ const UPDATE_ITEM_MUTATION = `
       price
       created_at
       images
+      status
     }
   }
 `;

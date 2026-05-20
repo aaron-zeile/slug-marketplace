@@ -22,7 +22,8 @@ export const getAllItems = async (): Promise<Item[]> => {
       data->>'description' AS description,
       data->'images' AS images,
       (data->>'price')::numeric AS price,
-      (data->>'created_at')::timestamptz AS created_at
+      (data->>'created_at')::timestamptz AS created_at,
+      status
     FROM item
     ORDER BY (data->>'created_at')::timestamptz DESC NULLS LAST
   `;
@@ -71,7 +72,8 @@ export const createItem = async (params: {
       data->>'description' AS description,
       data->'images' AS images,
       (data->>'price')::numeric AS price,
-      (data->>'created_at')::timestamptz AS created_at;
+      (data->>'created_at')::timestamptz AS created_at,
+      status
   `;
 
   const { rows } = await pool.query<Item>(insert, [JSON.stringify(data)]);
@@ -103,7 +105,8 @@ export const updateItem = async (
       data->>'description' AS description,
       data->'images' AS images,
       (data->>'price')::numeric AS price,
-      (data->>'created_at')::timestamptz AS created_at;
+      (data->>'created_at')::timestamptz AS created_at,
+      status;
   `;
 
   const data = {
@@ -134,7 +137,8 @@ export const getItem = async (itemId: ItemId): Promise<Item> => {
       data->>'description' AS description,
       data->'images' AS images,
       (data->>'price')::numeric AS price,
-      (data->>'created_at')::timestamptz AS created_at
+      (data->>'created_at')::timestamptz AS created_at,
+      status
     FROM item
     WHERE id = $1;
   `;
@@ -156,7 +160,8 @@ export const getSellerItems = async (itemsInput: SellerItemsInput): Promise<Item
     data->>'description' AS description,
     data->'images' AS images,
     (data->>'price')::numeric AS price,
-    (data->>'created_at')::timestamptz AS created_at
+    (data->>'created_at')::timestamptz AS created_at,
+    status
   FROM item
   WHERE data->>'sellerId' = $1
   AND status = $2::item_status
@@ -181,7 +186,8 @@ export const getRandomItems = async (input: RandomItemsInput): Promise<Item[]> =
     data->>'description' AS description,
     data->'images' AS images,
     (data->>'price')::numeric AS price,
-    (data->>'created_at')::timestamptz AS created_at
+    (data->>'created_at')::timestamptz AS created_at,
+    status
   FROM item
   ORDER BY random()
   LIMIT $1
@@ -212,7 +218,8 @@ export const getSearchItems = async (input: SearchItemsInput): Promise<Item[]> =
     data->>'description' AS description,
     data->'images' AS images,
     (data->>'price')::numeric AS price,
-    (data->>'created_at')::timestamptz AS created_at
+    (data->>'created_at')::timestamptz AS created_at,
+    status
   FROM item
   WHERE data->>'name' ILIKE '%' || $1 || '%'
     OR data->>'description' ILIKE '%' || $1 || '%'

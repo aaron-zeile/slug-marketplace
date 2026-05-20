@@ -11,4 +11,5 @@ export const ItemSchema = z.object({
   images: z.array(z.string().url()).max(5),
   price: z.number(),
   created_at: z.iso.datetime(),
+  status: z.enum(['active', 'sold'])
 });
