@@ -22,7 +22,12 @@ beforeEach(async () => {
   browser = await puppeteer.launch({
     headless: true,
     slowMo: 2,
-    args: ['--window-size=768,1024'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--window-size=768,1024',
+    ],
     defaultViewport: null,
     /*
      * Uncomment these two settings if you want to see the browser.

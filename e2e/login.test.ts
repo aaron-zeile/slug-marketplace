@@ -49,9 +49,6 @@ describe('Authentication', () => {
 
     await sellerButton.evaluate((element) => {
       const link = element.closest('a')
-      if (!link) {
-        throw new Error('Seller dashboard button is not a link')
-      }
       link.click()
     })
     sellerButton.dispose()

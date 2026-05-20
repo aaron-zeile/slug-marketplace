@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const clientDistDir = path.resolve(__dirname, '../../client/dist');
 
 if (process.env.NODE_ENV === 'production') {
-  app.use('/seller', express.static(clientDistDir));
+  app.use('/seller', express.static(clientDistDir, { redirect: false }));
   app.use(express.static(clientDistDir));
   app.get(/.*/, (_request, response) => {
     response.sendFile(path.join(clientDistDir, 'index.html'));

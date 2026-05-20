@@ -138,6 +138,7 @@ export default function CreateListing() {
         <Box>
           <Button
             type="submit"
+            aria-label={t('submit')}
             variant="contained"
             disabled={saving || priceError}
           >
