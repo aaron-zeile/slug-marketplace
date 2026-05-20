@@ -7,6 +7,7 @@ import {
   getRandomItems,
   getSearchItems,
   getSellerItems,
+  updateItem,
 } from './db';
 import {
   Item,
@@ -15,6 +16,7 @@ import {
   RandomItemsInput,
   SearchItemsInput,
   SellerItemsInput,
+  UpdateItem,
 } from './schema';
 
 export class ItemService {
@@ -42,6 +44,19 @@ export class ItemService {
       input,
       seller: { id: sessionUser.id, name: sessionUser.name },
     });
+    return item;
+  }
+
+  public async updateItem(
+    sessionUser: SessionUser,
+    input: UpdateItem,
+  ): Promise<Item> {
+    const item = await updateItem(input, sessionUser.id);
+
+    if (!item) {
+      throw new Error('Item not found or user does not own item');
+    }
+
     return item;
   }
 

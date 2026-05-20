@@ -7,7 +7,8 @@ import {
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerItemsInput
+  SellerItemsInput,
+  UpdateItem,
 } from './schema';
 import { ItemService } from './service';
 
@@ -50,6 +51,19 @@ export class ItemResolver {
       throw new Error('Not authenticated');
     }
     return new ItemService().createItem(user, input);
+  }
+
+  @Mutation(() => Item)
+  @Authorized()
+  async updateItem(
+    @Arg('input') input: UpdateItem,
+    @Ctx() ctx: ItemsGraphQLContext,
+  ): Promise<Item> {
+    const user = ctx.user;
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+    return new ItemService().updateItem(user, input);
   }
 
   @Query(() => [Item])

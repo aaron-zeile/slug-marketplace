@@ -67,6 +67,27 @@ export class NewItem {
   price!: number;
 }
 
+@InputType()
+export class UpdateItem {
+  @Field()
+  id!: string;
+
+  @Field()
+  @Length(1, 256)
+  name!: string;
+
+  @Field()
+  @Length(1, 1024)
+  description!: string;
+
+  @Field(() => [String])
+  images!: string[];
+
+  @Field(() => Float)
+  @Min(0)
+  price!: number;
+}
+
 @InputType('SellerItemsInput')
 export class SellerItemsInput {
   @Field()

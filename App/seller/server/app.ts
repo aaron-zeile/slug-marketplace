@@ -15,6 +15,7 @@ app.use(express.json());
 // app.get('/api/listings', listings.get);
 app.get('/seller/api/listings', doCheck, listings.get);
 app.post('/seller/api/listings', doCheck, listings.post);
+app.put('/seller/api/listings/:id', doCheck, listings.put);
 app.delete('/seller/api/listings/:id', doCheck, listings.remove);
 
 
