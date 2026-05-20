@@ -4,8 +4,9 @@ import { getSessionToken } from '../../server/auth/service';
 import { ReviewSchema } from '../../shared/review';
 import type { Review } from '.';
 
-const ITEMS_SERVICE_URL =
-  process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
+function itemsServiceUrl() {
+  return process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
+}
 
 export async function getReviews(itemId: string): Promise<Review[]> {
   const query = `
@@ -22,7 +23,7 @@ export async function getReviews(itemId: string): Promise<Review[]> {
       }
     }`;
 
-  const response = await fetch(ITEMS_SERVICE_URL, {
+  const response = await fetch(itemsServiceUrl(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -71,7 +72,7 @@ export async function createReview(
     }
   `;
 
-  const response = await fetch(ITEMS_SERVICE_URL, {
+  const response = await fetch(itemsServiceUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -115,7 +116,7 @@ export async function deleteReview(reviewId: string): Promise<void> {
     }
   `;
 
-  const response = await fetch(ITEMS_SERVICE_URL, {
+  const response = await fetch(itemsServiceUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
