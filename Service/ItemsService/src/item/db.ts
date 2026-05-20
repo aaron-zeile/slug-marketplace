@@ -5,7 +5,8 @@ import {
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerItemsInput
+  SellerItemsInput,
+  UpdateItem,
 } from './schema';
 
 
@@ -81,6 +82,44 @@ export const createItem = async (params: {
   }
 
   return item;
+};
+
+export const updateItem = async (
+  input: UpdateItem,
+  sellerId: string,
+): Promise<Item | undefined> => {
+  const update = `
+    UPDATE item
+    SET data = data || $3::jsonb
+    WHERE id = $1
+      AND data->>'sellerId' = $2
+    RETURNING
+      id,
+      jsonb_build_object(
+        'id', data->>'sellerId',
+        'name', data->>'sellerName'
+      ) AS seller,
+      data->>'name' AS name,
+      data->>'description' AS description,
+      data->'images' AS images,
+      (data->>'price')::numeric AS price,
+      (data->>'created_at')::timestamptz AS created_at;
+  `;
+
+  const data = {
+    name: input.name,
+    description: input.description,
+    images: input.images,
+    price: input.price,
+  };
+
+  const { rows } = await pool.query<Item>(update, [
+    input.id,
+    sellerId,
+    JSON.stringify(data),
+  ]);
+
+  return rows[0];
 };
 
 export const getItem = async (itemId: ItemId): Promise<Item> => {

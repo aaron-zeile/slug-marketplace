@@ -30,6 +30,28 @@ export const post = async (req: Request, res: Response) => {
   res.status(201).json({ listing });
 };
 
+export const put = async (req: Request, res: Response) => {
+  if (!req.user || !req.sessionToken) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const id = req.params.id;
+  if (typeof id !== 'string') {
+    res.sendStatus(400);
+    return;
+  }
+
+  const input = NewListingSchema.parse(req.body);
+  const listing = await new ListingService().updateListing(
+    id,
+    input,
+    req.sessionToken,
+  );
+
+  res.json({ listing });
+};
+
 export const remove = async (req: Request, res: Response) => {
   if (!req.user || !req.sessionToken) {
     res.sendStatus(401);

@@ -46,6 +46,31 @@ export const create = async (
   }
 }
 
+export const update = async (
+  id: string,
+  input: NewListing,
+  setError: (error: string | undefined) => void,
+) : Promise<Listing | undefined> => {
+  try {
+    const response = await fetch(`/seller/api/listings/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    })
+    if (!response.ok) throw new Error(response.statusText)
+
+    const data = CreateListingResponseSchema.parse(await response.json())
+    setError(undefined)
+    return data.listing
+
+  } catch (error: unknown) {
+    setError(String(error))
+    return undefined
+  }
+}
+
 export const remove = async (
   id: string,
   setError: (error: string | undefined) => void,
