@@ -9,8 +9,8 @@ import {
 const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
 
 const GET_ITEMS_QUERY = `
-  query GetSellerItems($id: String!, $status: String!) {
-    sellerItems(input: {id: $id, status: $status}) {
+  query GetSellerItems($id: String!) {
+    sellerItems(input: {id: $id}) {
       id
       seller {
         id
@@ -105,7 +105,7 @@ type UpdateItemResponse = {
 }
 
 export class ListingService {
-  public async getListings(sellerId: string, status: 'active' | 'sold'): Promise<Listing[]> {
+  public async getListings(sellerId: string): Promise<Listing[]> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {
@@ -114,8 +114,7 @@ export class ListingService {
       body: JSON.stringify({
         query: GET_ITEMS_QUERY,
         variables: {
-          id: sellerId,
-          status,
+          id: sellerId
         },
       }),
     });

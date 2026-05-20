@@ -11,7 +11,9 @@ import {
   IconButton,
   Stack,
   TextField,
-  Tooltip
+  Tooltip,
+  Typography,
+  capitalize
 } from '@mui/material'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { useState, useEffect, useContext, useMemo, useCallback } from 'react'
@@ -150,6 +152,19 @@ export default function SellerListings() {
   }, [])
 
   const columns = useMemo<GridColDef<Listing>[]>(() => [
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 90,
+      sortable: false,
+      renderCell: (params) => {
+        return (
+          <Typography>
+            {capitalize(params.row.status)}
+          </Typography>
+        )
+      },
+    },
     {
       field: 'image',
       headerName: t('image'),
