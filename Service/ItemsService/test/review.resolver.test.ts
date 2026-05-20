@@ -24,4 +24,13 @@ describe('ReviewResolver auth guards', () => {
       ),
     ).rejects.toThrow('Not authenticated');
   });
+
+  it('deleteReview throws Not authenticated when user is missing', async () => {
+    await expect(
+      resolver.deleteReview(
+        { id: '00000000-0000-0000-0000-000000000002' },
+        unauthenticatedContext,
+      ),
+    ).rejects.toThrow('Not authenticated');
+  });
 });

@@ -37,6 +37,12 @@ export class Review {
   created_at!: Date;
 }
 
+@InputType('ReviewId')
+export class ReviewId {
+  @Field()
+  id!: string;
+}
+
 @InputType()
 export class NewReview {
   @Field()

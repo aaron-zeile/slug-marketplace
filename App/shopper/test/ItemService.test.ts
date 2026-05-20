@@ -15,6 +15,7 @@ const item = {
   images: ['https://example.com/image1.jpg'],
   price: 894.74,
   created_at: '2025-10-07T18:56:33.000Z',
+  status: 'active',
 };
 
 function mockFetchResponse(body: unknown, ok = true, statusText = 'OK') {

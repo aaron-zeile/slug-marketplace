@@ -8,10 +8,12 @@ vi.mock('../src/app/items/[id]/actions', () => ({
   fetchItemReviewsAction: vi.fn(),
   fetchItemReviewSessionAction: vi.fn(),
   createItemReviewAction: vi.fn(),
+  deleteItemReviewAction: vi.fn(),
 }));
 
 import {
   createItemReviewAction,
+  deleteItemReviewAction,
   fetchItemReviewSessionAction,
   fetchItemReviewsAction,
 } from '../src/app/items/[id]/actions';
@@ -349,6 +351,71 @@ describe('Reviews', () => {
     });
     expect(screen.queryByText('No reviews yet.')).toBeNull();
     expect(screen.getByText(/1 review/)).toBeDefined();
+  });
+
+  it('shows delete only on reviews owned by the signed-in user', async () => {
+    const currentUserId = reviewA.user.id;
+    vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+      loggedIn: true,
+      userId: currentUserId,
+    });
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: [reviewA, reviewB],
+    });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(reviewB.user.name)).toBeDefined();
+    });
+
+    expect(screen.getByRole('button', { name: 'Delete review' })).toBeDefined();
+    expect(screen.getAllByRole('button', { name: 'Delete review' })).toHaveLength(
+      1,
+    );
+  });
+
+  it('removes a review from the list after a successful delete', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
+      loggedIn: true,
+      userId: reviewA.user.id,
+    });
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: [reviewA, reviewB],
+    });
+    vi.mocked(deleteItemReviewAction).mockResolvedValue({ success: true });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(reviewA.content)).toBeDefined();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Delete review' }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(reviewA.content)).toBeNull();
+    });
+    expect(screen.getByText(reviewB.content)).toBeDefined();
+    expect(screen.getByText(/1 review/)).toBeDefined();
+  });
+
+  it('does not show delete buttons when logged out', async () => {
+    vi.mocked(fetchItemReviewsAction).mockResolvedValue({
+      success: true,
+      data: [reviewA],
+    });
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(reviewA.content)).toBeDefined();
+    });
+
+    expect(screen.queryByRole('button', { name: 'Delete review' })).toBeNull();
   });
 
   it('refetches when id changes', async () => {

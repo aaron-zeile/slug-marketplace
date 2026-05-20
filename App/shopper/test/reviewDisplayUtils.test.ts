@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { prependReview } from '../src/app/items/[id]/reviewDisplayUtils';
+import {
+  prependReview,
+  removeReview,
+} from '../src/app/items/[id]/reviewDisplayUtils';
 import { Review } from '../src/item/review';
 
 const reviewA: Review = {
@@ -26,5 +29,19 @@ describe('prependReview', () => {
 
   it('prepends the new review when prev has items', () => {
     expect(prependReview([reviewA], reviewB)).toEqual([reviewB, reviewA]);
+  });
+});
+
+describe('removeReview', () => {
+  it('returns an empty array when prev is null', () => {
+    expect(removeReview(null, reviewA.id)).toEqual([]);
+  });
+
+  it('removes the matching review and keeps others', () => {
+    expect(removeReview([reviewA, reviewB], reviewA.id)).toEqual([reviewB]);
+  });
+
+  it('returns the same list when no id matches', () => {
+    expect(removeReview([reviewA], reviewB.id)).toEqual([reviewA]);
   });
 });

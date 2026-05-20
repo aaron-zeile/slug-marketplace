@@ -26,3 +26,10 @@ export function prependReview(
 ): Review[] {
   return prev ? [review, ...prev] : [review];
 }
+
+export function removeReview(
+  prev: Review[] | null,
+  reviewId: string,
+): Review[] {
+  return (prev ?? []).filter((review) => review.id !== reviewId);
+}

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   createItemReviewAction,
+  deleteItemReviewAction,
   fetchItemReviewSessionAction,
 } from '../src/app/items/[id]/actions';
 import { Review } from '../src/item/review';
@@ -12,10 +13,11 @@ vi.mock('../src/app/buyer/login/actions', () => ({
 
 vi.mock('../src/item/review/service', () => ({
   createReview: vi.fn(),
+  deleteReview: vi.fn(),
 }));
 
 import { checkLogin } from '../src/app/buyer/login/actions';
-import { createReview } from '../src/item/review/service';
+import { createReview, deleteReview } from '../src/item/review/service';
 
 const itemId = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -44,7 +46,10 @@ describe('fetchItemReviewSessionAction', () => {
 
     const result = await fetchItemReviewSessionAction();
 
-    expect(result).toEqual({ loggedIn: true });
+    expect(result).toEqual({
+      loggedIn: true,
+      userId: '6a74cd3c-0c10-4507-ab92-a700174f4b15',
+    });
   });
 
   it('returns loggedIn false when checkLogin returns no user', async () => {
@@ -103,5 +108,42 @@ describe('createItemReviewAction', () => {
     await createItemReviewAction(itemId, 4, 'Solid purchase.');
 
     expect(createReview).toHaveBeenCalledWith(itemId, 4, 'Solid purchase.');
+  });
+});
+
+describe('deleteItemReviewAction', () => {
+  const reviewId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
+  it('returns success when deleteReview resolves', async () => {
+    vi.mocked(deleteReview).mockResolvedValue(undefined);
+
+    const result = await deleteItemReviewAction(reviewId);
+
+    expect(result).toEqual({ success: true });
+    expect(deleteReview).toHaveBeenCalledWith(reviewId);
+  });
+
+  it('returns success false with the error message when deleteReview throws', async () => {
+    vi.mocked(deleteReview).mockRejectedValue(
+      new Error('Review not found or user does not own review'),
+    );
+
+    const result = await deleteItemReviewAction(reviewId);
+
+    expect(result).toEqual({
+      success: false,
+      error: 'Review not found or user does not own review',
+    });
+  });
+
+  it('returns a default error message when deleteReview throws a non-Error', async () => {
+    vi.mocked(deleteReview).mockRejectedValue('timeout');
+
+    const result = await deleteItemReviewAction(reviewId);
+
+    expect(result).toEqual({
+      success: false,
+      error: 'Could not delete review',
+    });
   });
 });

@@ -102,3 +102,44 @@ export async function createReview(
   const raw = body.data?.createReview;
   return ReviewSchema.parse(raw);
 }
+
+export async function deleteReview(reviewId: string): Promise<void> {
+  const token = await getSessionToken();
+  if (!token) {
+    throw new Error('Not signed in');
+  }
+
+  const mutation = `
+    mutation DeleteReview($input: ReviewId!) {
+      deleteReview(input: $input)
+    }
+  `;
+
+  const response = await fetch(ITEMS_SERVICE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      query: mutation,
+      variables: {
+        input: { id: reviewId },
+      },
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete review: ${response.statusText}`);
+  }
+
+  const body = await response.json();
+  if (body.errors?.length) {
+    const message =
+      typeof body.errors[0]?.message === 'string'
+        ? body.errors[0].message
+        : 'GraphQL error';
+    throw new Error(message);
+  }
+}

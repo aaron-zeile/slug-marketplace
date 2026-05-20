@@ -15,6 +15,7 @@ const singleItem: Item = {
   images: ['https://example.com/headphones.jpg'],
   price: 59.99,
   created_at: '2025-10-07T18:56:33.000Z',
+  status: 'active',
 };
 
 const carouselItems: Item[] = [
@@ -29,6 +30,7 @@ const carouselItems: Item[] = [
     images: ['https://example.com/backpack.jpg'],
     price: 34.5,
     created_at: '2025-10-08T18:56:33.000Z',
+    status: 'active',
   },
   {
     id: '55555555-5555-4555-8555-555555555555',
@@ -41,6 +43,7 @@ const carouselItems: Item[] = [
     images: ['https://example.com/lamp.jpg'],
     price: 18.25,
     created_at: '2025-10-09T18:56:33.000Z',
+    status: 'active',
   },
 ];
 

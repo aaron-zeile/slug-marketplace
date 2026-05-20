@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createReview, getReviews } from '../src/item/review/service';
+import { createReview, deleteReview, getReviews } from '../src/item/review/service';
 import { getSessionToken } from '../src/server/auth/service';
 
 vi.mock('../src/server/auth/service', () => ({
@@ -147,5 +147,63 @@ describe('createReview', () => {
     await expect(createReview(itemId, 5, 'Great item.')).rejects.toThrow(
       'GraphQL error',
     );
+  });
+});
+
+describe('deleteReview', () => {
+  const reviewId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
+  it('deletes a review with the session token', async () => {
+    mockFetchResponse({
+      data: { deleteReview: true },
+    });
+
+    await deleteReview(reviewId);
+
+    const [, options] = vi.mocked(fetch).mock.calls[0];
+    expect(options?.headers).toEqual(
+      expect.objectContaining({
+        Authorization: 'Bearer session-token',
+      }),
+    );
+    expect(JSON.parse(options?.body as string)).toEqual(
+      expect.objectContaining({
+        variables: {
+          input: { id: reviewId },
+        },
+      }),
+    );
+  });
+
+  it('throws when the user is not signed in', async () => {
+    vi.mocked(getSessionToken).mockResolvedValue(undefined);
+
+    await expect(deleteReview(reviewId)).rejects.toThrow('Not signed in');
+  });
+
+  it('throws when the delete review response is not ok', async () => {
+    mockFetchResponse({}, false, 'Service Unavailable');
+
+    await expect(deleteReview(reviewId)).rejects.toThrow(
+      'Failed to delete review: Service Unavailable',
+    );
+  });
+
+  it('throws the GraphQL error message when present', async () => {
+    mockFetchResponse({
+      errors: [{ message: 'Review not found or user does not own review' }],
+    });
+
+    await expect(deleteReview(reviewId)).rejects.toThrow(
+      'Review not found or user does not own review',
+    );
+  });
+
+  it('throws a generic message for GraphQL errors without a message', async () => {
+    mockFetchResponse({
+      errors: [{}],
+    });
+
+    await expect(deleteReview(reviewId)).rejects.toThrow('GraphQL error');
   });
 });

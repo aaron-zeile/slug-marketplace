@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getReviews, insertReview } = vi.hoisted(() => ({
+const { getReviews, insertReview, deleteReviewById } = vi.hoisted(() => ({
   getReviews: vi.fn(),
   insertReview: vi.fn(),
+  deleteReviewById: vi.fn(),
 }));
 
 vi.mock('../src/review/db', () => ({
   getReviews,
   insertReview,
+  deleteReviewById,
 }));
 
 import { ReviewService } from '../src/review/service';
@@ -67,6 +69,33 @@ describe('ReviewService', () => {
         reviews,
       );
       expect(getReviews).toHaveBeenCalledWith(itemId);
+    });
+  });
+
+  describe('deleteReview', () => {
+    it('throws when the review is not found or not owned by the user', async () => {
+      deleteReviewById.mockResolvedValueOnce(false);
+
+      await expect(
+        new ReviewService().deleteReview(testUser, {
+          id: '00000000-0000-0000-0000-000000000002',
+        }),
+      ).rejects.toThrow('Review not found or user does not own review');
+    });
+
+    it('delegates to the database layer when the review is owned', async () => {
+      deleteReviewById.mockResolvedValueOnce(true);
+
+      await expect(
+        new ReviewService().deleteReview(testUser, {
+          id: '00000000-0000-0000-0000-000000000002',
+        }),
+      ).resolves.toBeUndefined();
+
+      expect(deleteReviewById).toHaveBeenCalledWith(
+        '00000000-0000-0000-0000-000000000002',
+        testUser.id,
+      );
     });
   });
 });
