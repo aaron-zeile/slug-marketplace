@@ -4,10 +4,12 @@ import {doCheck} from '../auth/middleware.js'
 
 const authMocks = vi.hoisted(() => ({
   check: vi.fn(),
+  checkApiKey: vi.fn(),
 }))
 
 vi.mock('../auth/service.js', () => ({
   check: authMocks.check,
+  checkApiKey: authMocks.checkApiKey,
 }))
 
 function response() {
@@ -23,13 +25,14 @@ describe('doCheck', () => {
 
   beforeEach(() => {
     authMocks.check.mockReset()
+    authMocks.checkApiKey.mockReset()
   })
 
   afterEach(() => {
     process.env.NODE_ENV = originalNodeEnv
   })
 
-  it('uses a development seller when no session cookie is present in dev', async () => {
+  it('rejects requests without a session cookie in development', async () => {
     process.env.NODE_ENV = 'development'
     const req = {
       headers: {},
@@ -40,16 +43,12 @@ describe('doCheck', () => {
     await doCheck(req, res, next)
 
     expect({
-      user: req.user,
-      nextCalls: next.mock.calls.length,
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      nextCalls: next.mock.calls,
       checkCalls: authMocks.check.mock.calls,
     }).toEqual({
-      user: {
-        id: 'dbdb10af-685c-41ff-b8e1-676b98c1732a',
-        email: 'test-seller@email.com',
-        name: 'Test Seller',
-      },
-      nextCalls: 1,
+      statusCall: [401],
+      nextCalls: [],
       checkCalls: [],
     })
   })

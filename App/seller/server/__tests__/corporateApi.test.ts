@@ -1,34 +1,37 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type {Request, Response} from 'express'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 
-import app from '../app';
-import { check, checkApiKey, createApiKey } from '../auth/service.js';
-import { ListingService } from '../listings/service.js';
+import {doCheck} from '../auth/middleware.js'
+import {check, checkApiKey, createApiKey} from '../auth/service.js'
+import * as apiKeys from '../apiKeys/router.js'
+import {ListingService} from '../listings/service.js'
+import * as listings from '../listings/router.js'
 
 vi.mock('../auth/service.js', () => ({
   check: vi.fn(),
   checkApiKey: vi.fn(),
   createApiKey: vi.fn(),
-}));
+}))
 
 vi.mock('../listings/service.js', () => ({
   ListingService: vi.fn(),
-}));
+}))
 
-const mockCheck = vi.mocked(check);
-const mockCheckApiKey = vi.mocked(checkApiKey);
-const mockCreateApiKey = vi.mocked(createApiKey);
-const MockListingService = vi.mocked(ListingService);
+const mockCheck = vi.mocked(check)
+const mockCheckApiKey = vi.mocked(checkApiKey)
+const mockCreateApiKey = vi.mocked(createApiKey)
+const MockListingService = vi.mocked(ListingService)
 
 const sellerUser = {
   id: 'seller-123',
   email: 'seller@example.com',
   name: 'Seller Name',
-};
+}
 
 const corporateAuth = {
   ...sellerUser,
   token: 'forwarded-session-token',
-};
+}
 
 const listing = {
   id: 'item-123',
@@ -41,156 +44,181 @@ const listing = {
   price: 19.99,
   created_at: '2026-05-17T00:00:00.000Z',
   images: ['https://example.com/image.jpg'],
-};
+}
 
-function request(path: string, init?: RequestInit) {
-  return new Promise<Response>((resolve, reject) => {
-    const server = app.listen(0, async () => {
-      try {
-        const address = server.address();
-        if (!address || typeof address === 'string') {
-          throw new Error('Test server did not open a TCP port');
-        }
-        const response = await fetch(
-          `http://127.0.0.1:${address.port}${path}`,
-          init,
-        );
-        resolve(response);
-      } catch (error) {
-        reject(error);
-      } finally {
-        server.close();
-      }
-    });
-  });
+function response() {
+  const res = {
+    status: vi.fn(() => res),
+    json: vi.fn(() => res),
+    sendStatus: vi.fn(() => res),
+  }
+
+  return res as unknown as Response
+}
+
+async function runWithAuth(
+  req: Request,
+  res: Response,
+  handler: (req: Request, res: Response) => Promise<void>,
+) {
+  await doCheck(req, res, async () => {
+    await handler(req, res)
+  })
 }
 
 describe('seller corporate REST API', () => {
-  const getListings = vi.fn();
-  const createListing = vi.fn();
-  const deleteListing = vi.fn();
+  const getListings = vi.fn()
+  const createListing = vi.fn()
+  const deleteListing = vi.fn()
 
   beforeEach(() => {
-    process.env.NODE_ENV = 'test';
-    vi.clearAllMocks();
+    vi.clearAllMocks()
 
-    getListings.mockResolvedValue([listing]);
-    createListing.mockResolvedValue(listing);
-    deleteListing.mockResolvedValue(undefined);
+    getListings.mockResolvedValue([listing])
+    createListing.mockResolvedValue(listing)
+    deleteListing.mockResolvedValue(undefined)
     MockListingService.mockImplementation(() => ({
       getListings,
       createListing,
       deleteListing,
-    } as unknown as ListingService));
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
+    } as unknown as ListingService))
+  })
 
   it('rejects listing requests without browser auth or a corporate API key', async () => {
-    const response = await request('/seller/api/listings?status=active');
+    const req = {
+      headers: {},
+      query: {status: 'active'},
+    } as unknown as Request
+    const res = response()
 
-    expect(response.status).toBe(401);
-    expect(mockCheckApiKey).not.toHaveBeenCalled();
-    expect(getListings).not.toHaveBeenCalled();
-  });
+    await runWithAuth(req, res, listings.get)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      listingCalls: getListings.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      listingCalls: [],
+    })
+  })
 
   it('gets seller listings with a corporate API key', async () => {
-    mockCheckApiKey.mockResolvedValue(corporateAuth);
+    mockCheckApiKey.mockResolvedValue(corporateAuth)
+    const req = {
+      headers: {authorization: 'Bearer slug_sk_test'},
+      query: {status: 'sold'},
+    } as unknown as Request
+    const res = response()
 
-    const response = await request('/seller/api/listings?status=sold', {
-      headers: {
-        Authorization: 'Bearer slug_sk_test',
-      },
-    });
+    await runWithAuth(req, res, listings.get)
 
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ listings: [listing] });
-    expect(mockCheckApiKey).toHaveBeenCalledWith('slug_sk_test');
-    expect(getListings).toHaveBeenCalledWith(sellerUser.id, 'sold');
-  });
+    expect({
+      checkCall: mockCheckApiKey.mock.calls[0],
+      listingCall: getListings.mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      checkCall: ['slug_sk_test'],
+      listingCall: [sellerUser.id, 'sold'],
+      jsonCall: [{listings: [listing]}],
+    })
+  })
 
   it('creates a listing with a corporate API key and forwards the session token to ItemsService', async () => {
-    mockCheckApiKey.mockResolvedValue(corporateAuth);
-
+    mockCheckApiKey.mockResolvedValue(corporateAuth)
     const input = {
       name: 'Corporate Listing',
       description: 'Created through the REST API',
       price: 19.99,
       images: ['https://example.com/image.jpg'],
-    };
+    }
+    const req = {
+      headers: {authorization: 'Bearer slug_sk_test'},
+      body: input,
+    } as unknown as Request
+    const res = response()
 
-    const response = await request('/seller/api/listings', {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer slug_sk_test',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(input),
-    });
+    await runWithAuth(req, res, listings.post)
 
-    expect(response.status).toBe(201);
-    await expect(response.json()).resolves.toEqual({ listing });
-    expect(createListing).toHaveBeenCalledWith(input, corporateAuth.token);
-  });
+    expect({
+      createCall: createListing.mock.calls[0],
+      statusCall: (res.status as ReturnType<typeof vi.fn>).mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      createCall: [input, corporateAuth.token],
+      statusCall: [201],
+      jsonCall: [{listing}],
+    })
+  })
 
   it('deletes a listing with a corporate API key and forwards the session token to ItemsService', async () => {
-    mockCheckApiKey.mockResolvedValue(corporateAuth);
+    mockCheckApiKey.mockResolvedValue(corporateAuth)
+    const req = {
+      headers: {authorization: 'Bearer slug_sk_test'},
+      params: {id: 'item-123'},
+    } as unknown as Request
+    const res = response()
 
-    const response = await request('/seller/api/listings/item-123', {
-      method: 'DELETE',
-      headers: {
-        Authorization: 'Bearer slug_sk_test',
-      },
-    });
+    await runWithAuth(req, res, listings.remove)
 
-    expect(response.status).toBe(204);
-    expect(deleteListing).toHaveBeenCalledWith('item-123', corporateAuth.token);
-  });
+    expect({
+      deleteCall: deleteListing.mock.calls[0],
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      deleteCall: ['item-123', corporateAuth.token],
+      statusCall: [204],
+    })
+  })
 
   it('rejects an invalid corporate API key', async () => {
-    mockCheckApiKey.mockResolvedValue(undefined);
+    mockCheckApiKey.mockResolvedValue(undefined)
+    const req = {
+      headers: {authorization: 'Bearer slug_sk_bad'},
+      query: {},
+    } as unknown as Request
+    const res = response()
 
-    const response = await request('/seller/api/listings', {
-      headers: {
-        Authorization: 'Bearer slug_sk_bad',
-      },
-    });
+    await runWithAuth(req, res, listings.get)
 
-    expect(response.status).toBe(401);
-    expect(getListings).not.toHaveBeenCalled();
-  });
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      listingCalls: getListings.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      listingCalls: [],
+    })
+  })
 
   it('creates a corporate API key for a browser-authenticated seller session', async () => {
-    mockCheck.mockResolvedValue(sellerUser);
+    mockCheck.mockResolvedValue(sellerUser)
     mockCreateApiKey.mockResolvedValue({
       id: 'key-123',
       name: 'Bulk uploader',
       key: 'slug_sk_created',
       created_at: '2026-05-17T00:00:00.000Z',
-    });
+    })
+    const req = {
+      headers: {cookie: 'session=browser-session-token'},
+      body: {name: 'Bulk uploader'},
+    } as unknown as Request
+    const res = response()
 
-    const response = await request('/seller/api/keys', {
-      method: 'POST',
-      headers: {
-        Cookie: 'session=browser-session-token',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: 'Bulk uploader' }),
-    });
+    await runWithAuth(req, res, apiKeys.post)
 
-    expect(response.status).toBe(201);
-    await expect(response.json()).resolves.toEqual({
-      id: 'key-123',
-      name: 'Bulk uploader',
-      key: 'slug_sk_created',
-      created_at: '2026-05-17T00:00:00.000Z',
-    });
-    expect(mockCheck).toHaveBeenCalledWith('browser-session-token');
-    expect(mockCreateApiKey).toHaveBeenCalledWith(
-      'browser-session-token',
-      'Bulk uploader',
-    );
-  });
-});
+    expect({
+      checkCall: mockCheck.mock.calls[0],
+      createKeyCall: mockCreateApiKey.mock.calls[0],
+      statusCall: (res.status as ReturnType<typeof vi.fn>).mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      checkCall: ['browser-session-token'],
+      createKeyCall: ['browser-session-token', 'Bulk uploader'],
+      statusCall: [201],
+      jsonCall: [{
+        id: 'key-123',
+        name: 'Bulk uploader',
+        key: 'slug_sk_created',
+        created_at: '2026-05-17T00:00:00.000Z',
+      }],
+    })
+  })
+})

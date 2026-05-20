@@ -66,11 +66,15 @@ describe('server index', () => {
 
     await import('../index.js')
 
-    const [, fallbackHandler] = app.get.mock.calls[0]
+    const [, fallbackHandler] = app.get.mock.calls[0] as [
+      RegExp,
+      (_request: unknown, response: {sendFile: typeof sendFile}) => void,
+    ]
     fallbackHandler({}, {sendFile})
 
-    const staticDir = expressStatic.mock.calls[0]?.[0]?.replaceAll('\\', '/')
-    const sentFile = sendFile.mock.calls[0]?.[0]?.replaceAll('\\', '/')
+    const staticCall = expressStatic.mock.calls[0] as unknown[] | undefined
+    const staticDir = String(staticCall?.[0]).replaceAll('\\', '/')
+    const sentFile = String(sendFile.mock.calls[0]?.[0]).replaceAll('\\', '/')
 
     expect({
       staticDir,

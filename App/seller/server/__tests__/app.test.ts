@@ -5,6 +5,7 @@ const expressMocks = vi.hoisted(() => {
     use: vi.fn(),
     get: vi.fn(),
     post: vi.fn(),
+    put: vi.fn(),
     delete: vi.fn(),
   }
   const json = vi.fn(() => 'json-middleware')
@@ -30,6 +31,7 @@ vi.mock('../auth/middleware.js', () => ({
 vi.mock('../listings/router.js', () => ({
   get: 'get-listings',
   post: 'post-listing',
+  put: 'put-listing',
   remove: 'remove-listing',
 }))
 
@@ -47,6 +49,7 @@ describe('seller app', () => {
       useCalls: expressMocks.app.use.mock.calls,
       getCalls: expressMocks.app.get.mock.calls,
       postCalls: expressMocks.app.post.mock.calls,
+      putCalls: expressMocks.app.put.mock.calls,
       deleteCalls: expressMocks.app.delete.mock.calls,
     }).toEqual({
       app: expressMocks.app,
@@ -56,6 +59,9 @@ describe('seller app', () => {
       postCalls: [
         ['/seller/api/listings', 'auth-middleware', 'post-listing'],
         ['/seller/api/keys', 'auth-middleware', 'post-api-key'],
+      ],
+      putCalls: [
+        ['/seller/api/listings/:id', 'auth-middleware', 'put-listing'],
       ],
       deleteCalls: [
         ['/seller/api/listings/:id', 'auth-middleware', 'remove-listing'],

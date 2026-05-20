@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import {fireEvent, screen, waitFor} from '@testing-library/react'
 import {expect, it, vi} from 'vitest'
-=======
-import {screen} from '@testing-library/react'
-import {it, vi} from 'vitest'
->>>>>>> efb70c2cfa48858c7cbb3337694c5275c13e0dbc
 import React from 'react'
 
 import Listings from '../dashboard/Listings'
@@ -34,8 +29,7 @@ it('renders listings', async () => {
 
   renderWithProviders(<Listings />)
 
-<<<<<<< HEAD
-  await screen.findByLabelText('Name for USB Hub 937')
+  expect(await screen.findByLabelText('Name for USB Hub 937')).toBeInTheDocument()
 })
 
 it('updates a listing only after edits are made', async () => {
@@ -73,9 +67,9 @@ it('updates a listing only after edits are made', async () => {
   renderWithProviders(<Listings />)
 
   const nameInput = await screen.findByLabelText('Name for USB Hub 937')
-  expect(
-    screen.queryByRole('button', { name: 'Update USB Hub 937' }),
-  ).toBeNull()
+  const updateButtonBeforeEdit = screen.queryByRole('button', {
+    name: 'Update USB Hub 937',
+  })
 
   fireEvent.change(nameInput, { target: { value: 'USB Hub Pro' } })
 
@@ -84,20 +78,28 @@ it('updates a listing only after edits are made', async () => {
   })
   fireEvent.click(updateButton)
 
-  await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
-  expect(fetchMock).toHaveBeenLastCalledWith(
-    '/seller/api/listings/da9d705c-0f9e-4e30-ab80-435abdf25284',
-    expect.objectContaining({
-      method: 'PUT',
-      body: JSON.stringify({
-        name: 'USB Hub Pro',
-        description: listing.description,
-        price: listing.price,
-        images: listing.images,
+  await waitFor(() => {
+    if (fetchMock.mock.calls.length !== 2) {
+      throw new Error('Expected update request to be sent')
+    }
+  })
+
+  expect({
+    updateButtonBeforeEdit,
+    lastFetchCall: fetchMock.mock.calls.at(-1),
+  }).toEqual({
+    updateButtonBeforeEdit: null,
+    lastFetchCall: [
+      '/seller/api/listings/da9d705c-0f9e-4e30-ab80-435abdf25284',
+      expect.objectContaining({
+        method: 'PUT',
+        body: JSON.stringify({
+          name: 'USB Hub Pro',
+          description: listing.description,
+          price: listing.price,
+          images: listing.images,
+        }),
       }),
-    }),
-  )
-=======
-  expect(await screen.findByText('USB Hub 937')).toBeInTheDocument()
->>>>>>> efb70c2cfa48858c7cbb3337694c5275c13e0dbc
+    ],
+  })
 })

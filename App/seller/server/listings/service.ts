@@ -48,7 +48,6 @@ const DELETE_ITEM_MUTATION = `
   }
 `;
 
-<<<<<<< HEAD
 const UPDATE_ITEM_MUTATION = `
   mutation UpdateItem($input: UpdateItem!) {
     updateItem(input: $input) {
@@ -66,10 +65,7 @@ const UPDATE_ITEM_MUTATION = `
   }
 `;
 
-type SellerItemsResponse = {
-=======
 interface SellerItemsResponse {
->>>>>>> efb70c2cfa48858c7cbb3337694c5275c13e0dbc
   data?: {
     sellerItems?: unknown
   }

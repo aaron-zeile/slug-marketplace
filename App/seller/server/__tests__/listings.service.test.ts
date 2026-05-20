@@ -34,7 +34,10 @@ describe('ListingService', () => {
 
     const listings = await new ListingService().getListings('seller-1', 'active')
 
-    const [, request] = fetchMock.mock.calls[0]
+    const [, request] = fetchMock.mock.calls[0] as [
+      string,
+      {body: string; headers: Record<string, string>},
+    ]
     const body = JSON.parse(request.body)
 
     expect({
@@ -170,7 +173,10 @@ describe('ListingService', () => {
 
     await new ListingService().deleteListing('item-1', 'session-token')
 
-    const [, request] = fetchMock.mock.calls[0]
+    const [, request] = fetchMock.mock.calls[0] as [
+      string,
+      {body: string; headers: Record<string, string>},
+    ]
     const body = JSON.parse(request.body)
 
     expect({
