@@ -3,19 +3,21 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import CartList from '../../src/app/cart/CartList';
-import { addToCart, getCartItems, removeFromCart } from '../../src/cart/service';
-import type { CartItem as CartItemType } from '../../src/cart';
-import { check, getSessionToken } from '../../src/server/auth/service';
+import { checkLogin } from '../../src/app/buyer/login/actions';
+import {
+  addCartItemAction,
+  fetchCartItemsAction,
+  removeCartItemAction,
+} from '../../src/app/cart/actions';
 
-vi.mock('../../src/cart/service', () => ({
-  getCartItems: vi.fn(),
-  addToCart: vi.fn(),
-  removeFromCart: vi.fn(),
+vi.mock('../../src/app/cart/actions', () => ({
+  fetchCartItemsAction: vi.fn(),
+  addCartItemAction: vi.fn(),
+  removeCartItemAction: vi.fn(),
 }));
 
-vi.mock('../../src/server/auth/service', () => ({
-  getSessionToken: vi.fn(),
-  check: vi.fn(),
+vi.mock('../../src/app/buyer/login/actions', () => ({
+  checkLogin: vi.fn(),
 }));
 
 const user = {
@@ -70,16 +72,24 @@ const cartItems: CartItemType[] = [
 ];
 
 beforeEach(() => {
-  vi.mocked(getSessionToken).mockResolvedValue('session-token');
-  vi.mocked(check).mockResolvedValue(user);
-  vi.mocked(getCartItems).mockResolvedValue(cartItems);
-  vi.mocked(addToCart).mockResolvedValue({
-    id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
-    member: user.id,
-    item: cartItems[0].item.id,
-    quantity: 1,
+  vi.mocked(checkLogin).mockResolvedValue({ user });
+  vi.mocked(fetchCartItemsAction).mockResolvedValue({
+    success: true,
+    data: cartItems,
   });
-  vi.mocked(removeFromCart).mockResolvedValue(true);
+  vi.mocked(addCartItemAction).mockResolvedValue({
+    success: true,
+    data: {
+      id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      member: user.id,
+      item: cartItems[0].item.id,
+      quantity: 1,
+    },
+  });
+  vi.mocked(removeCartItemAction).mockResolvedValue({
+    success: true,
+    data: true,
+  });
 });
 
 it('fetches and renders cart items', async () => {
@@ -88,7 +98,7 @@ it('fetches and renders cart items', async () => {
   expect(screen.getByText('Loading your cart...')).toBeDefined();
 
   await waitFor(() => {
-    expect(getCartItems).toHaveBeenCalledWith(user.id);
+    expect(fetchCartItemsAction).toHaveBeenCalled();
     expect(screen.getByText(cartItems[0].item.name)).toBeDefined();
     expect(screen.getByText(cartItems[1].item.name)).toBeDefined();
   });
@@ -96,7 +106,10 @@ it('fetches and renders cart items', async () => {
 });
 
 it('renders a failed fetch message when the cart cannot load', async () => {
-  vi.mocked(getCartItems).mockRejectedValue(new Error('Failed to fetch'));
+  vi.mocked(fetchCartItemsAction).mockResolvedValue({
+    success: false,
+    error: 'Failed to fetch',
+  });
 
   render(<CartList />);
 
@@ -106,7 +119,10 @@ it('renders a failed fetch message when the cart cannot load', async () => {
 });
 
 it('renders empty state after fetching an empty cart', async () => {
-  vi.mocked(getCartItems).mockResolvedValue([]);
+  vi.mocked(fetchCartItemsAction).mockResolvedValue({
+    success: true,
+    data: [],
+  });
 
   render(<CartList />);
 
@@ -128,7 +144,7 @@ it('updates quantity when the shopper increases an item', async () => {
     }),
   );
 
-  expect(addToCart).toHaveBeenCalledWith(user.id, cartItems[0].item.id);
+  expect(addCartItemAction).toHaveBeenCalledWith(cartItems[0].item.id);
   expect(screen.getByText('4 items in your cart')).toBeDefined();
 });
 
@@ -145,7 +161,7 @@ it('removes an item when quantity reaches zero', async () => {
     }),
   );
 
-  expect(removeFromCart).toHaveBeenCalledWith(user.id, cartItems[1].item.id);
+  expect(removeCartItemAction).toHaveBeenCalledWith(cartItems[1].item.id);
   expect(screen.queryByText(cartItems[1].item.name)).toBeNull();
   expect(screen.getByText('2 items in your cart')).toBeDefined();
 });

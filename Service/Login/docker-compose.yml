@@ -73,7 +73,8 @@ services:
         condition: service_healthy
     environment:
       PORT: 4010
-      DATABASE_URL: postgres://${LOGIN_POSTGRES_USER:-postgres}:${LOGIN_POSTGRES_PASSWORD:-postgres}@login-db:5432/${LOGIN_POSTGRES_DB:-postgres}
+      DATABASE_URL: postgres://${LOGIN_POSTGRES_USER:-postgres}:${LOGIN_POSTGRES_PASSWORD:-postgres}@login-db:5432/account
+      LOGIN_DATABASE_URL: postgres://${LOGIN_POSTGRES_USER:-postgres}:${LOGIN_POSTGRES_PASSWORD:-postgres}@login-db:5432/account
       AUTH_SECRET: ${AUTH_SECRET:-dev-auth-secret-change-me}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}

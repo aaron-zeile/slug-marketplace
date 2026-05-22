@@ -79,7 +79,15 @@ beforeAll(async () => {
       email TEXT NOT NULL UNIQUE,
       google_id TEXT UNIQUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
+    );
+    CREATE TABLE IF NOT EXISTS shipping_address (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      member UUID NOT NULL REFERENCES member(id) ON DELETE CASCADE,
+      data JSONB NOT NULL DEFAULT '{}'::jsonb
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS shipping_address_one_default_per_member
+      ON shipping_address (member)
+      WHERE (data->>'is_default')::boolean IS TRUE;
   `);
 
   const [{ app }, { setGoogleTokenVerifierForTest }] = await Promise.all([
@@ -119,7 +127,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   google.credential = 'google-token';
   google.lastLogin = undefined;
-  await pool.query('TRUNCATE member RESTART IDENTITY');
+  await pool.query('TRUNCATE shipping_address, member RESTART IDENTITY CASCADE');
   loginService.verifyIdToken.mockReset();
   loginService.verifyIdToken.mockResolvedValue({
     getPayload: () => {
@@ -209,16 +217,7 @@ afterAll(async () => {
 it('Renders Page', async () => {
   render(<Topbar />);
 
-  await screen.findByText('SlugMarketplace');
-});
-
-it('navigates home when the marketplace title is clicked', async () => {
-  const { MockRouter } = await import('../mockRouter');
-  render(<Topbar />);
-
-  fireEvent.click(await screen.findByText('SlugMarketplace'));
-
-  expect(MockRouter.push).toHaveBeenCalledWith('/');
+  await screen.findByRole('search');
 });
 
 it('shows login when logged out', async () => {

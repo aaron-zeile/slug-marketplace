@@ -60,8 +60,9 @@ export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
         },
         ...(isFeatured
           ? {
+              maxWidth: { sm: 480, md: 520 },
               '@media (min-width: 600px)': {
-                gridTemplateColumns: 'minmax(200px, 38%) 1fr',
+                gridTemplateColumns: 'minmax(120px, 32%) 1fr',
               },
             }
           : {
@@ -74,14 +75,14 @@ export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
         component="img"
         src={firstImage}
         sx={{
-          height: isFeatured ? 220 : 148,
+          height: isFeatured ? 140 : 148,
           objectFit: 'cover',
           width: '100%',
           ...(isFeatured
             ? {
                 '@media (min-width: 600px)': {
                   height: '100%',
-                  minHeight: 220,
+                  minHeight: 140,
                 },
               }
             : {}),
@@ -90,15 +91,15 @@ export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
       <Box
         sx={{
           display: 'grid',
-          gap: isFeatured ? 0.75 : 0.5,
-          p: isFeatured ? 2 : 1.25,
+          gap: isFeatured ? 0.5 : 0.5,
+          p: isFeatured ? 1.5 : 1.25,
         }}
       >
         <Typography
           aria-label={item.name}
           component="h3"
           sx={{
-            fontSize: isFeatured ? '1.15rem' : '0.9rem',
+            fontSize: isFeatured ? '1rem' : '0.9rem',
             fontWeight: isFeatured ? 700 : 650,
             lineHeight: 1.25,
             overflow: 'hidden',
@@ -112,7 +113,7 @@ export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
         <Typography
           sx={{
             color: brandColor,
-            fontSize: isFeatured ? '1.2rem' : '0.95rem',
+            fontSize: isFeatured ? '1.05rem' : '0.95rem',
             fontWeight: 700,
           }}
         >
@@ -122,7 +123,7 @@ export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
           <Typography
             sx={{
               color: 'text.secondary',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               fontWeight: 500,
             }}
           >

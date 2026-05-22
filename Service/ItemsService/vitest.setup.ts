@@ -1,1 +1,3 @@
-// Mock and etc here
+import dotenv from 'dotenv';
+
+dotenv.config();

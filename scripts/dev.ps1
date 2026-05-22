@@ -55,6 +55,28 @@ if ($NoStart) {
 
 Write-Host "Starting databases (login-db, items-db, cart-db)..."
 docker compose -f Service/Login/docker-compose.yml up -d login-db
+
+Write-Host "Applying Login account DB migrations (shipping_address)..."
+$migrateSql = Join-Path $repoRoot "Service\Login\sql\migrate-shipping-address.sql"
+$prevErrorAction = $ErrorActionPreference
+$hadNativeCmdPref = Test-Path variable:PSNativeCommandUseErrorActionPreference
+if ($hadNativeCmdPref) {
+  $prevNativeCmdErrors = $PSNativeCommandUseErrorActionPreference
+}
+try {
+  if ($hadNativeCmdPref) {
+    $PSNativeCommandUseErrorActionPreference = $false
+  }
+  $ErrorActionPreference = 'Continue'
+  Get-Content $migrateSql |
+    docker exec -i marketplace_login_db psql -q -U postgres -d account 2>&1 |
+    Out-Null
+} finally {
+  if ($hadNativeCmdPref) {
+    $PSNativeCommandUseErrorActionPreference = $prevNativeCmdErrors
+  }
+  $ErrorActionPreference = $prevErrorAction
+}
 docker compose -f Service/ItemsService/docker-compose.yml up -d postgres
 docker compose -f Service/Cart/docker-compose.yml up -d postgres
 

@@ -51,13 +51,15 @@ export async function closeAuthDbForTest() {
   }
 }
 
-function getDb() {
+export function getDb() {
   if (dbForTest) {
     return dbForTest;
   }
 
   const connectionString =
-    process.env.LOGIN_DATABASE_URL ?? process.env.ADMIN_DATABASE_URL;
+    process.env.LOGIN_DATABASE_URL ??
+    process.env.ADMIN_DATABASE_URL ??
+    process.env.DATABASE_URL;
 
   db ??= new Pool({
     connectionString,
