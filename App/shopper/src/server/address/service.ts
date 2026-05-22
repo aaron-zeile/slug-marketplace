@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { ShippingAddressSchema } from '../../address';
 import { getLoginServiceBaseUrl } from '../auth/service';
 import type { ShippingAddress, ShippingAddressInput } from './types';
 
@@ -51,17 +52,19 @@ async function addressFetch<T>(
 }
 
 export async function listAddresses(token: string): Promise<ShippingAddress[]> {
-  return addressFetch<ShippingAddress[]>(token, '/addresses');
+  const data = await addressFetch<unknown>(token, '/addresses');
+  return ShippingAddressSchema.array().parse(data);
 }
 
 export async function createAddress(
   token: string,
   input: ShippingAddressInput,
 ): Promise<ShippingAddress> {
-  return addressFetch<ShippingAddress>(token, '/addresses', {
+  const data = await addressFetch<unknown>(token, '/addresses', {
     method: 'POST',
     body: JSON.stringify(input),
   });
+  return ShippingAddressSchema.parse(data);
 }
 
 export async function updateAddress(
@@ -69,10 +72,11 @@ export async function updateAddress(
   addressId: string,
   input: ShippingAddressInput,
 ): Promise<ShippingAddress> {
-  return addressFetch<ShippingAddress>(token, `/addresses/${addressId}`, {
+  const data = await addressFetch<unknown>(token, `/addresses/${addressId}`, {
     method: 'PUT',
     body: JSON.stringify(input),
   });
+  return ShippingAddressSchema.parse(data);
 }
 
 export async function deleteAddress(
@@ -88,7 +92,8 @@ export async function setDefaultAddress(
   token: string,
   addressId: string,
 ): Promise<ShippingAddress> {
-  return addressFetch<ShippingAddress>(token, `/addresses/${addressId}/default`, {
+  const data = await addressFetch<unknown>(token, `/addresses/${addressId}/default`, {
     method: 'PATCH',
   });
+  return ShippingAddressSchema.parse(data);
 }

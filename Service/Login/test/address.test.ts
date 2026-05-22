@@ -52,6 +52,17 @@ function createMockDb() {
         return { rows: [] as T[] };
       }
 
+      if (sql.includes('FROM member WHERE id = $1')) {
+        return {
+          rows: [
+            {
+              id: memberId,
+              email: 'buyer@example.com',
+            },
+          ] as T[],
+        };
+      }
+
       if (sql.startsWith('INSERT INTO shipping_address')) {
         const data = JSON.parse(params?.[1] as string) as AddressData;
         const row = {
@@ -193,6 +204,9 @@ test('remove promotes another address when deleting the default', async () => {
 });
 
 test('check still validates session tokens for address routes', async () => {
+  const mockDb = createMockDb();
+  setAuthDbForTest(mockDb);
+
   const authToken = jwt.sign(
     {
       id: memberId,
@@ -206,4 +220,29 @@ test('check still validates session tokens for address routes', async () => {
   const user = await new AuthService().check(`Bearer ${authToken}`, ['member']);
 
   expect(user.id).toBe(memberId);
+});
+
+test('check rejects tokens when the member row no longer exists', async () => {
+  setAuthDbForTest({
+    async query<T>(sql: string) {
+      if (sql.includes('FROM member WHERE id = $1')) {
+        return { rows: [] as T[] };
+      }
+      throw new Error(`Unhandled SQL in mock db: ${sql}`);
+    },
+  });
+
+  const authToken = jwt.sign(
+    {
+      id: memberId,
+      email: 'buyer@example.com',
+      name: 'Buyer',
+    },
+    'test-secret',
+  );
+
+  const { AuthService } = await import('../service');
+  await expect(
+    new AuthService().check(`Bearer ${authToken}`, ['member']),
+  ).rejects.toThrow(/Member not found/);
 });

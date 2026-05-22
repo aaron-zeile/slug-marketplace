@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { Item } from '../../../item';
 import { fetchItemAction, fetchItemReviewsAction } from './actions';
+import { dispatchCartUpdated } from '../../../cart/events';
 import { addCartItemAction } from '../../cart/actions';
 import Reviews from './Reviews';
 
@@ -158,6 +159,7 @@ const ItemDisplay = ({ id }: Props) => {
 
     if (result.success) {
       setCartMessage('Added to cart.');
+      dispatchCartUpdated();
     } else {
       setCartMessage('Please sign in to add to cart.');
     }

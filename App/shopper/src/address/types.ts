@@ -1,28 +1,15 @@
-export interface ShippingAddress {
-  id: string;
-  member: string;
-  label?: string;
-  line1: string;
-  line2?: string;
-  city: string;
-  state?: string;
-  postal_code: string;
-  country: string;
-  is_default: boolean;
-  created_at: string;
-  updated_at: string;
-}
+export type {
+  ShippingAddress,
+  ShippingAddressInput,
+} from './index';
 
-export interface ShippingAddressInput {
-  label?: string;
-  line1: string;
-  line2?: string;
-  city: string;
-  state?: string;
-  postal_code: string;
-  country?: string;
-  is_default?: boolean;
-}
+export {
+  AddressIdSchema,
+  ShippingAddressInputSchema,
+  ShippingAddressSchema,
+  parseAddressId,
+  parseShippingAddressInput,
+} from './index';
 
 export type AddressActionResult<T = undefined> =
   | { success: true; data: T }

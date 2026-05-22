@@ -10,10 +10,15 @@ import {
   addCartItemAction,
   removeCartItemAction,
 } from '../../src/app/cart/actions';
+import { dispatchCartUpdated } from '../../src/cart/events';
 
 vi.mock('../../src/app/cart/actions', () => ({
   addCartItemAction: vi.fn(),
   removeCartItemAction: vi.fn(),
+}));
+
+vi.mock('../../src/cart/events', () => ({
+  dispatchCartUpdated: vi.fn(),
 }));
 
 const item: Item = {
@@ -117,6 +122,7 @@ it('calls add action and increases quantity when increase is clicked', async () 
   await userEvent.click(screen.getByLabelText(`Increase quantity for ${item.name}`));
 
   expect(onQuantityChange).toHaveBeenCalledWith(item.id, 3);
+  expect(dispatchCartUpdated).toHaveBeenCalledTimes(1);
 });
 
 it('calls remove action and decreases quantity when decrease is clicked', async () => {
@@ -125,6 +131,7 @@ it('calls remove action and decreases quantity when decrease is clicked', async 
   await userEvent.click(screen.getByLabelText(`Decrease quantity for ${item.name}`));
 
   expect(onQuantityChange).toHaveBeenCalledWith(item.id, 1);
+  expect(dispatchCartUpdated).toHaveBeenCalledTimes(1);
 });
 
 it('does not change quantity when increase action fails', async () => {
@@ -137,6 +144,7 @@ it('does not change quantity when increase action fails', async () => {
   await userEvent.click(screen.getByLabelText(`Increase quantity for ${item.name}`));
 
   expect(onQuantityChange).not.toHaveBeenCalled();
+  expect(dispatchCartUpdated).not.toHaveBeenCalled();
 });
 
 it('does not change quantity when decrease action fails', async () => {
@@ -149,4 +157,5 @@ it('does not change quantity when decrease action fails', async () => {
   await userEvent.click(screen.getByLabelText(`Decrease quantity for ${item.name}`));
 
   expect(onQuantityChange).not.toHaveBeenCalled();
+  expect(dispatchCartUpdated).not.toHaveBeenCalled();
 });

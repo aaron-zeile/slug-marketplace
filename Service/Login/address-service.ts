@@ -12,6 +12,14 @@ function rethrowDbError(error: unknown): never {
       'shipping_address table is missing. Run Service/Login/sql/migrate-shipping-address.sql against the account database.',
     );
   }
+  if (
+    error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    error.code === '23503'
+  ) {
+    throw new Error('Member account not found. Please sign in again.');
+  }
   throw error;
 }
 
@@ -156,12 +164,17 @@ export class AddressService {
     }
 
     const data = buildData(validated, shouldBeDefault);
-    const result = await getDb().query<ShippingAddressRow>(
-      `INSERT INTO shipping_address (member, data)
-       VALUES ($1, $2::jsonb)
-       RETURNING id, member, data`,
-      [memberId, JSON.stringify(data)],
-    );
+    let result;
+    try {
+      result = await getDb().query<ShippingAddressRow>(
+        `INSERT INTO shipping_address (member, data)
+         VALUES ($1, $2::jsonb)
+         RETURNING id, member, data`,
+        [memberId, JSON.stringify(data)],
+      );
+    } catch (error) {
+      rethrowDbError(error);
+    }
 
     return mapRow(result.rows[0]);
   }

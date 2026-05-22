@@ -3,15 +3,15 @@ import { expect, it, vi } from 'vitest';
 
 import AddressList from '../../src/app/account/AddressList';
 import {
-  deleteAddressClient,
-  setDefaultAddressClient,
-} from '../../src/address/client';
+  deleteAddressAction,
+  setDefaultAddressAction,
+} from '../../src/app/account/actions';
 
-vi.mock('../../src/address/client', () => ({
-  deleteAddressClient: vi.fn(),
-  setDefaultAddressClient: vi.fn(),
-  createAddressClient: vi.fn(),
-  updateAddressClient: vi.fn(),
+vi.mock('../../src/app/account/actions', () => ({
+  deleteAddressAction: vi.fn(),
+  setDefaultAddressAction: vi.fn(),
+  createAddressAction: vi.fn(),
+  updateAddressAction: vi.fn(),
 }));
 
 const addresses = [
@@ -42,7 +42,7 @@ const addresses = [
 ];
 
 it('sets another address as default', async () => {
-  vi.mocked(setDefaultAddressClient).mockResolvedValue({
+  vi.mocked(setDefaultAddressAction).mockResolvedValue({
     success: true,
     data: { ...addresses[1], is_default: true },
   });
@@ -53,13 +53,13 @@ it('sets another address as default', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Set as default' }));
 
   await waitFor(() => {
-    expect(setDefaultAddressClient).toHaveBeenCalledWith('addr-2');
+    expect(setDefaultAddressAction).toHaveBeenCalledWith('addr-2');
     expect(onChange).toHaveBeenCalled();
   });
 });
 
 it('deletes an address', async () => {
-  vi.mocked(deleteAddressClient).mockResolvedValue({ success: true });
+  vi.mocked(deleteAddressAction).mockResolvedValue({ success: true });
 
   const onChange = vi.fn();
   render(<AddressList addresses={addresses} onChange={onChange} />);
@@ -67,7 +67,7 @@ it('deletes an address', async () => {
   fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
 
   await waitFor(() => {
-    expect(deleteAddressClient).toHaveBeenCalledWith('addr-1');
+    expect(deleteAddressAction).toHaveBeenCalledWith('addr-1');
     expect(onChange).toHaveBeenCalled();
   });
 });

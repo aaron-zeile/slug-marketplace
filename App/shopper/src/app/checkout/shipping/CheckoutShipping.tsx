@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import AddressForm from '../../account/AddressForm';
-import { listAddressesClient } from '../../../address/client';
+import { listAddressesAction } from '../../account/actions';
 import type { ShippingAddress } from '../../../address/types';
 
 function formatAddress(address: ShippingAddress): string {
@@ -42,7 +42,7 @@ export default function CheckoutShipping() {
 
   useEffect(() => {
     async function load() {
-      const result = await listAddressesClient();
+      const result = await listAddressesAction();
       if (result.success && result.data) {
         setAddresses(result.data);
         const defaultAddress = result.data.find((entry) => entry.is_default);
@@ -57,7 +57,9 @@ export default function CheckoutShipping() {
     }
 
     void load();
-  }, [t]);
+    // Load once on mount; `t` is stable enough and must not retrigger fetches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleContinue = () => {
     if (!selectedId) {
@@ -68,7 +70,7 @@ export default function CheckoutShipping() {
   };
 
   const handleSaved = async (saved: ShippingAddress) => {
-    const refreshed = await listAddressesClient();
+    const refreshed = await listAddressesAction();
     if (refreshed.success && refreshed.data) {
       setAddresses(refreshed.data);
       setSelectedId(

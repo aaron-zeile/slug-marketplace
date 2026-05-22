@@ -12,11 +12,11 @@ import {
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
-import {
-  createAddressClient,
-  updateAddressClient,
-} from '../../address/client';
 import type { ShippingAddress, ShippingAddressInput } from '../../address/types';
+import {
+  createAddressAction,
+  updateAddressAction,
+} from './actions';
 
 interface Props {
   address?: ShippingAddress;
@@ -94,8 +94,8 @@ export default function AddressForm({ address, onSaved, onCancel }: Props) {
 
     setSubmitting(true);
     const result = address?.id
-      ? await updateAddressClient(address.id, payload)
-      : await createAddressClient(payload);
+      ? await updateAddressAction(address.id, payload)
+      : await createAddressAction(payload);
     setSubmitting(false);
 
     if (result.success && result.data) {

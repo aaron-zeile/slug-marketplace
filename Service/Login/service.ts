@@ -182,9 +182,19 @@ export class AuthService {
       throw new Error('Invalid authorization token');
     }
 
+    const result = await getDb().query<Pick<MemberRow, 'id' | 'email'>>(
+      'SELECT id, email FROM member WHERE id = $1',
+      [payload.id],
+    );
+    const member = result.rows[0];
+
+    if (!member) {
+      throw new Error('Member not found');
+    }
+
     return {
-      id: payload.id,
-      email: payload.email,
+      id: member.id,
+      email: member.email,
       name: payload.name,
     };
   }

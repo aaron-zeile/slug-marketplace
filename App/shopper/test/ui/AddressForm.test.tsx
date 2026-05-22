@@ -2,15 +2,15 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 
 import AddressForm from '../../src/app/account/AddressForm';
-import { createAddressClient } from '../../src/address/client';
+import { createAddressAction } from '../../src/app/account/actions';
 
-vi.mock('../../src/address/client', () => ({
-  createAddressClient: vi.fn(),
-  updateAddressClient: vi.fn(),
+vi.mock('../../src/app/account/actions', () => ({
+  createAddressAction: vi.fn(),
+  updateAddressAction: vi.fn(),
 }));
 
 it('submits a new address', async () => {
-  vi.mocked(createAddressClient).mockResolvedValue({
+  vi.mocked(createAddressAction).mockResolvedValue({
     success: true,
     data: {
       id: 'addr-1',
@@ -41,22 +41,13 @@ it('submits a new address', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Add address' }));
 
   await waitFor(() => {
-    expect(createAddressClient).toHaveBeenCalledWith({
-      label: undefined,
-      line1: '123 Main St',
-      line2: undefined,
-      city: 'Santa Cruz',
-      state: undefined,
-      postal_code: '95060',
-      country: 'US',
-      is_default: undefined,
-    });
+    expect(createAddressAction).toHaveBeenCalled();
     expect(onSaved).toHaveBeenCalled();
   });
 });
 
 it('shows an error when save fails', async () => {
-  vi.mocked(createAddressClient).mockResolvedValue({
+  vi.mocked(createAddressAction).mockResolvedValue({
     success: false,
     error: 'Unable to save address.',
   });

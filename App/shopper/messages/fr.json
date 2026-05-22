@@ -12,7 +12,10 @@
     "openProfileMenu": "Ouvrir le menu du compte",
     "profileMenu": "Menu du compte",
     "language": "Langue",
-    "shippingAddresses": "Adresses de livraison"
+    "shippingAddresses": "Adresses de livraison",
+    "home": "Accueil",
+    "backToHome": "Retour à l'accueil",
+    "brand": "SlugMarketplace"
   },
   "Home": {
     "heroAriaLabel": "Bienvenue",
@@ -42,6 +45,7 @@
   "Cart": {
     "tooltip": "Panier",
     "openCart": "Ouvrir le panier",
+    "openCartWithCount": "Ouvrir le panier, {count} articles",
     "title": "Panier",
     "itemsInCart_one": "{count} article dans votre panier",
     "itemsInCart_other": "{count} articles dans votre panier",

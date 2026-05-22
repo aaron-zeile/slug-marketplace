@@ -4,8 +4,8 @@ import { Alert, Box, Container, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
-import { listAddressesClient } from '../../../address/client';
 import type { ShippingAddress } from '../../../address/types';
+import { listAddressesAction } from '../actions';
 import AddressList from '../AddressList';
 
 export default function AccountAddresses() {
@@ -16,7 +16,7 @@ export default function AccountAddresses() {
 
   useEffect(() => {
     async function load() {
-      const result = await listAddressesClient();
+      const result = await listAddressesAction();
       if (result.success && result.data) {
         setAddresses(result.data);
       } else {

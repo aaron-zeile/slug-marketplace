@@ -1,6 +1,8 @@
 'use client';
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
@@ -8,6 +10,7 @@ import {
   AppBar,
   Avatar,
   Box,
+  Button,
   Container,
   Divider,
   IconButton,
@@ -18,6 +21,8 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
@@ -37,6 +42,8 @@ function getAvatarLabel(name: string | null) {
 
 export default function Topbar() {
   const tTopbar = useTranslations('Topbar');
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   const [name, setName] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -109,12 +116,78 @@ export default function Topbar() {
           sx={{
             alignItems: 'center',
             flexDirection: 'row',
-            gap: { xs: 1, sm: 1.25, md: 1.5 },
+            flexWrap: 'nowrap',
+            gap: { xs: 0.75, sm: 1.25, md: 1.5 },
             minHeight: { xs: 56, sm: 64 },
-            px: { xs: 2, sm: 3 },
+            px: { xs: 1.5, sm: 3 },
             py: { xs: 1, sm: 1.25 },
           }}
         >
+          {!isHome ? (
+            <Box
+              sx={{
+                flexShrink: 0,
+                mr: { xs: 0, sm: 0.25 },
+              }}
+            >
+              <IconButton
+                component={Link}
+                href="/"
+                aria-label={tTopbar('backToHome')}
+                sx={{
+                  display: { xs: 'inline-flex', md: 'none' },
+                  color: 'text.primary',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    color: brandColor,
+                  },
+                }}
+              >
+                <ArrowBackIcon aria-hidden sx={{ fontSize: 22 }} />
+              </IconButton>
+              <Button
+                component={Link}
+                href="/"
+                startIcon={<HomeOutlinedIcon aria-hidden />}
+                sx={{
+                  display: { xs: 'none', md: 'inline-flex' },
+                  borderRadius: 2,
+                  color: 'text.primary',
+                  fontWeight: 600,
+                  px: 1.75,
+                  textTransform: 'none',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    color: brandColor,
+                  },
+                }}
+              >
+                {tTopbar('home')}
+              </Button>
+            </Box>
+          ) : (
+            <Button
+              component={Link}
+              href="/"
+              sx={{
+                display: { xs: 'none', md: 'inline-flex' },
+                borderRadius: 2,
+                color: brandColor,
+                flexShrink: 0,
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                minWidth: 'auto',
+                px: 1.5,
+                textTransform: 'none',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+              }}
+            >
+              {tTopbar('brand')}
+            </Button>
+          )}
+
           <Box
             sx={{
               flex: 1,

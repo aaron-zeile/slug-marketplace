@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Item } from '../../item';
+import { dispatchCartUpdated } from '../../cart/events';
 import { addCartItemAction, removeCartItemAction } from './actions';
 
 interface CartItemProps {
@@ -52,6 +53,7 @@ export default function CartItem({
 
     if (result.success) {
       onQuantityChange?.(item.id, quantity - 1);
+      dispatchCartUpdated();
     }
   };
 
@@ -60,6 +62,7 @@ export default function CartItem({
 
     if (result.success) {
       onQuantityChange?.(item.id, quantity + 1);
+      dispatchCartUpdated();
     }
   };
 

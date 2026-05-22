@@ -24,6 +24,12 @@ test('createCorporateApiKey stores a hashed key and returns the raw key once', a
 
   setAuthDbForTest({
     async query<T>(sql: string, params?: unknown[]) {
+      if (sql.includes('FROM member WHERE id = $1')) {
+        return {
+          rows: [{ id: 'seller-123', email: 'seller@example.com' }] as T[],
+        };
+      }
+
       return {
         rows: [
           {
@@ -58,7 +64,13 @@ test('createCorporateApiKey rejects blank key names', async () => {
   );
 
   setAuthDbForTest({
-    async query<T>() {
+    async query<T>(sql: string) {
+      if (sql.includes('FROM member WHERE id = $1')) {
+        return {
+          rows: [{ id: 'seller-123', email: 'seller@example.com' }] as T[],
+        };
+      }
+
       return { rows: [] as T[] };
     },
   });

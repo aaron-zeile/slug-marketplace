@@ -16,12 +16,17 @@ vi.mock('../../src/app/cart/actions', () => ({
   addCartItemAction: vi.fn(),
 }));
 
+vi.mock('../../src/cart/events', () => ({
+  dispatchCartUpdated: vi.fn(),
+}));
+
 import {
   fetchItemAction,
   fetchItemReviewSessionAction,
   fetchItemReviewsAction,
 } from '../../src/app/items/[id]/actions';
 import { addCartItemAction } from '../../src/app/cart/actions';
+import { dispatchCartUpdated } from '../../src/cart/events';
 
 const mockItem: Item = {
   id: '550e8400-e29b-41d4-a716-446655440000',
@@ -403,6 +408,7 @@ it('adds the item to cart when Add to cart is clicked', async () => {
   );
 
   expect(addCartItemAction).toHaveBeenCalledWith(mockItem.id);
+  expect(dispatchCartUpdated).toHaveBeenCalledTimes(1);
   expect(await screen.findByLabelText('Added to cart.')).toBeDefined();
 });
 
@@ -436,6 +442,7 @@ it('does not show added message when signed out add to cart fails', async () => 
   );
 
   expect(addCartItemAction).toHaveBeenCalledWith(mockItem.id);
+  expect(dispatchCartUpdated).not.toHaveBeenCalled();
   await screen.findByLabelText('Please sign in to add to cart.');
   expect(screen.queryByLabelText('Added to cart.')).toBeNull();
 });

@@ -11,11 +11,11 @@ import {
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
-import {
-  deleteAddressClient,
-  setDefaultAddressClient,
-} from '../../address/client';
 import type { ShippingAddress } from '../../address/types';
+import {
+  deleteAddressAction,
+  setDefaultAddressAction,
+} from './actions';
 import AddressForm from './AddressForm';
 
 interface Props {
@@ -43,7 +43,7 @@ export default function AddressList({ addresses, onChange }: Props) {
 
   const handleDelete = async (addressId: string) => {
     setError(null);
-    const result = await deleteAddressClient(addressId);
+    const result = await deleteAddressAction(addressId);
     if (!result.success) {
       setError(result.error ?? t('deleteError'));
       return;
@@ -53,7 +53,7 @@ export default function AddressList({ addresses, onChange }: Props) {
 
   const handleSetDefault = async (addressId: string) => {
     setError(null);
-    const result = await setDefaultAddressClient(addressId);
+    const result = await setDefaultAddressAction(addressId);
     if (!result.success || !result.data) {
       setError(result.error ?? t('defaultError'));
       return;

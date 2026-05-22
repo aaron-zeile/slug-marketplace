@@ -37,6 +37,9 @@ const intlMessages: Record<string, Record<string, string>> = {
     profileMenu: 'Account menu',
     language: 'Language',
     shippingAddresses: 'Shipping addresses',
+    home: 'Home',
+    backToHome: 'Back to home',
+    brand: 'SlugMarketplace',
   },
   Home: {
     heroAriaLabel: 'Welcome',
@@ -68,6 +71,7 @@ const intlMessages: Record<string, Record<string, string>> = {
   Cart: {
     tooltip: 'Cart',
     openCart: 'Open cart',
+    openCartWithCount: 'Open cart, {count} items',
     title: 'Cart',
     itemsInCart_one: '{count} item in your cart',
     itemsInCart_other: '{count} items in your cart',
@@ -162,6 +166,7 @@ vi.mock('next/navigation', () => {
     useRouter: vi.fn().mockImplementation(() => {
       return MockRouter;
     }),
+    usePathname: vi.fn(() => '/'),
   };
 });
 
