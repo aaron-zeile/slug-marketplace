@@ -6,6 +6,7 @@ export default defineConfig({
     globals: true,
     include: ['server/**/*.test.ts'],
     coverage: {
+      reportsDirectory: './coverage/server',
       include: ['server/**/*.ts'],
       exclude: [
       './server/*.config.ts',

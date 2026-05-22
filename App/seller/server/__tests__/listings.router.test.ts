@@ -1,10 +1,11 @@
 import type {Request, Response} from 'express'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {get, post, remove} from '../listings/router.js'
+import {get, post, put, remove} from '../listings/router.js'
 
 const serviceMocks = vi.hoisted(() => ({
   getListings: vi.fn(),
   createListing: vi.fn(),
+  updateListing: vi.fn(),
   deleteListing: vi.fn(),
 }))
 
@@ -40,6 +41,7 @@ describe('listings router', () => {
   beforeEach(() => {
     serviceMocks.getListings.mockReset()
     serviceMocks.createListing.mockReset()
+    serviceMocks.updateListing.mockReset()
     serviceMocks.deleteListing.mockReset()
   })
 
@@ -144,6 +146,82 @@ describe('listings router', () => {
       serviceCalls: serviceMocks.createListing.mock.calls,
     }).toEqual({
       statusCall: [401],
+      serviceCalls: [],
+    })
+  })
+
+  it('updates a listing for an authenticated seller session', async () => {
+    serviceMocks.updateListing.mockResolvedValue(listing)
+    const input = {
+      name: listing.name,
+      description: listing.description,
+      price: listing.price,
+      images: [],
+    }
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      sessionToken: 'session-token',
+      params: {
+        id: 'item-1',
+      },
+      body: input,
+    } as unknown as Request
+    const res = response()
+
+    await put(req, res)
+
+    expect({
+      serviceCall: serviceMocks.updateListing.mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: ['item-1', input, 'session-token'],
+      jsonCall: [{listing}],
+    })
+  })
+
+  it('rejects update listing requests without a session token', async () => {
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      params: {
+        id: 'item-1',
+      },
+      body: {},
+    } as unknown as Request
+    const res = response()
+
+    await put(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.updateListing.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      serviceCalls: [],
+    })
+  })
+
+  it('rejects update listing requests without an item id', async () => {
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      sessionToken: 'session-token',
+      params: {},
+      body: {},
+    } as Request
+    const res = response()
+
+    await put(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.updateListing.mock.calls,
+    }).toEqual({
+      statusCall: [400],
       serviceCalls: [],
     })
   })

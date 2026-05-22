@@ -193,6 +193,54 @@ describe('ListingService', () => {
     })
   })
 
+  it('updates a listing with the session token', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          updateItem: listing,
+        },
+      }),
+    })
+
+    const updated = await new ListingService().updateListing(
+      'item-1',
+      {
+        name: listing.name,
+        description: listing.description,
+        price: listing.price,
+        images: [],
+      },
+      'session-token',
+    )
+
+    const [, request] = fetchMock.mock.calls[0] as [
+      string,
+      {body: string; headers: Record<string, string>},
+    ]
+    const body = JSON.parse(request.body)
+
+    expect({
+      updated,
+      authorization: request.headers.Authorization,
+      variables: body.variables,
+      queryIncludesUpdateItem: body.query.includes('updateItem'),
+    }).toEqual({
+      updated: listing,
+      authorization: 'Bearer session-token',
+      variables: {
+        input: {
+          id: 'item-1',
+          name: listing.name,
+          description: listing.description,
+          price: listing.price,
+          images: [],
+        },
+      },
+      queryIncludesUpdateItem: true,
+    })
+  })
+
   it('throws when the create listing response does not match the schema', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
@@ -337,5 +385,99 @@ describe('ListingService', () => {
     await expect(
       new ListingService().deleteListing('item-1', 'session-token'),
     ).rejects.toThrow('GraphQL error')
+  })
+
+  it('throws when update listing receives a non-ok response', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      statusText: 'Conflict',
+    })
+
+    await expect(
+      new ListingService().updateListing(
+        'item-1',
+        {
+          name: listing.name,
+          description: listing.description,
+          price: listing.price,
+          images: [],
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('Failed to update listing: Conflict')
+  })
+
+  it('throws the graphql error message when update listing fails', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [
+          {
+            message: 'Cannot update sold item',
+          },
+        ],
+      }),
+    })
+
+    await expect(
+      new ListingService().updateListing(
+        'item-1',
+        {
+          name: listing.name,
+          description: listing.description,
+          price: listing.price,
+          images: [],
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('Cannot update sold item')
+  })
+
+  it('throws the fallback graphql error when update errors have no message', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [{}],
+      }),
+    })
+
+    await expect(
+      new ListingService().updateListing(
+        'item-1',
+        {
+          name: listing.name,
+          description: listing.description,
+          price: listing.price,
+          images: [],
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('GraphQL error')
+  })
+
+  it('throws when the update listing response does not match the schema', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          updateItem: {
+            id: 'item-1',
+          },
+        },
+      }),
+    })
+
+    await expect(
+      new ListingService().updateListing(
+        'item-1',
+        {
+          name: listing.name,
+          description: listing.description,
+          price: listing.price,
+          images: [],
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('Updated item response did not match expected listing schema')
   })
 })

@@ -39,6 +39,10 @@ vi.mock('../apiKeys/router.js', () => ({
   post: 'post-api-key',
 }))
 
+vi.mock('../messages/router.js', () => ({
+  post: 'post-message',
+}))
+
 describe('seller app', () => {
   it('registers seller listing routes behind auth middleware', async () => {
     const {default: app} = await import('../app.js')
@@ -59,6 +63,7 @@ describe('seller app', () => {
       postCalls: [
         ['/seller/api/listings', 'auth-middleware', 'post-listing'],
         ['/seller/api/keys', 'auth-middleware', 'post-api-key'],
+        ['/seller/api/messages', 'auth-middleware', 'post-message'],
       ],
       putCalls: [
         ['/seller/api/listings/:id', 'auth-middleware', 'put-listing'],
