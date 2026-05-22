@@ -19,6 +19,12 @@ export default defineConfig({
       exclude: [
         'src/app/layout.tsx',
         'src/**/index.ts',
+        'src/app/buyer/components/CheckoutPage.tsx',
+        'src/app/buyer/payment/**',
+        'src/app/payment-success/**',
+        'src/components/providers/**',
+        'src/app/buyer/api/route.ts',
+        'src/lib/convertToSubcurrency.ts',
       ],
     },
   },

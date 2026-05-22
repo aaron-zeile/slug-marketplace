@@ -1,9 +1,11 @@
 'use client';
 
-import { Box, Container, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Stack, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { CartItem as CartListItem } from '../../cart';
+import { checkLogin } from '../buyer/login/actions';
 import CartItem from './CartItem';
 import { fetchCartItemsAction } from './actions';
 
@@ -12,16 +14,21 @@ export default function CartList() {
   const [cartItems, setCartItems] = useState<CartListItem[]>([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     async function fetchCartItems() {
-      const result = await fetchCartItemsAction();
+      const [result, session] = await Promise.all([
+        fetchCartItemsAction(),
+        checkLogin().catch(() => ({})),
+      ]);
 
       if (result.success && result.data) {
         setCartItems(result.data);
       } else {
         setError(true);
       }
+      setIsAuthenticated(Boolean(session.user));
       setLoading(false);
     }
 
@@ -82,6 +89,21 @@ export default function CartList() {
               quantity={cartItem.quantity}
             />
           ))}
+          <Box sx={{ pt: 2 }}>
+            {isAuthenticated ? (
+              <Button
+                component={Link}
+                href="/checkout/shipping"
+                variant="contained"
+              >
+                {t('checkout')}
+              </Button>
+            ) : (
+              <Typography sx={{ color: 'text.secondary' }}>
+                {t('signInToCheckout')}
+              </Typography>
+            )}
+          </Box>
         </Stack>
       )}
     </Container>

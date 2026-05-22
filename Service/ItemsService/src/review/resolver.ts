@@ -2,7 +2,7 @@ import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 
 import type { ItemsGraphQLContext } from '../auth/context';
 import { ItemId } from '../item/schema';
-import { NewReview, Review } from './schema';
+import { NewReview, Review, ReviewId } from './schema';
 import { ReviewService } from './service';
 
 @Resolver()
@@ -23,5 +23,19 @@ export class ReviewResolver {
       throw new Error('Not authenticated');
     }
     return new ReviewService().createReview(user, input);
+  }
+
+  @Mutation(() => Boolean)
+  @Authorized()
+  async deleteReview(
+    @Arg('input') input: ReviewId,
+    @Ctx() ctx: ItemsGraphQLContext,
+  ): Promise<boolean> {
+    const user = ctx.user;
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+    await new ReviewService().deleteReview(user, input);
+    return true;
   }
 }

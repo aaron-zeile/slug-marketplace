@@ -7,7 +7,10 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
+import EmailIcon from '@mui/icons-material/Email';
+import Link from 'next/link';
 import LogoutButton from './LogoutButton';
 import SimpleCharts from './charts/chart';
 import LocaleSwitcher from './localeSwitcher/localeSwitcher';
@@ -46,6 +49,15 @@ export default function DashboardShell({
           >
             {t('title')}
           </Typography>
+          <Button
+            component={Link}
+            href="/admin/dashboard/messages"
+            color="inherit"
+            startIcon={<EmailIcon />}
+            sx={{ mr: 1 }}
+          >
+            Messages
+          </Button>
           <LocaleSwitcher currentLocale={currentLocale} />
           <LogoutButton />
         </Toolbar>

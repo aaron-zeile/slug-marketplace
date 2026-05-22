@@ -10,7 +10,7 @@ export const list = async (
   setListings: (listings: Listing[]) => void
 ) : Promise<void> => {
   try {
-    const response = await fetch('/seller/api/listings?status=active')
+    const response = await fetch('/seller/api/listings')
     if (!response.ok) throw new Error(response.statusText)
 
     const data = ListingsResponseSchema.parse(await response.json())

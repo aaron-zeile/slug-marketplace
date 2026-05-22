@@ -7,6 +7,8 @@ import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 import { AuthController } from './../controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CorporateApiKeyController } from './../controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AddressController } from './../controller';
 import { expressAuthentication } from './../express';
 // @ts-ignore - no great way to install types from subpackage
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
@@ -69,6 +71,40 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ShippingAddress": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "member": {"dataType":"string","required":true},
+            "label": {"dataType":"string"},
+            "line1": {"dataType":"string","required":true},
+            "line2": {"dataType":"string"},
+            "city": {"dataType":"string","required":true},
+            "state": {"dataType":"string"},
+            "postal_code": {"dataType":"string","required":true},
+            "country": {"dataType":"string","required":true},
+            "is_default": {"dataType":"boolean","required":true},
+            "created_at": {"dataType":"string","required":true},
+            "updated_at": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ShippingAddressInput": {
+        "dataType": "refObject",
+        "properties": {
+            "label": {"dataType":"string"},
+            "line1": {"dataType":"string","required":true},
+            "line2": {"dataType":"string"},
+            "city": {"dataType":"string","required":true},
+            "state": {"dataType":"string"},
+            "postal_code": {"dataType":"string","required":true},
+            "country": {"dataType":"string"},
+            "is_default": {"dataType":"boolean"},
         },
         "additionalProperties": false,
     },
@@ -202,6 +238,166 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'check',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAddressController_list: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+        };
+        app.get('/addresses',
+            authenticateMiddleware([{"jwt":["member"]}]),
+            ...(fetchMiddlewares<RequestHandler>(AddressController)),
+            ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.list)),
+
+            async function AddressController_list(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAddressController_list, request, response });
+
+                const controller = new AddressController();
+
+              await templateService.apiHandler({
+                methodName: 'list',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAddressController_create: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                body: {"in":"body","name":"body","required":true,"ref":"ShippingAddressInput"},
+        };
+        app.post('/addresses',
+            authenticateMiddleware([{"jwt":["member"]}]),
+            ...(fetchMiddlewares<RequestHandler>(AddressController)),
+            ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.create)),
+
+            async function AddressController_create(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAddressController_create, request, response });
+
+                const controller = new AddressController();
+
+              await templateService.apiHandler({
+                methodName: 'create',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAddressController_update: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                body: {"in":"body","name":"body","required":true,"ref":"ShippingAddressInput"},
+        };
+        app.put('/addresses/:id',
+            authenticateMiddleware([{"jwt":["member"]}]),
+            ...(fetchMiddlewares<RequestHandler>(AddressController)),
+            ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.update)),
+
+            async function AddressController_update(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAddressController_update, request, response });
+
+                const controller = new AddressController();
+
+              await templateService.apiHandler({
+                methodName: 'update',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAddressController_remove: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+        };
+        app.delete('/addresses/:id',
+            authenticateMiddleware([{"jwt":["member"]}]),
+            ...(fetchMiddlewares<RequestHandler>(AddressController)),
+            ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.remove)),
+
+            async function AddressController_remove(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAddressController_remove, request, response });
+
+                const controller = new AddressController();
+
+              await templateService.apiHandler({
+                methodName: 'remove',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAddressController_setDefault: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+        };
+        app.patch('/addresses/:id/default',
+            authenticateMiddleware([{"jwt":["member"]}]),
+            ...(fetchMiddlewares<RequestHandler>(AddressController)),
+            ...(fetchMiddlewares<RequestHandler>(AddressController.prototype.setDefault)),
+
+            async function AddressController_setDefault(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAddressController_setDefault, request, response });
+
+                const controller = new AddressController();
+
+              await templateService.apiHandler({
+                methodName: 'setDefault',
                 controller,
                 response,
                 next,

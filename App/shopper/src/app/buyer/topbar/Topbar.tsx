@@ -1,12 +1,16 @@
 'use client';
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import {
   AppBar,
   Avatar,
   Box,
+  Button,
   Container,
   Divider,
   IconButton,
@@ -17,9 +21,10 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import SearchBar from '../components/SearchBar';
@@ -36,9 +41,9 @@ function getAvatarLabel(name: string | null) {
 }
 
 export default function Topbar() {
-  const router = useRouter();
-  const tApp = useTranslations('App');
   const tTopbar = useTranslations('Topbar');
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   const [name, setName] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -109,149 +114,144 @@ export default function Topbar() {
       >
         <Toolbar
           sx={{
-            alignItems: 'stretch',
-            flexDirection: 'column',
-            gap: { xs: 1.25, md: 1.5 },
-            minHeight: { xs: 'auto', sm: 'auto' },
-            px: { xs: 2, sm: 3 },
-            py: { xs: 1.25, sm: 1.5 },
+            alignItems: 'center',
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
+            gap: { xs: 0.75, sm: 1.25, md: 1.5 },
+            minHeight: { xs: 56, sm: 64 },
+            px: { xs: 1.5, sm: 3 },
+            py: { xs: 1, sm: 1.25 },
           }}
         >
-          {/* Row 1: brand left, cart + profile top right */}
-          <Box
-            sx={{
-              alignItems: 'center',
-              display: 'flex',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
-          >
-            <Stack
-              sx={{
-                alignItems: 'center',
-                flexDirection: 'row',
-                flexShrink: 1,
-                gap: { xs: 0.75, sm: 1 },
-                minWidth: 0,
-              }}
-            >
-              <StorefrontOutlinedIcon
-                aria-hidden
-                sx={{
-                  color: brandColor,
-                  display: { xs: 'none', sm: 'block' },
-                  fontSize: { sm: 26, md: 28 },
-                }}
-              />
-              <Typography
-                component="button"
-                type="button"
-                onClick={() => {
-                  router.push('/');
-                }}
-                sx={{
-                  background: 'none',
-                  border: 0,
-                  color: 'text.primary',
-                  cursor: 'pointer',
-                  fontSize: { xs: '1rem', sm: '1.15rem', md: '1.2rem' },
-                  fontWeight: 800,
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1.2,
-                  m: 0,
-                  overflow: 'hidden',
-                  p: 0,
-                  textAlign: 'left',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {tApp('title')}
-              </Typography>
-            </Stack>
-
-            <Stack
-              sx={{
-                alignItems: 'center',
-                flexDirection: 'row',
-                flexShrink: 0,
-                gap: { xs: 0.25, sm: 0.75 },
-              }}
-            >
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <LocaleSwitcher compact />
-              </Box>
-              <Typography
-                sx={{
-                  color: 'text.secondary',
-                  display: { xs: 'none', lg: 'block' },
-                  fontSize: '0.875rem',
-                  lineHeight: 1.5,
-                  maxWidth: 180,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {greeting}
-              </Typography>
-              <CartButton />
-              <IconButton
-                aria-label={tTopbar('openProfileMenu')}
-                aria-controls={isMenuOpen ? 'profile-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={isMenuOpen ? 'true' : undefined}
-                onClick={(event) => {
-                  const rect = event.currentTarget.getBoundingClientRect();
-
-                  setMenuPosition({
-                    left: rect.right - 12,
-                    top: rect.bottom + 8,
-                  });
-                }}
-                sx={{ p: 0.25 }}
-              >
-                <Avatar
-                  sx={{
-                    bgcolor: name ? brandColor : 'action.selected',
-                    color: name ? '#fff' : 'text.secondary',
-                    fontSize: '0.95rem',
-                    fontWeight: 700,
-                    height: { xs: 36, sm: 38 },
-                    width: { xs: 36, sm: 38 },
-                  }}
-                >
-                  {getAvatarLabel(name) ?? (
-                    <AccountCircleIcon aria-hidden sx={{ fontSize: 20 }} />
-                  )}
-                </Avatar>
-              </IconButton>
-            </Stack>
-          </Box>
-
-          {/* Row 2: locale + search (mobile: locale left; desktop: search only in this row) */}
-          <Box
-            sx={{
-              alignItems: 'center',
-              display: 'flex',
-              gap: 1,
-              width: '100%',
-            }}
-          >
-            <Box sx={{ display: { xs: 'block', md: 'none' }, flexShrink: 0 }}>
-              <LocaleSwitcher compact />
-            </Box>
+          {!isHome ? (
             <Box
               sx={{
-                flex: 1,
-                maxWidth: { md: 640 },
-                minWidth: 0,
-                mx: { md: 'auto' },
+                flexShrink: 0,
+                mr: { xs: 0, sm: 0.25 },
               }}
             >
-              <SearchBar />
+              <IconButton
+                component={Link}
+                href="/"
+                aria-label={tTopbar('backToHome')}
+                sx={{
+                  display: { xs: 'inline-flex', md: 'none' },
+                  color: 'text.primary',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    color: brandColor,
+                  },
+                }}
+              >
+                <ArrowBackIcon aria-hidden sx={{ fontSize: 22 }} />
+              </IconButton>
+              <Button
+                component={Link}
+                href="/"
+                startIcon={<HomeOutlinedIcon aria-hidden />}
+                sx={{
+                  display: { xs: 'none', md: 'inline-flex' },
+                  borderRadius: 2,
+                  color: 'text.primary',
+                  fontWeight: 600,
+                  px: 1.75,
+                  textTransform: 'none',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    color: brandColor,
+                  },
+                }}
+              >
+                {tTopbar('home')}
+              </Button>
             </Box>
+          ) : (
+            <Button
+              component={Link}
+              href="/"
+              sx={{
+                display: { xs: 'none', md: 'inline-flex' },
+                borderRadius: 2,
+                color: brandColor,
+                flexShrink: 0,
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                minWidth: 'auto',
+                px: 1.5,
+                textTransform: 'none',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+              }}
+            >
+              {tTopbar('brand')}
+            </Button>
+          )}
+
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              maxWidth: { md: 560, lg: 640, xl: 720 },
+            }}
+          >
+            <SearchBar />
           </Box>
+
+          <Stack
+            sx={{
+              alignItems: 'center',
+              flexDirection: 'row',
+              flexShrink: 0,
+              gap: { xs: 0.25, sm: 0.75 },
+            }}
+          >
+            <Typography
+              sx={{
+                color: 'text.secondary',
+                display: { xs: 'none', lg: 'block' },
+                fontSize: '0.875rem',
+                lineHeight: 1.5,
+                maxWidth: 180,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {greeting}
+            </Typography>
+            <CartButton />
+            <IconButton
+              aria-label={tTopbar('openProfileMenu')}
+              aria-controls={isMenuOpen ? 'profile-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={isMenuOpen ? 'true' : undefined}
+              onClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
+
+                setMenuPosition({
+                  left: rect.right - 12,
+                  top: rect.bottom + 8,
+                });
+              }}
+              sx={{ p: 0.25 }}
+            >
+              <Avatar
+                sx={{
+                  bgcolor: name ? brandColor : 'action.selected',
+                  color: name ? '#fff' : 'text.secondary',
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  height: { xs: 36, sm: 38 },
+                  width: { xs: 36, sm: 38 },
+                }}
+              >
+                {getAvatarLabel(name) ?? (
+                  <AccountCircleIcon aria-hidden sx={{ fontSize: 20 }} />
+                )}
+              </Avatar>
+            </IconButton>
+          </Stack>
         </Toolbar>
       </Container>
       <Menu
@@ -303,6 +303,16 @@ export default function Topbar() {
             <Divider />
             <MenuItem
               component="a"
+              href="/account/addresses"
+              sx={{ py: 1.25 }}
+            >
+              <ListItemIcon>
+                <LocalShippingOutlinedIcon aria-hidden sx={{ fontSize: 20 }} />
+              </ListItemIcon>
+              {tTopbar('shippingAddresses')}
+            </MenuItem>
+            <MenuItem
+              component="a"
               href={sellerDashboardUrl}
               sx={{ py: 1.25 }}
             >
@@ -317,24 +327,48 @@ export default function Topbar() {
               </ListItemIcon>
               {tTopbar('logout')}
             </MenuItem>
+            <Divider />
           </>
         ) : (
-          <MenuItem
-            aria-label={tTopbar('login')}
-            disableRipple
-            sx={{ py: 1.5 }}
-          >
-            <Box sx={{ width: '100%' }}>
-              <GoogleLogin
-                setName={setName}
-                onAuthenticated={() => {
-                  setIsAuthenticated(true);
-                }}
-                onLogin={handleMenuClose}
-              />
-            </Box>
-          </MenuItem>
+          <>
+            <MenuItem
+              aria-label={tTopbar('login')}
+              disableRipple
+              sx={{ py: 1.5 }}
+            >
+              <Box sx={{ width: '100%' }}>
+                <GoogleLogin
+                  setName={setName}
+                  onAuthenticated={() => {
+                    setIsAuthenticated(true);
+                  }}
+                  onLogin={handleMenuClose}
+                />
+              </Box>
+            </MenuItem>
+            <Divider />
+          </>
         )}
+        <Box
+          sx={{ px: 2, py: 1.5 }}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          <Typography
+            sx={{
+              color: 'text.secondary',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              letterSpacing: '0.02em',
+              mb: 1,
+              textTransform: 'uppercase',
+            }}
+          >
+            {tTopbar('language')}
+          </Typography>
+          <LocaleSwitcher variant="menu" />
+        </Box>
       </Menu>
     </AppBar>
   );

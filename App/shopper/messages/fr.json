@@ -10,7 +10,12 @@
     "login": "Connexion",
     "navigation": "Navigation principale",
     "openProfileMenu": "Ouvrir le menu du compte",
-    "profileMenu": "Menu du compte"
+    "profileMenu": "Menu du compte",
+    "language": "Langue",
+    "shippingAddresses": "Adresses de livraison",
+    "home": "Accueil",
+    "backToHome": "Retour à l'accueil",
+    "brand": "SlugMarketplace"
   },
   "Home": {
     "heroAriaLabel": "Bienvenue",
@@ -40,6 +45,7 @@
   "Cart": {
     "tooltip": "Panier",
     "openCart": "Ouvrir le panier",
+    "openCartWithCount": "Ouvrir le panier, {count} articles",
     "title": "Panier",
     "itemsInCart_one": "{count} article dans votre panier",
     "itemsInCart_other": "{count} articles dans votre panier",
@@ -49,7 +55,48 @@
     "itemAriaLabel": "Article du panier : {name}",
     "decreaseQuantityAria": "Diminuer la quantité pour {name}",
     "increaseQuantityAria": "Augmenter la quantité pour {name}",
-    "quantityAria": "Quantité pour {name}"
+    "quantityAria": "Quantité pour {name}",
+    "checkout": "Passer à la caisse",
+    "signInToCheckout": "Connectez-vous pour passer à la caisse."
+  },
+  "Address": {
+    "title": "Adresses de livraison",
+    "subtitle": "Gérez où vos commandes sont livrées.",
+    "loading": "Chargement des adresses...",
+    "loadError": "Impossible de charger les adresses.",
+    "saveError": "Impossible d'enregistrer l'adresse.",
+    "line1Required": "La ligne d'adresse 1 est obligatoire.",
+    "cityRequired": "La ville est obligatoire.",
+    "postalCodeRequired": "Le code postal est obligatoire.",
+    "deleteError": "Impossible de supprimer l'adresse.",
+    "defaultError": "Impossible de définir l'adresse par défaut.",
+    "label": "Libellé",
+    "line1": "Adresse ligne 1",
+    "line2": "Adresse ligne 2",
+    "city": "Ville",
+    "state": "État / Province",
+    "postalCode": "Code postal",
+    "country": "Pays (code à 2 lettres)",
+    "setDefault": "Utiliser comme adresse de livraison par défaut",
+    "add": "Ajouter l'adresse",
+    "update": "Enregistrer",
+    "cancel": "Annuler",
+    "addNew": "Ajouter une adresse",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "makeDefault": "Définir par défaut",
+    "defaultBadge": "Par défaut",
+    "untitled": "Adresse"
+  },
+  "Checkout": {
+    "shippingTitle": "Adresse de livraison",
+    "shippingSubtitle": "Choisissez où votre commande doit être livrée.",
+    "loading": "Chargement des adresses...",
+    "loadError": "Impossible de charger les adresses.",
+    "selectRequired": "Sélectionnez ou ajoutez une adresse de livraison pour continuer.",
+    "untitledAddress": "Adresse",
+    "addAddress": "Ajouter une nouvelle adresse",
+    "continueToPayment": "Continuer vers le paiement"
   },
   "LocaleSwitcher": {
     "label": "Langue",

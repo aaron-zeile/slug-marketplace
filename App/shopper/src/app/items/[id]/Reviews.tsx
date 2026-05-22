@@ -17,7 +17,7 @@ import {
 import ReviewCard from './ReviewCard';
 import ReviewSummary from './ReviewSummary';
 import ReviewWriteForm from './ReviewWriteForm';
-import { prependReview } from './reviewDisplayUtils';
+import { prependReview, removeReview } from './reviewDisplayUtils';
 
 interface Props {
   id: string;
@@ -26,6 +26,7 @@ interface Props {
 interface State {
   reviews: Review[] | null;
   loggedIn: boolean;
+  currentUserId: string | undefined;
   loading: boolean;
   err: string;
 }
@@ -33,6 +34,7 @@ interface State {
 const initialState: State = {
   reviews: null,
   loggedIn: false,
+  currentUserId: undefined,
   loading: true,
   err: '',
 };
@@ -55,6 +57,7 @@ const Reviews = ({ id }: Props) => {
         setState({
           reviews: null,
           loggedIn: false,
+          currentUserId: undefined,
           loading: false,
           err: 'Failed to fetch reviews',
         });
@@ -62,6 +65,7 @@ const Reviews = ({ id }: Props) => {
         setState({
           reviews: revRes.data ?? null,
           loggedIn: sessRes.loggedIn,
+          currentUserId: sessRes.userId,
           loading: false,
           err: '',
         });
@@ -150,7 +154,19 @@ const Reviews = ({ id }: Props) => {
                 {index > 0 ? (
                   <Divider sx={{ alignSelf: 'stretch', width: '100%' }} />
                 ) : null}
-                <ReviewCard review={review} />
+                <ReviewCard
+                  review={review}
+                  canDelete={
+                    state.currentUserId !== undefined &&
+                    review.user.id === state.currentUserId
+                  }
+                  onDeleted={(reviewId) => {
+                    setState((prev) => ({
+                      ...prev,
+                      reviews: removeReview(prev.reviews, reviewId),
+                    }));
+                  }}
+                />
               </Box>
             ))}
           </Box>

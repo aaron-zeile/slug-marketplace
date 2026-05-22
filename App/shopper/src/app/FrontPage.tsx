@@ -60,15 +60,15 @@ export default function FrontPage() {
           pt: 2,
         }}
       >
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 2 }}>
           <Typography
             component="h2"
             sx={{
               color: 'text.primary',
-              fontSize: '1.05rem',
+              fontSize: '1rem',
               fontWeight: 700,
               letterSpacing: '-0.01em',
-              mb: 1.25,
+              mb: 1,
             }}
           >
             {t('spotlightTitle')}
@@ -78,7 +78,8 @@ export default function FrontPage() {
             <Skeleton
               sx={{
                 borderRadius: 3,
-                height: 300,
+                height: { xs: 200, sm: 140 },
+                maxWidth: { sm: 480, md: 520 },
                 transform: 'none',
               }}
               variant="rectangular"

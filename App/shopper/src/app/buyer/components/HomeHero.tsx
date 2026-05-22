@@ -4,10 +4,8 @@ import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined
 import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
-import { Box, Typography } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
-
-const brandLight = '#14b8a6';
 
 export default function HomeHero() {
   const t = useTranslations('Home');
@@ -26,9 +24,8 @@ export default function HomeHero() {
         color: '#fff',
         overflow: 'hidden',
         position: 'relative',
-        px: 2,
-        pt: 3,
-        pb: { xs: 4.5, sm: 5 },
+        pt: { xs: 3, md: 5, lg: 6 },
+        pb: { xs: 4.5, sm: 5, md: 6, lg: 7 },
       }}
     >
       <Box
@@ -50,11 +47,11 @@ export default function HomeHero() {
           border: '1px solid rgba(255,255,255,0.12)',
           borderRadius: '50%',
           filter: 'blur(1px)',
-          height: 140,
+          height: { xs: 140, md: 220, lg: 280 },
           position: 'absolute',
-          right: -40,
-          top: -30,
-          width: 140,
+          right: { xs: -40, md: 40, lg: 80 },
+          top: { xs: -30, md: -60, lg: -80 },
+          width: { xs: 140, md: 220, lg: 280 },
         }}
       />
       <Box
@@ -62,130 +59,139 @@ export default function HomeHero() {
         sx={{
           bgcolor: 'rgba(255,255,255,0.05)',
           borderRadius: '50%',
-          bottom: 20,
-          height: 90,
-          left: -24,
+          bottom: { xs: 20, md: 40 },
+          height: { xs: 90, md: 140, lg: 180 },
+          left: { xs: -24, md: 48, lg: 96 },
           position: 'absolute',
-          width: 90,
+          width: { xs: 90, md: 140, lg: 180 },
         }}
       />
 
-      <Box sx={{ position: 'relative', zIndex: 1 }}>
+      <Container
+        maxWidth="xl"
+        sx={{
+          position: 'relative',
+          px: { xs: 2, sm: 3 },
+          zIndex: 1,
+        }}
+      >
         <Box
           sx={{
-            alignItems: 'center',
-            bgcolor: 'rgba(255,255,255,0.14)',
-            border: '1px solid rgba(255,255,255,0.22)',
-            borderRadius: 999,
-            backdropFilter: 'blur(8px)',
-            display: 'inline-flex',
-            gap: 0.75,
-            mb: 2,
-            px: 1.5,
-            py: 0.75,
+            maxWidth: { md: 640, lg: 720 },
+            mx: { md: 0 },
           }}
         >
-          <StorefrontOutlinedIcon sx={{ fontSize: 18, opacity: 0.95 }} />
-          <Typography
-            sx={{
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              letterSpacing: '0.04em',
-              lineHeight: 1,
-              textTransform: 'uppercase',
-            }}
-          >
-            {t('heroBadge')}
-          </Typography>
-        </Box>
-
-        <Typography
-          component="h1"
-          sx={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            letterSpacing: '-0.035em',
-            lineHeight: 1.08,
-            maxWidth: 300,
-            mb: 1.25,
-          }}
-        >
-          {t('heroTitleLine1')}
           <Box
-            component="span"
             sx={{
-              background: `linear-gradient(90deg, #fff 0%, ${brandLight} 100%)`,
-              backgroundClip: 'text',
-              display: 'block',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              alignItems: 'center',
+              bgcolor: 'rgba(255,255,255,0.14)',
+              border: '1px solid rgba(255,255,255,0.22)',
+              borderRadius: 999,
+              backdropFilter: 'blur(8px)',
+              display: 'inline-flex',
+              gap: 0.75,
+              mb: { xs: 2, md: 2.5 },
+              px: { xs: 1.5, md: 2 },
+              py: { xs: 0.75, md: 0.9 },
             }}
           >
-            {t('heroTitleLine2')}
-          </Box>
-        </Typography>
-
-        <Typography
-          sx={{
-            color: 'rgba(255,255,255,0.86)',
-            fontSize: '0.95rem',
-            lineHeight: 1.55,
-            maxWidth: 320,
-            mb: 2.5,
-          }}
-        >
-          {t('heroSubtitle')}
-        </Typography>
-
-        <Box
-          sx={{
-            display: 'grid',
-            gap: 0.75,
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            width: '100%',
-          }}
-        >
-          {chips.map(({ icon: Icon, label }) => (
-            <Box
-              key={label}
+            <StorefrontOutlinedIcon
+              sx={{ fontSize: { xs: 18, md: 20 }, opacity: 0.95 }}
+            />
+            <Typography
               sx={{
-                alignItems: 'center',
-                bgcolor: 'rgba(255,255,255,0.12)',
-                border: '1px solid rgba(255,255,255,0.18)',
-                borderRadius: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 0.35,
-                justifyContent: 'center',
-                minWidth: 0,
-                px: 0.5,
-                py: 0.85,
-                textAlign: 'center',
+                fontSize: { xs: '0.75rem', md: '0.8rem' },
+                fontWeight: 600,
+                letterSpacing: '0.04em',
+                lineHeight: 1,
+                textTransform: 'uppercase',
               }}
             >
-              <Icon sx={{ fontSize: 15, opacity: 0.9 }} />
-              <Typography
+              {t('heroBadge')}
+            </Typography>
+          </Box>
+
+          <Typography
+            component="h1"
+            sx={{
+              fontSize: { xs: '2rem', md: '2.75rem', lg: '3.25rem' },
+              fontWeight: 800,
+              letterSpacing: '-0.035em',
+              lineHeight: { xs: 1.08, md: 1.05 },
+              maxWidth: { xs: 300, md: 520, lg: 600 },
+              mb: { xs: 1.25, md: 1.75 },
+            }}
+          >
+            {t('heroTitleLine1')}
+            <Box component="span" sx={{ display: 'block' }}>
+              {t('heroTitleLine2')}
+            </Box>
+          </Typography>
+
+          <Typography
+            sx={{
+              color: 'rgba(255,255,255,0.86)',
+              fontSize: { xs: '0.95rem', md: '1.05rem', lg: '1.125rem' },
+              lineHeight: 1.55,
+              maxWidth: { xs: 320, md: 480, lg: 540 },
+              mb: { xs: 2.5, md: 3 },
+            }}
+          >
+            {t('heroSubtitle')}
+          </Typography>
+
+          <Box
+            sx={{
+              alignItems: 'center',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: { xs: 1.5, md: 2.5 },
+            }}
+          >
+            {chips.map(({ icon: Icon, label }, index) => (
+              <Box
+                key={label}
                 sx={{
-                  fontSize: '0.65rem',
-                  fontWeight: 600,
-                  lineHeight: 1.25,
+                  alignItems: 'center',
+                  display: 'flex',
+                  gap: { xs: 0.6, md: 0.75 },
+                  minWidth: 0,
+                  ...(index > 0
+                    ? {
+                        borderLeft: {
+                          xs: 'none',
+                          md: '1px solid rgba(255,255,255,0.22)',
+                        },
+                        pl: { xs: 0, md: 2.5 },
+                      }
+                    : {}),
                 }}
               >
-                {label}
-              </Typography>
-            </Box>
-          ))}
+                <Icon sx={{ fontSize: { xs: 17, md: 20 }, opacity: 0.85 }} />
+                <Typography
+                  sx={{
+                    fontSize: { xs: '0.8rem', md: '0.9rem' },
+                    fontWeight: 500,
+                    lineHeight: 1.3,
+                    opacity: 0.9,
+                  }}
+                >
+                  {label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </Box>
-      </Box>
+      </Container>
 
       <Box
         aria-hidden
         sx={{
           bgcolor: '#f6f8f7',
-          borderTopLeftRadius: 28,
-          borderTopRightRadius: 28,
+          borderTopLeftRadius: { xs: 28, md: 36, lg: 40 },
+          borderTopRightRadius: { xs: 28, md: 36, lg: 40 },
           bottom: 0,
-          height: 28,
+          height: { xs: 28, md: 36, lg: 40 },
           left: 0,
           position: 'absolute',
           right: 0,

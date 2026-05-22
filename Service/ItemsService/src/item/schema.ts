@@ -91,13 +91,10 @@ export class UpdateItem {
   price!: number;
 }
 
-@InputType('SellerItemsInput')
-export class SellerItemsInput {
+@InputType('SellerId')
+export class SellerId {
   @Field()
   id!: string;
-
-  @Field()
-  status!: string;
 }
 
 @InputType('RandomItemsInput')

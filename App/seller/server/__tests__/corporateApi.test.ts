@@ -44,6 +44,7 @@ const listing = {
   price: 19.99,
   created_at: '2026-05-17T00:00:00.000Z',
   images: ['https://example.com/image.jpg'],
+  status: 'active',
 }
 
 function response() {

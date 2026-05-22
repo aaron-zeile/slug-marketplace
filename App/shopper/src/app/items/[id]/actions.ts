@@ -1,7 +1,11 @@
 'use server';
 
 import { checkLogin } from '../../buyer/login/actions';
-import { createReview, getReviews } from '../../../item/review/service';
+import {
+  createReview,
+  deleteReview,
+  getReviews,
+} from '../../../item/review/service';
 import { getItem, getRandomItems } from '../../../item/service';
 
 export async function fetchItemAction(id: string) {
@@ -40,7 +44,10 @@ export async function fetchItemReviewsAction(id: string) {
 export async function fetchItemReviewSessionAction() {
   try {
     const { user } = await checkLogin();
-    return { loggedIn: Boolean(user) };
+    return {
+      loggedIn: Boolean(user),
+      userId: user?.id,
+    };
   } catch {
     return { loggedIn: false };
   }
@@ -60,6 +67,20 @@ export async function createItemReviewAction(
       error instanceof Error && error.message
         ? error.message
         : 'Could not submit review';
+    return { success: false as const, error: message };
+  }
+}
+
+export async function deleteItemReviewAction(reviewId: string) {
+  try {
+    await deleteReview(reviewId);
+    return { success: true as const };
+  } catch (error) {
+    console.error('deleteItemReviewAction error:', error);
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : 'Could not delete review';
     return { success: false as const, error: message };
   }
 }

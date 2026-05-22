@@ -23,9 +23,12 @@ const visuallyHiddenSx = {
 
 export default function LocaleSwitcher({
   compact = false,
+  variant,
 }: {
   compact?: boolean;
+  variant?: 'default' | 'compact' | 'menu';
 }) {
+  const resolvedVariant = variant ?? (compact ? 'compact' : 'default');
   const currentLocale = useLocale();
   const router = useRouter();
   const t = useTranslations('LocaleSwitcher');
@@ -36,12 +39,15 @@ export default function LocaleSwitcher({
     router.refresh();
   };
 
+  const isCompact = resolvedVariant === 'compact';
+  const isMenu = resolvedVariant === 'menu';
+
   return (
-    <Box sx={{ minWidth: compact ? { xs: 76, sm: 88 } : 120 }}>
+    <Box sx={{ minWidth: isCompact ? { xs: 76, sm: 88 } : '100%' }}>
       <FormControl
         sx={{
           width: '100%',
-          ...(compact
+          ...(isCompact || isMenu
             ? {}
             : {
                 '& .MuiOutlinedInput-root': {
@@ -54,32 +60,39 @@ export default function LocaleSwitcher({
           id="shopper-locale-label"
           sx={{
             fontSize: '0.875rem',
-            ...(compact ? visuallyHiddenSx : {}),
+            ...(isCompact || isMenu ? visuallyHiddenSx : {}),
           }}
         >
-          {compact ? t('selectLocale') : t('label')}
+          {isCompact || isMenu ? t('selectLocale') : t('label')}
         </InputLabel>
         <Select
           labelId="shopper-locale-label"
           id="shopper-locale-select"
           value={currentLocale}
-          label={compact ? t('selectLocale') : t('label')}
+          label={isCompact || isMenu ? t('selectLocale') : t('label')}
           onChange={handleChange}
           sx={{
             fontSize: '0.875rem',
-            ...(compact
+            ...(isCompact
               ? {
                   bgcolor: 'action.hover',
                   borderRadius: 2,
                   '& .MuiSelect-select': { py: 0.75, px: 1.25 },
                   '&:before, &:after': { display: 'none' },
                 }
-              : {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'divider',
-                  },
-                  '& .MuiSelect-select': { py: 1 },
-                }),
+              : isMenu
+                ? {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'divider',
+                    },
+                    '& .MuiSelect-select': { py: 1 },
+                  }
+                : {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'divider',
+                    },
+                    '& .MuiSelect-select': { py: 1 },
+                  }),
           }}
         >
           <MenuItem value="en" sx={{ fontSize: '0.875rem' }}>

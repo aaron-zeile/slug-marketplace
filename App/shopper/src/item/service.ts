@@ -2,8 +2,9 @@ import 'server-only';
 import { ItemSchema } from '../shared/item';
 import { Item } from './index';
 
-const ITEMS_SERVICE_URL =
-  process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
+function itemsServiceUrl() {
+  return process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
+}
 
 export async function getItem(id: string): Promise<Item> {
   const query = `
@@ -24,7 +25,7 @@ export async function getItem(id: string): Promise<Item> {
     }
   `;
 
-  const response = await fetch(ITEMS_SERVICE_URL, {
+  const response = await fetch(itemsServiceUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -70,7 +71,7 @@ export async function getRandomItems(count: number): Promise<Item[]> {
     }
   `;
 
-  const response = await fetch(ITEMS_SERVICE_URL, {
+  const response = await fetch(itemsServiceUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -116,7 +117,7 @@ export async function getSearchItems(searchText: string): Promise<Item[]> {
     }
   `;
 
-  const response = await fetch(ITEMS_SERVICE_URL, {
+  const response = await fetch(itemsServiceUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

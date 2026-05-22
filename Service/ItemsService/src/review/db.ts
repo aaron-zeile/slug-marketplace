@@ -58,3 +58,16 @@ export const insertReview = async (params: {
 
   return row;
 };
+
+export const deleteReviewById = async (
+  reviewId: string,
+  userId: string,
+): Promise<boolean> => {
+  const del = `
+    DELETE FROM review
+    WHERE id = $1
+      AND data->'user'->>'id' = $2;
+  `;
+  const result = await pool.query(del, [reviewId, userId]);
+  return (result.rowCount ?? 0) > 0;
+};

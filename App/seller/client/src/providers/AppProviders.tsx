@@ -7,7 +7,7 @@ import { enUS, frFR } from '@mui/material/locale';
 import { LocaleProvider, useAppLocale } from '../i18n/LocaleContext';
 import { messages } from '../i18n/locale';
 
-const navyBlue = '#003c6c';
+const brandColor = '#0b5a54';
 
 const muiLocales = {
   en: enUS,
@@ -23,7 +23,7 @@ function ThemedApp({ children }: { children: ReactNode }) {
         {
           palette: {
             primary: {
-              main: navyBlue,
+              main: brandColor,
               contrastText: '#fff',
             },
           },

@@ -1,14 +1,35 @@
 'use client';
 
+import DeleteIcon from '@mui/icons-material/Delete';
 import StarRounded from '@mui/icons-material/StarRounded';
-import { Avatar, Box, Rating, Typography } from '@mui/material';
+import { Avatar, Box, IconButton, Rating, Typography } from '@mui/material';
+import { useState } from 'react';
 import type { Review } from '../../../item/review';
+import { deleteItemReviewAction } from './actions';
 import { initialsFromName } from './reviewDisplayUtils';
 
-export default function ReviewCard({ review }: { review: Review }) {
+export default function ReviewCard({
+  review,
+  canDelete,
+  onDeleted,
+}: {
+  review: Review;
+  canDelete: boolean;
+  onDeleted: (reviewId: string) => void;
+}) {
+  const [deleting, setDeleting] = useState(false);
   const created = new Date(review.created_at).toLocaleDateString(undefined, {
     dateStyle: 'medium',
   });
+
+  async function handleDelete() {
+    setDeleting(true);
+    const result = await deleteItemReviewAction(review.id);
+    setDeleting(false);
+    if (result.success) {
+      onDeleted(review.id);
+    }
+  }
 
   return (
     <Box
@@ -58,17 +79,37 @@ export default function ReviewCard({ review }: { review: Review }) {
             >
               {review.user.name}
             </Typography>
-            <Typography
-              variant="caption"
+            <Box
               sx={{
-                color: 'text.secondary',
-                fontSize: '0.7rem',
-                lineHeight: 1.2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
                 flexShrink: 0,
               }}
             >
-              {created}
-            </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '0.7rem',
+                  lineHeight: 1.2,
+                }}
+              >
+                {created}
+              </Typography>
+              {canDelete ? (
+                <IconButton
+                  aria-label="Delete review"
+                  size="small"
+                  color="error"
+                  disabled={deleting}
+                  onClick={() => void handleDelete()}
+                  sx={{ p: 0.25 }}
+                >
+                  <DeleteIcon sx={{ fontSize: '1rem' }} />
+                </IconButton>
+              ) : null}
+            </Box>
           </Box>
           <Rating
             name={`rating-${review.id}`}

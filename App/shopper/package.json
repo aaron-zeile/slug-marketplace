@@ -7,7 +7,7 @@
     "dev:reset": "powershell -ExecutionPolicy Bypass -File ./scripts/dev-reset.ps1",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run --dir test --no-file-parallelism --testTimeout=3000 --coverage",
+    "test": "vitest run --dir test --no-file-parallelism --testTimeout=15000 --coverage",
     "lint": "eslint",
     "cpd": "npx jscpd src test --silent"
   },

@@ -4,6 +4,7 @@ import express from 'express';
 
 import * as apiKeys from './apiKeys/router.js';
 import * as listings from './listings/router.js';
+import * as messages from './messages/router.js';
 import {doCheck} from './auth/middleware.js'
 
 // const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +20,7 @@ app.post('/seller/api/listings', doCheck, listings.post);
 app.put('/seller/api/listings/:id', doCheck, listings.put);
 app.delete('/seller/api/listings/:id', doCheck, listings.remove);
 app.post('/seller/api/keys', doCheck, apiKeys.post);
+app.post('/seller/api/messages', doCheck, messages.post);
 
 
 export default app;

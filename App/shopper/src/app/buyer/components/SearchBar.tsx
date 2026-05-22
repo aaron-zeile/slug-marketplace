@@ -39,7 +39,7 @@ export default function SearchBar() {
         borderColor: "divider",
         borderRadius: 999,
         display: "flex",
-        px: 0.5,
+        px: { xs: 0.5, md: 0.75 },
         transition: (theme) =>
           theme.transitions.create(["border-color", "background-color", "box-shadow"], {
             duration: theme.transitions.duration.shorter,
@@ -48,6 +48,9 @@ export default function SearchBar() {
           bgcolor: "background.paper",
           borderColor: brandColor,
           boxShadow: `0 0 0 3px ${brandColor}22`,
+        },
+        "@media (min-width: 900px)": {
+          bgcolor: "background.paper",
         },
       }}
     >
@@ -69,9 +72,9 @@ export default function SearchBar() {
                     bgcolor: brandColor,
                     borderRadius: "50%",
                     color: "#fff",
-                    height: 32,
+                    height: { xs: 32, md: 36 },
                     mr: 0.25,
-                    width: 32,
+                    width: { xs: 32, md: 36 },
                     "&:hover": {
                       bgcolor: brandColorDark,
                     },
@@ -82,9 +85,9 @@ export default function SearchBar() {
               </InputAdornment>
             ),
             sx: {
-              fontSize: "0.95rem",
-              py: 0.75,
-              px: 1.5,
+              fontSize: { xs: "0.95rem", md: "1rem" },
+              py: { xs: 0.75, md: 0.9 },
+              px: { xs: 1.5, md: 1.75 },
             },
           },
         }}

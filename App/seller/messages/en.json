@@ -8,9 +8,11 @@
     "sales": "Sales",
     "feedback": "Feedback",
     "createListing": "Create Listing",
+    "contactAdmin": "Contact Admin",
     "ariaLabel": "Seller dashboard tabs"
   },
   "Listings": {
+    "status": "Status",
     "image": "Image",
     "name": "Name",
     "description": "Description",
@@ -52,5 +54,13 @@
   "Placeholders": {
     "sales": "Sales — coming soon",
     "feedback": "Feedback — coming soon"
+  },
+  "ContactAdmin": {
+    "title": "Contact Admin",
+    "subjectLabel": "Subject",
+    "bodyLabel": "Message",
+    "submit": "Send Message",
+    "submitting": "Sending...",
+    "success": "Your message has been sent to the admin."
   }
 }
