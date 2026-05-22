@@ -10,9 +10,12 @@ Set-Location $repoRoot
 $containerNames = @(
   "app",
   "postgres",
+  "slugmarketplace_db",
+  "seller",
   "marketplace_shopper_service",
   "marketplace_items_service",
   "marketplace_login_service",
+  "marketplace_login_db",
   "marketplace_items_db",
   "items-service-db",
   "cart-service-db"
@@ -53,7 +56,9 @@ if ($NoStart) {
   exit 0
 }
 
-Write-Host "Starting databases (login-db, items-db, cart-db)..."
+Write-Host "Starting databases (admin-db, seller-db, login-db, items-db, cart-db)..."
+docker compose --env-file App/admin/.env -f App/admin/docker-compose.yml up -d db
+docker compose --env-file App/seller/.env -f App/seller/docker-compose.yml up -d postgres
 docker compose -f Service/Login/docker-compose.yml up -d login-db
 docker compose -f Service/ItemsService/docker-compose.yml up -d postgres
 docker compose -f Service/Cart/docker-compose.yml up -d postgres

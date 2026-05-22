@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "5433:5432"
+      - "${CART_DB_PORT:-5434}:5432"
     volumes:
       - ./src/sql/databases.sql:/docker-entrypoint-initdb.d/1.databases.sql
       - ./src/sql/schema.sql:/docker-entrypoint-initdb.d/2.schema.sql
