@@ -14,6 +14,8 @@ import LocaleSwitcher from '../components/LocaleSwitcher'
 export default function TopBar() {
   const t = useTranslations('App')
 
+  const shopperUrl = process.env.NODE_ENV == 'development' ? 'http://localhost:3000/' : '/'
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -44,7 +46,7 @@ export default function TopBar() {
               onClose={handleClose}
               onClick={handleClose}
             >
-              <MenuItem>
+              <MenuItem component="a" href={shopperUrl}>
                 <ShoppingCartIcon/> Slug Marketplace
               </MenuItem>
             </Menu>
