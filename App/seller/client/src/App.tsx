@@ -7,6 +7,7 @@ import { ErrorProvider } from './error/Provider'
 import TopBar from './dashboard/Appbar'
 import SellerListings from './dashboard/Listings'
 import CreateListing from './dashboard/CreateListing'
+import ContactAdmin from './dashboard/ContactAdmin'
 import { TabProvider } from './dashboard/Provider'
 import { useDashboard } from './dashboard/useDashboard'
 import AppProviders from './providers/AppProviders'
@@ -35,6 +36,9 @@ export function AppContent() {
   }
   if (tabValue === 3) {
     content = <CreateListing />
+  }
+  if (tabValue === 4) {
+    content = <ContactAdmin />
   }
   return (
     <>

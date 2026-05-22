@@ -19,3 +19,13 @@ CREATE TABLE IF NOT EXISTS platform_fees (
   fee_amount    NUMERIC(10, 2) GENERATED ALWAYS AS (ROUND(sale_price * fee_percent / 100, 2)) STORED,
   created_at    TIMESTAMPTZ    NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS seller_messages (
+  id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  seller_id    TEXT        NOT NULL,
+  seller_name  TEXT        NOT NULL,
+  seller_email TEXT        NOT NULL,
+  subject      TEXT        NOT NULL,
+  body         TEXT        NOT NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

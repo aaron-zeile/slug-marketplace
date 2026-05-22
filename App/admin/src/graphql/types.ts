@@ -17,3 +17,27 @@ export class MonthlyProfit {
   @Field(() => Number)
   profit!: number;
 }
+
+@ObjectType()
+export class SellerMessage {
+  @Field()
+  id!: string;
+
+  @Field()
+  sellerId!: string;
+
+  @Field()
+  sellerName!: string;
+
+  @Field()
+  sellerEmail!: string;
+
+  @Field()
+  subject!: string;
+
+  @Field()
+  body!: string;
+
+  @Field()
+  createdAt!: string;
+}

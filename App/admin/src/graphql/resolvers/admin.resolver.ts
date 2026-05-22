@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Resolver, Query, Mutation, Arg, Ctx } from 'type-graphql';
 import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
-import { AuthPayload } from '../types';
+import { AuthPayload, SellerMessage } from '../types';
 import sql from '@/lib/db';
 import { sessionOptions, type AdminSession } from '@/lib/auth';
 import type { GraphQLContext } from '../server';
@@ -58,5 +58,38 @@ export class AdminResolver {
     });
 
     return { success: true };
+  }
+
+  @Query(() => [SellerMessage])
+  async sellerMessages(@Ctx() ctx: GraphQLContext): Promise<SellerMessage[]> {
+    const tempResponse = new Response();
+    const session = await getIronSession<AdminSession>(ctx.request, tempResponse, sessionOptions);
+    if (!session.adminId) {
+      throw new Error('Not authenticated');
+    }
+
+    const rows = await sql<{
+      id: string;
+      seller_id: string;
+      seller_name: string;
+      seller_email: string;
+      subject: string;
+      body: string;
+      created_at: Date;
+    }[]>`
+      SELECT id, seller_id, seller_name, seller_email, subject, body, created_at
+      FROM seller_messages
+      ORDER BY created_at DESC
+    `;
+
+    return rows.map((r) => ({
+      id: r.id,
+      sellerId: r.seller_id,
+      sellerName: r.seller_name,
+      sellerEmail: r.seller_email,
+      subject: r.subject,
+      body: r.body,
+      createdAt: r.created_at.toISOString(),
+    }));
   }
 }
