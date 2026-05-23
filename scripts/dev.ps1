@@ -57,7 +57,44 @@ if ($NoStart) {
 }
 
 Write-Host "Starting databases (admin-db, seller-db, login-db, items-db, cart-db)..."
-docker compose --env-file App/admin/.env -f App/admin/docker-compose.yml up -d db
+$adminEnvFile = Join-Path $repoRoot "App\admin\.env"
+if (-not (Test-Path $adminEnvFile)) {
+  $adminEnvFile = Join-Path $repoRoot "App\admin\.env.example"
+}
+docker compose --env-file $adminEnvFile -f App/admin/docker-compose.yml up -d db
+
+Write-Host "Applying admin DB (admindb) schema and seed data..."
+$adminDatabasesSql = Join-Path $repoRoot "App\admin\db\databases.sql"
+$adminDbSql = @(
+  (Join-Path $repoRoot "App\admin\db\schema.sql"),
+  (Join-Path $repoRoot "App\admin\db\data.sql")
+)
+$prevErrorAction = $ErrorActionPreference
+$hadNativeCmdPref = Test-Path variable:PSNativeCommandUseErrorActionPreference
+if ($hadNativeCmdPref) {
+  $prevNativeCmdErrors = $PSNativeCommandUseErrorActionPreference
+}
+try {
+  if ($hadNativeCmdPref) {
+    $PSNativeCommandUseErrorActionPreference = $false
+  }
+  $ErrorActionPreference = 'Continue'
+  Get-Content $adminDatabasesSql |
+    Where-Object { $_ -notmatch '^\s*\\c\s' } |
+    docker exec -i slugmarketplace_db psql -q -U postgres -d postgres 2>&1 |
+    Out-Null
+  foreach ($sqlFile in $adminDbSql) {
+    Get-Content $sqlFile |
+      Where-Object { $_ -notmatch '^\s*\\c\s' } |
+      docker exec -i slugmarketplace_db psql -q -U postgres -d admindb 2>&1 |
+      Out-Null
+  }
+} finally {
+  if ($hadNativeCmdPref) {
+    $PSNativeCommandUseErrorActionPreference = $prevNativeCmdErrors
+  }
+  $ErrorActionPreference = $prevErrorAction
+}
 docker compose --env-file App/seller/.env -f App/seller/docker-compose.yml up -d postgres
 docker compose -f Service/Login/docker-compose.yml up -d login-db
 
