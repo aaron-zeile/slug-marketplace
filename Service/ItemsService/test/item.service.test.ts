@@ -1,5 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { pool } from '../src/db';
 import { ItemService } from '../src/item/service';
 import { testUser } from './helpers';
 import { resetServiceDatabase, shutdownServiceDatabase } from './service.setup';
@@ -11,6 +12,10 @@ describe('ItemService', () => {
 
   afterAll(() => {
     shutdownServiceDatabase();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('creates an item for the session seller', async () => {
@@ -34,6 +39,19 @@ describe('ItemService', () => {
     expect(created.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
+  });
+
+  it('throws when create item does not return a row', async () => {
+    vi.spyOn(pool, 'query').mockResolvedValueOnce({ rows: [] });
+
+    await expect(
+      new ItemService().createItem(testUser, {
+        name: 'Missing Row',
+        description: 'Insert returned no rows.',
+        images: [],
+        price: 1,
+      }),
+    ).rejects.toThrow('Failed to create item');
   });
 
   it('returns an item by id', async () => {
@@ -116,6 +134,16 @@ describe('ItemService', () => {
   });
 
   it('throws when deleting an item the seller does not own', async () => {
+    await expect(
+      new ItemService().deleteItem(testUser, {
+        id: '00000000-0000-0000-0000-000000000000',
+      }),
+    ).rejects.toThrow('Item not found or user does not own item');
+  });
+
+  it('throws when delete item returns no row count', async () => {
+    vi.spyOn(pool, 'query').mockResolvedValueOnce({ rowCount: null, rows: [] });
+
     await expect(
       new ItemService().deleteItem(testUser, {
         id: '00000000-0000-0000-0000-000000000000',

@@ -5,7 +5,7 @@ import {
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerId,
+  SellerItemsInput,
   UpdateItem,
 } from './schema';
 
@@ -148,7 +148,7 @@ export const getItem = async (itemId: ItemId): Promise<Item> => {
   return rows[0];
 };
 
-export const getSellerItems = async (sellerId: SellerId): Promise<Item[]> => {
+export const getSellerItems = async (input: SellerItemsInput): Promise<Item[]> => {
   const select = `
   SELECT
     id,
@@ -164,10 +164,11 @@ export const getSellerItems = async (sellerId: SellerId): Promise<Item[]> => {
     status
   FROM item
   WHERE data->>'sellerId' = $1
+    AND status = $2
   `
   const query = {
     text: select,
-    values: [sellerId.id],
+    values: [input.id, input.status],
   }
   const {rows} = await pool.query<Item>(query)
   return rows

@@ -97,6 +97,15 @@ export class SellerId {
   id!: string;
 }
 
+@InputType('SellerItemsInput')
+export class SellerItemsInput {
+  @Field()
+  id!: string;
+
+  @Field()
+  status!: 'active' | 'sold';
+}
+
 @InputType('RandomItemsInput')
 export class RandomItemsInput {
   @Field(() => Int)

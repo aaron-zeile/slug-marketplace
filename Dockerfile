@@ -16,7 +16,6 @@ COPY Service/Login/tsconfig.json /home/app/Service/Login/
 COPY Service/Login/tsoa.json /home/app/Service/Login/
 COPY Service/Login/package.json /home/app/Service/Login/
 COPY Service/Login/package-lock.json /home/app/Service/Login/
-COPY Service/Login/generated/ /home/app/Service/Login/generated/
 
 # Items Service
 COPY Service/ItemsService/build/ /home/app/Service/ItemsService/build/
