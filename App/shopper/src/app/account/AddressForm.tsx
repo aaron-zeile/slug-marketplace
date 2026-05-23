@@ -25,8 +25,11 @@ interface Props {
 }
 
 const emptyInput: ShippingAddressInput = {
+  label: undefined,
   line1: '',
+  line2: undefined,
   city: '',
+  state: undefined,
   postal_code: '',
   country: 'US',
 };

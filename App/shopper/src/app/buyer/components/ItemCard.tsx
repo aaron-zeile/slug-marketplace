@@ -46,7 +46,6 @@ export default function ItemCard({ item, variant = 'default' }: ItemCardProps) {
         boxShadow: '0 4px 20px rgba(15, 118, 110, 0.08)',
         display: 'grid',
         gridTemplateColumns: '1fr',
-        maxWidth: '100%',
         minWidth: isFeatured ? 'auto' : 168,
         overflow: 'hidden',
         transition: (theme) =>

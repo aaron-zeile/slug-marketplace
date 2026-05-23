@@ -10,11 +10,11 @@ import MenuItem from '@mui/material/MenuItem';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NavTabs from './Tabs'
 import LocaleSwitcher from '../components/LocaleSwitcher'
+import { getShopperHomeUrl } from '../config/shopperUrl'
 
 export default function TopBar() {
   const t = useTranslations('App')
-
-  const shopperUrl = process.env.NODE_ENV == 'development' ? 'http://localhost:3000/' : '/'
+  const shopperUrl = getShopperHomeUrl()
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);

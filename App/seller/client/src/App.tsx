@@ -2,7 +2,9 @@ import React from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { useTranslations } from 'next-intl'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
+import AuthGuard from './auth/AuthGaurd'
 import { ErrorProvider } from './error/Provider'
 import TopBar from './dashboard/Appbar'
 import SellerListings from './dashboard/Listings'
@@ -48,14 +50,28 @@ export function AppContent() {
   )
 }
 
+const routerBasename =
+  import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
+
 export function App() {
   return (
     <AppProviders>
-      <ErrorProvider>
-        <TabProvider>
-          <AppContent />
-        </TabProvider>
-      </ErrorProvider>
+      <BrowserRouter basename={routerBasename}>
+        <ErrorProvider>
+          <Routes>
+            <Route element={<AuthGuard />}>
+              <Route
+                path="*"
+                element={
+                  <TabProvider>
+                    <AppContent />
+                  </TabProvider>
+                }
+              />
+            </Route>
+          </Routes>
+        </ErrorProvider>
+      </BrowserRouter>
     </AppProviders>
   );
 }

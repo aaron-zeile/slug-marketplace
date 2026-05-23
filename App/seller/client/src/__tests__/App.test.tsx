@@ -26,10 +26,32 @@ describe('App', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => ({
-        ok: true,
-        json: async () => listingsResponse,
-      })),
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url
+
+        if (url.includes('/seller/api/sessions')) {
+          return {
+            ok: true,
+            json: async () => ({
+              user: {
+                id: 'seller-1',
+                email: 'seller@example.com',
+                name: 'Test Seller',
+              },
+            }),
+          }
+        }
+
+        return {
+          ok: true,
+          json: async () => listingsResponse,
+        }
+      }),
     )
   })
 
