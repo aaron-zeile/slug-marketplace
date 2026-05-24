@@ -2,12 +2,13 @@ import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 
 import type { ItemsGraphQLContext } from '../auth/context';
 import {
+  FilteredItemsInput,
   Item,
   ItemId,
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerId,
+  SellerItemsInput,
   UpdateItem,
 } from './schema';
 import { ItemService } from './service';
@@ -21,7 +22,7 @@ export class ItemResolver {
 
   @Query(() => [Item])
   async sellerItems(
-    @Arg('input') input: SellerId): Promise<Item[]> {
+    @Arg('input') input: SellerItemsInput): Promise<Item[]> {
     return new ItemService().getSellerItems(input);
   }
 
@@ -79,5 +80,12 @@ export class ItemResolver {
   @Query(() => [Item])
   async searchItems(@Arg('input') input: SearchItemsInput): Promise<Item[]> {
     return new ItemService().getSearchItems(input);
+  }
+
+  @Query(() => [Item])
+  async filteredItems(
+    @Arg('input') input: FilteredItemsInput,
+  ): Promise<Item[]> {
+    return new ItemService().getFilteredItems(input);
   }
 }

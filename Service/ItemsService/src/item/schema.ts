@@ -1,4 +1,4 @@
-import { Length, Min } from 'class-validator';
+import { IsOptional, Length, Max, Min } from 'class-validator';
 import {
   Field,
   Float,
@@ -36,6 +36,9 @@ export class Item {
   @Field(() => [String])
   images!: string[];
 
+  @Field(() => [String])
+  tags!: string[];
+
   @Field()
   price!: number;
 
@@ -65,6 +68,9 @@ export class NewItem {
   @Field(() => [String])
   images!: string[];
 
+  @Field(() => [String], { nullable: true })
+  tags?: string[];
+
   @Field(() => Float)
   @Min(0)
   price!: number;
@@ -86,6 +92,9 @@ export class UpdateItem {
   @Field(() => [String])
   images!: string[];
 
+  @Field(() => [String], { nullable: true })
+  tags?: string[];
+
   @Field(() => Float)
   @Min(0)
   price!: number;
@@ -95,6 +104,15 @@ export class UpdateItem {
 export class SellerId {
   @Field()
   id!: string;
+}
+
+@InputType('SellerItemsInput')
+export class SellerItemsInput {
+  @Field()
+  id!: string;
+
+  @Field()
+  status!: 'active' | 'sold';
 }
 
 @InputType('RandomItemsInput')
@@ -109,4 +127,48 @@ export class SearchItemsInput {
   @Field()
   @Length(1, 256)
   searchText!: string;
+}
+
+@InputType('FilteredItemsInput')
+export class FilteredItemsInput {
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @Min(0)
+  minPrice?: number;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @Min(0)
+  maxPrice?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @Length(1, 64)
+  tag?: string;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @Min(0)
+  @Max(5)
+  minStars?: number;
+
+  @Field({ nullable: true })
+  sellerId?: string;
+
+  @Field({ nullable: true })
+  status?: 'active' | 'sold';
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @Length(1, 256)
+  searchText?: string;
+
+  @Field({ nullable: true })
+  sortBy?: 'newest' | 'priceAsc' | 'priceDesc' | 'ratingDesc';
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @Min(1)
+  @Max(100)
+  limit?: number;
 }

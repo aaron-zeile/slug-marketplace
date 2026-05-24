@@ -1,6 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { fetchSearchItemsAction } from '../../src/app/search/[searchText]/actions';
+import {
+  fetchFilteredItemsAction,
+  fetchSearchItemsAction,
+} from '../../src/app/search/[searchText]/actions';
 import {
   registerItemsServiceHooks,
   releaseFetchStubForServiceTests,
@@ -16,6 +19,13 @@ describe('search actions', () => {
       description: 'Unique search phrase for integration tests.',
       images: ['https://example.com/vase.webp'],
       price: 33,
+    });
+    await seedItemsServiceItem({
+      name: 'Category Books Search Target',
+      description: 'Unique category phrase for integration tests.',
+      images: ['https://example.com/book.webp'],
+      price: 21,
+      tags: ['books'],
     });
     releaseFetchStubForServiceTests();
   });
@@ -36,6 +46,29 @@ describe('search actions', () => {
     const result = await fetchSearchItemsAction('anything');
 
     process.env.ITEMS_SERVICE_URL = previous;
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeTruthy();
+  });
+
+  it('returns success and data for filtered category search', async () => {
+    const result = await fetchFilteredItemsAction({
+      status: 'active',
+      tag: 'books',
+    });
+
+    expect(result.success).toBe(true);
+    expect(
+      result.data?.some((item) => item.name === 'Category Books Search Target'),
+    ).toBe(true);
+  });
+
+  it('returns success false when filtered search fails', async () => {
+    const result = await fetchFilteredItemsAction({
+      maxPrice: 1,
+      minPrice: 10,
+      status: 'active',
+    });
 
     expect(result.success).toBe(false);
     expect(result.error).toBeTruthy();

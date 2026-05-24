@@ -9,8 +9,8 @@ import {
 const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
 
 const GET_ITEMS_QUERY = `
-  query GetSellerItems($id: String!) {
-    sellerItems(input: {id: $id}) {
+  query GetSellerItems($id: String!, $status: String!) {
+    sellerItems(input: {id: $id, status: $status}) {
       id
       seller {
         id

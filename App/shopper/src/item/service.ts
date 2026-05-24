@@ -2,6 +2,18 @@ import 'server-only';
 import { ItemSchema } from '../shared/item';
 import { Item } from './index';
 
+export interface FilteredItemsInput {
+  minPrice?: number;
+  maxPrice?: number;
+  tag?: string;
+  minStars?: number;
+  sellerId?: string;
+  status?: 'active' | 'sold';
+  searchText?: string;
+  sortBy?: 'newest' | 'priceAsc' | 'priceDesc' | 'ratingDesc';
+  limit?: number;
+}
+
 function itemsServiceUrl() {
   return process.env.ITEMS_SERVICE_URL || 'http://localhost:4000/graphql';
 }
@@ -141,5 +153,53 @@ export async function getSearchItems(searchText: string): Promise<Item[]> {
   }
 
   const parseResult = ItemSchema.array().parse(body.data?.searchItems);
+  return parseResult;
+}
+
+export async function getFilteredItems(
+  input: FilteredItemsInput,
+): Promise<Item[]> {
+  const query = `
+    query FilteredItems($input: FilteredItemsInput!) {
+      filteredItems(input: $input) {
+        id
+        seller {
+          id
+          name
+        }
+        name
+        description
+        images
+        price
+        created_at
+        status
+      }
+    }
+  `;
+
+  const response = await fetch(itemsServiceUrl(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables: {
+        input,
+      },
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch filtered items: ${response.statusText}`);
+  }
+
+  const body = await response.json();
+  if (body.errors?.length) {
+    throw new Error('GraphQL error');
+  }
+
+  const parseResult = ItemSchema.array().parse(body.data?.filteredItems);
   return parseResult;
 }

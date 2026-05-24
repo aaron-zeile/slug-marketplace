@@ -107,4 +107,15 @@ describe('SignInPage', () => {
     await waitFor(() => screen.getByText('Invalid credentials'));
     expect(mockPush).not.toHaveBeenCalled();
   });
+
+  it('shows a generic login failed message when success is false without a message', async () => {
+    mockFetch({ data: { login: { success: false } } });
+    render(<SignInPage />);
+    await userEvent.type(screen.getByLabelText(/email/i), 'admin@test.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'anypass');
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    await waitFor(() =>
+      expect(screen.getByText('Login failed')).toBeInTheDocument(),
+    );
+  });
 });

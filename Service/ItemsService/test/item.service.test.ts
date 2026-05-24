@@ -1,6 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { pool } from '../src/db';
 import { ItemService } from '../src/item/service';
+import { ReviewService } from '../src/review/service';
 import { testUser } from './helpers';
 import { resetServiceDatabase, shutdownServiceDatabase } from './service.setup';
 
@@ -11,6 +13,10 @@ describe('ItemService', () => {
 
   afterAll(() => {
     shutdownServiceDatabase();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('creates an item for the session seller', async () => {
@@ -34,6 +40,19 @@ describe('ItemService', () => {
     expect(created.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
     );
+  });
+
+  it('throws when create item does not return a row', async () => {
+    vi.spyOn(pool, 'query').mockResolvedValueOnce({ rows: [] });
+
+    await expect(
+      new ItemService().createItem(testUser, {
+        name: 'Missing Row',
+        description: 'Insert returned no rows.',
+        images: [],
+        price: 1,
+      }),
+    ).rejects.toThrow('Failed to create item');
   });
 
   it('returns an item by id', async () => {
@@ -123,6 +142,37 @@ describe('ItemService', () => {
     ).rejects.toThrow('Item not found or user does not own item');
   });
 
+  it('updates item tags when provided', async () => {
+    const created = await new ItemService().createItem(testUser, {
+      name: 'Before Tag Update',
+      description: 'Original tags.',
+      images: [],
+      tags: ['decor'],
+      price: 10,
+    });
+
+    const updated = await new ItemService().updateItem(testUser, {
+      id: created.id,
+      name: 'After Tag Update',
+      description: 'Updated tags.',
+      images: [],
+      tags: ['tools', 'electronics'],
+      price: 11,
+    });
+
+    expect(updated.tags).toEqual(['tools', 'electronics']);
+  });
+
+  it('throws when delete item returns no row count', async () => {
+    vi.spyOn(pool, 'query').mockResolvedValueOnce({ rowCount: null, rows: [] });
+
+    await expect(
+      new ItemService().deleteItem(testUser, {
+        id: '00000000-0000-0000-0000-000000000000',
+      }),
+    ).rejects.toThrow('Item not found or user does not own item');
+  });
+
   it('returns seller items filtered by status', async () => {
     const created = await new ItemService().createItem(testUser, {
       name: 'Seller Listing',
@@ -173,6 +223,133 @@ describe('ItemService', () => {
     expect(items.some((item) => item.name.includes('Unique Searchable'))).toBe(
       true,
     );
+  });
+
+  it('returns an item matching price range and tag filters', async () => {
+    const matching = await new ItemService().createItem(testUser, {
+      name: 'Filtered Electronics Match',
+      description: 'Unique item for price and tag filtering.',
+      images: [],
+      tags: ['electronics', 'filter-price-tag'],
+      price: 25,
+    });
+
+    const items = await new ItemService().getFilteredItems({
+      minPrice: 10,
+      maxPrice: 50,
+      tag: 'filter-price-tag',
+      sellerId: testUser.id,
+      status: 'active',
+    });
+
+    expect(items.map((item) => item.id)).toContain(matching.id);
+  });
+
+  it('excludes items above the maximum price filter', async () => {
+    const tooExpensive = await new ItemService().createItem(testUser, {
+      name: 'Filtered Electronics Expensive',
+      description: 'Should miss the max price filter.',
+      images: [],
+      tags: ['electronics', 'filter-price-tag'],
+      price: 125,
+    });
+
+    const items = await new ItemService().getFilteredItems({
+      maxPrice: 50,
+      tag: 'filter-price-tag',
+      sellerId: testUser.id,
+      status: 'active',
+    });
+
+    expect(items.map((item) => item.id)).not.toContain(tooExpensive.id);
+  });
+
+  it('excludes items without the requested tag filter', async () => {
+    const wrongTag = await new ItemService().createItem(testUser, {
+      name: 'Filtered Decor Item',
+      description: 'Should miss the tag filter.',
+      images: [],
+      tags: ['decor'],
+      price: 25,
+    });
+
+    const items = await new ItemService().getFilteredItems({
+      minPrice: 10,
+      maxPrice: 50,
+      tag: 'filter-price-tag',
+      sellerId: testUser.id,
+      status: 'active',
+    });
+
+    expect(items.map((item) => item.id)).not.toContain(wrongTag.id);
+  });
+
+  it('returns an item matching the minimum average review stars filter', async () => {
+    const highRated = await new ItemService().createItem(testUser, {
+      name: 'Filtered High Rated Tool',
+      description: 'Unique high-rated item for review filtering.',
+      images: [],
+      tags: ['tools', 'filter-rating-tag'],
+      price: 30,
+    });
+
+    await new ReviewService().createReview(testUser, {
+      itemId: highRated.id,
+      rating: 5,
+      comment: 'Excellent.',
+    });
+
+    const items = await new ItemService().getFilteredItems({
+      tag: 'filter-rating-tag',
+      minStars: 4,
+    });
+
+    expect(items.map((item) => item.id)).toContain(highRated.id);
+  });
+
+  it('excludes items below the minimum average review stars filter', async () => {
+    const lowRated = await new ItemService().createItem(testUser, {
+      name: 'Filtered Low Rated Tool',
+      description: 'Unique low-rated item for review filtering.',
+      images: [],
+      tags: ['tools', 'filter-rating-tag'],
+      price: 30,
+    });
+
+    await new ReviewService().createReview(testUser, {
+      itemId: lowRated.id,
+      rating: 2,
+      comment: 'Not for me.',
+    });
+
+    const items = await new ItemService().getFilteredItems({
+      tag: 'filter-rating-tag',
+      minStars: 4,
+    });
+
+    expect(items.map((item) => item.id)).not.toContain(lowRated.id);
+  });
+
+  it('returns items when no filters are provided', async () => {
+    await new ItemService().createItem(testUser, {
+      name: 'Unfiltered Listing',
+      description: 'Visible without filter criteria.',
+      images: [],
+      price: 15,
+    });
+
+    const items = await new ItemService().getFilteredItems({ limit: 1 });
+
+    expect(items.length).toBe(1);
+  });
+
+  it('throws when filtered item price range is invalid', async () => {
+    await expect(
+      new ItemService().getFilteredItems({
+        minPrice: 100,
+        maxPrice: 10,
+      }),
+    ).rejects.toThrow('minPrice cannot be greater than maxPrice');
   });
 
   it('returns all items in the database', async () => {

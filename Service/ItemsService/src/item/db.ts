@@ -1,11 +1,12 @@
 import { pool } from '../db';
 import {
+  FilteredItemsInput,
   Item,
   ItemId,
   NewItem,
   RandomItemsInput,
   SearchItemsInput,
-  SellerId,
+  SellerItemsInput,
   UpdateItem,
 } from './schema';
 
@@ -21,6 +22,7 @@ export const getAllItems = async (): Promise<Item[]> => {
       data->>'name' AS name,
       data->>'description' AS description,
       data->'images' AS images,
+      COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
       (data->>'created_at')::timestamptz AS created_at,
       status
@@ -55,6 +57,7 @@ export const createItem = async (params: {
     name: params.input.name,
     description: params.input.description,
     images: params.input.images,
+    tags: params.input.tags ?? [],
     price: params.input.price,
     created_at: new Date().toISOString(),
   };
@@ -71,6 +74,7 @@ export const createItem = async (params: {
       data->>'name' AS name,
       data->>'description' AS description,
       data->'images' AS images,
+      COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
       (data->>'created_at')::timestamptz AS created_at,
       status
@@ -104,17 +108,21 @@ export const updateItem = async (
       data->>'name' AS name,
       data->>'description' AS description,
       data->'images' AS images,
+      COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
       (data->>'created_at')::timestamptz AS created_at,
       status;
   `;
 
-  const data = {
+  const data: Record<string, unknown> = {
     name: input.name,
     description: input.description,
     images: input.images,
     price: input.price,
   };
+  if (input.tags !== undefined) {
+    data.tags = input.tags;
+  }
 
   const { rows } = await pool.query<Item>(update, [
     input.id,
@@ -136,6 +144,7 @@ export const getItem = async (itemId: ItemId): Promise<Item> => {
       data->>'name' AS name,
       data->>'description' AS description,
       data->'images' AS images,
+      COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
       (data->>'created_at')::timestamptz AS created_at,
       status
@@ -148,7 +157,7 @@ export const getItem = async (itemId: ItemId): Promise<Item> => {
   return rows[0];
 };
 
-export const getSellerItems = async (sellerId: SellerId): Promise<Item[]> => {
+export const getSellerItems = async (input: SellerItemsInput): Promise<Item[]> => {
   const select = `
   SELECT
     id,
@@ -159,15 +168,17 @@ export const getSellerItems = async (sellerId: SellerId): Promise<Item[]> => {
     data->>'name' AS name,
     data->>'description' AS description,
     data->'images' AS images,
+    COALESCE(data->'tags', '[]'::jsonb) AS tags,
     (data->>'price')::numeric AS price,
     (data->>'created_at')::timestamptz AS created_at,
     status
   FROM item
   WHERE data->>'sellerId' = $1
+    AND status = $2
   `
   const query = {
     text: select,
-    values: [sellerId.id],
+    values: [input.id, input.status],
   }
   const {rows} = await pool.query<Item>(query)
   return rows
@@ -184,6 +195,7 @@ export const getRandomItems = async (input: RandomItemsInput): Promise<Item[]> =
     data->>'name' AS name,
     data->>'description' AS description,
     data->'images' AS images,
+    COALESCE(data->'tags', '[]'::jsonb) AS tags,
     (data->>'price')::numeric AS price,
     (data->>'created_at')::timestamptz AS created_at,
     status
@@ -216,6 +228,7 @@ export const getSearchItems = async (input: SearchItemsInput): Promise<Item[]> =
     data->>'name' AS name,
     data->>'description' AS description,
     data->'images' AS images,
+    COALESCE(data->'tags', '[]'::jsonb) AS tags,
     (data->>'price')::numeric AS price,
     (data->>'created_at')::timestamptz AS created_at,
     status
@@ -231,3 +244,89 @@ export const getSearchItems = async (input: SearchItemsInput): Promise<Item[]> =
   const {rows} = await pool.query<Item>(query)
   return rows
 }
+
+export const getFilteredItems = async (
+  input: FilteredItemsInput,
+): Promise<Item[]> => {
+  const values: Array<number | string> = [];
+  const where: string[] = [];
+  const having: string[] = [];
+
+  if (input.minPrice !== undefined) {
+    values.push(input.minPrice);
+    where.push(`(i.data->>'price')::numeric >= $${values.length}`);
+  }
+
+  if (input.maxPrice !== undefined) {
+    values.push(input.maxPrice);
+    where.push(`(i.data->>'price')::numeric <= $${values.length}`);
+  }
+
+  if (input.tag !== undefined) {
+    values.push(input.tag);
+    where.push(`COALESCE(i.data->'tags', '[]'::jsonb) ? $${values.length}`);
+  }
+
+  if (input.sellerId !== undefined) {
+    values.push(input.sellerId);
+    where.push(`i.data->>'sellerId' = $${values.length}`);
+  }
+
+  if (input.status !== undefined) {
+    values.push(input.status);
+    where.push(`i.status = $${values.length}`);
+  }
+
+  const searchText = input.searchText?.trim();
+  if (searchText) {
+    values.push(searchText);
+    where.push(`(
+      i.data->>'name' ILIKE '%' || $${values.length} || '%'
+      OR i.data->>'description' ILIKE '%' || $${values.length} || '%'
+    )`);
+  }
+
+  if (input.minStars !== undefined) {
+    values.push(input.minStars);
+    having.push(
+      `COALESCE(AVG((r.data->>'rating')::float), 0) >= $${values.length}`,
+    );
+  }
+
+  const orderBy = {
+    newest: `(i.data->>'created_at')::timestamptz DESC NULLS LAST`,
+    priceAsc: `(i.data->>'price')::numeric ASC`,
+    priceDesc: `(i.data->>'price')::numeric DESC`,
+    ratingDesc: `average_rating DESC NULLS LAST`,
+  }[input.sortBy ?? 'newest'];
+
+  const limit = input.limit ?? 50;
+  values.push(limit);
+
+  const select = `
+    SELECT
+      i.id,
+      jsonb_build_object(
+        'id', i.data->>'sellerId',
+        'name', i.data->>'sellerName'
+      ) AS seller,
+      i.data->>'name' AS name,
+      i.data->>'description' AS description,
+      i.data->'images' AS images,
+      COALESCE(i.data->'tags', '[]'::jsonb) AS tags,
+      (i.data->>'price')::numeric AS price,
+      (i.data->>'created_at')::timestamptz AS created_at,
+      i.status,
+      AVG((r.data->>'rating')::float) AS average_rating
+    FROM item i
+    LEFT JOIN review r ON r.item = i.id
+    ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
+    GROUP BY i.id
+    ${having.length ? `HAVING ${having.join(' AND ')}` : ''}
+    ORDER BY ${orderBy}
+    LIMIT $${values.length}
+  `;
+
+  const { rows } = await pool.query<Item>(select, values);
+  return rows;
+};

@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type { CartItem as CartListItem } from '../../cart';
-import { checkLogin } from '../buyer/login/actions';
+import { checkLogin, type CheckLoginResult } from '../buyer/login/actions';
 import CartItem from './CartItem';
 import { fetchCartItemsAction } from './actions';
 
@@ -30,7 +30,7 @@ export default function CartList() {
     async function fetchCartItems() {
       const [result, session] = await Promise.all([
         fetchCartItemsAction(),
-        checkLogin().catch(() => ({})),
+        checkLogin().catch((): CheckLoginResult => ({})),
       ]);
 
       if (result.success && result.data) {

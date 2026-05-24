@@ -7,9 +7,11 @@ import { useTranslations } from 'next-intl';
 import HomeHero from './buyer/components/HomeHero';
 import ItemCard from './buyer/components/ItemCard';
 import ItemCarousel from './buyer/components/ItemCarousel';
+import LinkCarousel from './buyer/components/LinkCarousel';
 import { fetchRandomItemsAction } from './items/[id]/actions';
 import { Item } from '../item';
 import { type CardItem } from './buyer/components/ItemCard';
+import { type LinkCardItem } from './buyer/components/LinkCard';
 
 const toCardItem = (item: Item): CardItem => ({
   id: item.id,
@@ -18,8 +20,85 @@ const toCardItem = (item: Item): CardItem => ({
   imageurl: item.images,
 });
 
+const categoryLinkConfig = [
+  {
+    id: 'electronics',
+    imageurl: 'https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/1.webp',
+    path: '/search?category=electronics',
+  },
+  {
+    id: 'clothing',
+    imageurl: 'https://cdn.dummyjson.com/product-images/womens-shoes/red-shoes/1.webp',
+    path: '/search?category=clothing',
+  },
+  {
+    id: 'accessories',
+    imageurl: 'https://cdn.dummyjson.com/product-images/womens-jewellery/green-crystal-earring/1.webp',
+    path: '/search?category=accessories',
+  },
+  {
+    id: 'home',
+    imageurl: 'https://cdn.dummyjson.com/product-images/kitchen-accessories/silver-pot-with-glass-cap/1.webp',
+    path: '/search?category=home',
+  },
+  {
+    id: 'tools',
+    imageurl: 'https://cdn.dummyjson.com/product-images/kitchen-accessories/knife/1.webp',
+    path: '/search?category=tools',
+  },
+  {
+    id: 'food',
+    imageurl: 'https://cdn.dummyjson.com/product-images/groceries/fish-steak/1.webp',
+    path: '/search?category=food',
+  },
+  {
+    id: 'beauty',
+    imageurl: 'https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/1.webp',
+    path: '/search?category=beauty',
+  },
+  {
+    id: 'travel',
+    imageurl: 'https://cdn.dummyjson.com/product-images/sunglasses/classic-sun-glasses/1.webp',
+    path: '/search?category=travel',
+  },
+  {
+    id: 'health',
+    imageurl: 'https://cdn.dummyjson.com/product-images/skin-care/vaseline-men-body-and-face-lotion/1.webp',
+    path: '/search?category=health',
+  },
+  {
+    id: 'outdoors',
+    imageurl: 'https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/1.webp',
+    path: '/search?category=outdoors',
+  },
+  {
+    id: 'fitness',
+    imageurl: 'https://cdn.dummyjson.com/product-images/sports-accessories/metal-baseball-bat/1.webp',
+    path: '/search?category=fitness',
+  },
+  {
+    id: 'vehicles',
+    imageurl: 'https://cdn.dummyjson.com/product-images/vehicle/durango-sxt-rwd/1.webp',
+    path: '/search?category=vehicles',
+  },
+  {
+    id: 'pets',
+    imageurl: 'https://cdn.dummyjson.com/product-images/groceries/cat-food/1.webp',
+    path: '/search?category=pets',
+  },
+  {
+    id: 'decor',
+    imageurl: 'https://cdn.dummyjson.com/product-images/home-decoration/decoration-swing/1.webp',
+    path: '/search?category=decor',
+  },
+] as const;
+
 export default function FrontPage() {
   const t = useTranslations('Home');
+  const categoryLinks: LinkCardItem[] = categoryLinkConfig.map((category) => ({
+    ...category,
+    category: t(`category.${category.id}`),
+  }));
   const [singleItem, setSingleItem] = React.useState<CardItem>();
   const [carouselItems, setCarouselItems] = React.useState<CardItem[]>([]);
   const [loadingSpotlight, setLoadingSpotlight] = React.useState(true);
@@ -91,6 +170,14 @@ export default function FrontPage() {
               {t('spotlightEmpty')}
             </Typography>
           )}
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <LinkCarousel
+            carouselTitle={t('categoriesTitle')}
+            links={categoryLinks}
+            subtitle={t('categoriesSubtitle')}
+          />
         </Box>
 
         {loadingCarousel ? (

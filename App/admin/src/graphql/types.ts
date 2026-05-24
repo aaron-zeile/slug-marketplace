@@ -20,24 +20,24 @@ export class MonthlyProfit {
 
 @ObjectType()
 export class SellerMessage {
-  @Field()
+  @Field(() => String)
   id!: string;
 
-  @Field()
+  @Field(() => String)
   sellerId!: string;
 
-  @Field()
+  @Field(() => String)
   sellerName!: string;
 
-  @Field()
+  @Field(() => String)
   sellerEmail!: string;
 
-  @Field()
+  @Field(() => String)
   subject!: string;
 
-  @Field()
+  @Field(() => String)
   body!: string;
 
-  @Field()
+  @Field(() => String)
   createdAt!: string;
 }

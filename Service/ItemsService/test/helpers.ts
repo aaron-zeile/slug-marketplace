@@ -88,6 +88,7 @@ export async function createItemViaGraphql(
     description: string;
     images: string[];
     price: number;
+    tags?: string[];
   },
 ): Promise<CreatedItem> {
   const response = await supertest(server)

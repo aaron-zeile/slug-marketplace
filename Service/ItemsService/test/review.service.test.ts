@@ -1,5 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { pool } from '../src/db';
 import { ItemService } from '../src/item/service';
 import { ReviewService } from '../src/review/service';
 import { testUser } from './helpers';
@@ -24,6 +25,10 @@ describe('ReviewService', () => {
     shutdownServiceDatabase();
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('creates a review for the session user', async () => {
     const review = await new ReviewService().createReview(testUser, {
       itemId,
@@ -36,6 +41,18 @@ describe('ReviewService', () => {
       content: 'Solid purchase.',
       rating: 4.5,
     });
+  });
+
+  it('throws when create review does not return a row', async () => {
+    vi.spyOn(pool, 'query').mockResolvedValueOnce({ rows: [] });
+
+    await expect(
+      new ReviewService().createReview(testUser, {
+        itemId,
+        rating: 1,
+        comment: 'Insert returned no rows.',
+      }),
+    ).rejects.toThrow('Failed to create review');
   });
 
   it('returns reviews for an item', async () => {
@@ -81,6 +98,16 @@ describe('ReviewService', () => {
         },
         { id: review.id },
       ),
+    ).rejects.toThrow('Review not found or user does not own review');
+  });
+
+  it('throws when delete review returns no row count', async () => {
+    vi.spyOn(pool, 'query').mockResolvedValueOnce({ rowCount: null, rows: [] });
+
+    await expect(
+      new ReviewService().deleteReview(testUser, {
+        id: '00000000-0000-0000-0000-000000000000',
+      }),
     ).rejects.toThrow('Review not found or user does not own review');
   });
 });

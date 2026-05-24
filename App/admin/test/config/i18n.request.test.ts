@@ -48,4 +48,12 @@ describe('i18n requestConfig', () => {
     expect(result.locale).toBe('fr');
     expect(result.messages).toBeDefined();
   });
+
+  it('falls back to en messages when locale cookie is unknown', async () => {
+    mockCookiesGet.mockReturnValue({ value: 'de' });
+    const result = await (requestConfig as RequestConfigFn)({});
+    expect(result.locale).toBe('de');
+    expect(result.messages).toBeDefined();
+    expect(result.messages).toHaveProperty('Dashboard');
+  });
 });

@@ -22,10 +22,9 @@ export default function ItemCarousel({
 
   const scrollCarousel = (direction: -1 | 1) => {
     const rail = railRef.current;
-    const scrollAmount = Math.min(rail?.clientWidth ?? 280, 280);
 
     rail?.scrollBy({
-      left: direction * scrollAmount,
+      left: direction * 280,
       behavior: "smooth",
     });
   };
@@ -40,8 +39,9 @@ export default function ItemCarousel({
         borderColor: 'divider',
         borderRadius: 3,
         boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
-        overflow: 'hidden',
+        overflow: 'visible',
         pb: 2,
+        position: 'relative',
         pt: 2,
         width: '100%',
       }}
@@ -125,9 +125,13 @@ export default function ItemCarousel({
           gap: 1.5,
           gridAutoColumns: 'minmax(168px, 72vw)',
           gridAutoFlow: 'column',
+          mb: -2.5,
+          mt: -2,
           overflowX: 'auto',
+          overflowY: 'visible',
           overscrollBehaviorX: 'contain',
-          pb: 0.5,
+          pb: 2.5,
+          pt: 2,
           px: 2,
           scrollPaddingInline: 16,
           scrollSnapType: 'x mandatory',
