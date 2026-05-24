@@ -109,6 +109,63 @@ test('sellerItems returns items for the seller and status', async () => {
   );
 });
 
+test('filteredItems returns items matching optional filters', async () => {
+  const createResponse = await supertest(server)
+    .post('/graphql')
+    .set('Authorization', 'Bearer test-session-token')
+    .send({
+      query: `mutation CreateItem($input: NewItem!) {
+        createItem(input: $input) {
+          id
+          name
+          tags
+        }
+      }`,
+      variables: {
+        input: {
+          name: 'GraphQL Filtered Camera',
+          description: 'Unique item for filteredItems query.',
+          images: [],
+          tags: ['electronics', 'graphql-filter-tag'],
+          price: 45,
+        },
+      },
+    });
+
+  expect(createResponse.body.errors).toBeUndefined();
+  const created = createResponse.body.data.createItem;
+
+  const response = await supertest(server)
+    .post('/graphql')
+    .send({
+      query: `query FilteredItems($input: FilteredItemsInput!) {
+        filteredItems(input: $input) {
+          id
+          name
+          tags
+        }
+      }`,
+      variables: {
+        input: {
+          minPrice: 40,
+          maxPrice: 50,
+          tag: 'graphql-filter-tag',
+          searchText: 'Camera',
+          sortBy: 'priceAsc',
+          limit: 5,
+        },
+      },
+    });
+
+  expect(response.body.data.filteredItems).toEqual([
+    expect.objectContaining({
+      id: created.id,
+      name: created.name,
+      tags: expect.arrayContaining(['electronics', 'graphql-filter-tag']),
+    }),
+  ]);
+});
+
 test('deleteItem removes an item owned by the authenticated seller', async () => {
   const created = await createItemViaGraphql(server, {
     name: 'To Delete',

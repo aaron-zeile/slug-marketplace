@@ -3,6 +3,7 @@ import {
   createItem,
   deleteItembyID,
   getAllItems,
+  getFilteredItems,
   getItem,
   getRandomItems,
   getSearchItems,
@@ -10,6 +11,7 @@ import {
   updateItem,
 } from './db';
 import {
+  FilteredItemsInput,
   Item,
   ItemId,
   NewItem,
@@ -79,5 +81,18 @@ export class ItemService {
   public async getSearchItems(input: SearchItemsInput): Promise<Item[]> {
     const searchItems = await getSearchItems(input);
     return searchItems;
+  }
+
+  public async getFilteredItems(input: FilteredItemsInput): Promise<Item[]> {
+    if (
+      input.minPrice !== undefined &&
+      input.maxPrice !== undefined &&
+      input.minPrice > input.maxPrice
+    ) {
+      throw new Error('minPrice cannot be greater than maxPrice');
+    }
+
+    const filteredItems = await getFilteredItems(input);
+    return filteredItems;
   }
 }
