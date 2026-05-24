@@ -57,7 +57,8 @@
     "increaseQuantityAria": "Augmenter la quantité pour {name}",
     "quantityAria": "Quantité pour {name}",
     "checkout": "Passer à la caisse",
-    "signInToCheckout": "Connectez-vous pour passer à la caisse."
+    "signInToCheckout": "Connectez-vous pour passer à la caisse.",
+    "total": "Total"
   },
   "Address": {
     "title": "Adresses de livraison",
@@ -67,6 +68,7 @@
     "saveError": "Impossible d'enregistrer l'adresse.",
     "line1Required": "La ligne d'adresse 1 est obligatoire.",
     "cityRequired": "La ville est obligatoire.",
+    "stateRequired": "L'état / la province est obligatoire.",
     "postalCodeRequired": "Le code postal est obligatoire.",
     "deleteError": "Impossible de supprimer l'adresse.",
     "defaultError": "Impossible de définir l'adresse par défaut.",
@@ -96,7 +98,24 @@
     "selectRequired": "Sélectionnez ou ajoutez une adresse de livraison pour continuer.",
     "untitledAddress": "Adresse",
     "addAddress": "Ajouter une nouvelle adresse",
-    "continueToPayment": "Continuer vers le paiement"
+    "continueToPayment": "Continuer vers le paiement",
+    "paymentTitle": "Paiement",
+    "paymentSubtitle": "Vérifiez votre commande et finalisez le paiement.",
+    "paymentLoading": "Chargement du paiement...",
+    "paymentLoadError": "Impossible de charger le paiement.",
+    "paymentNotConfigured": "Le paiement n'est pas configuré.",
+    "paymentStartError": "Impossible de démarrer le paiement. Réessayez plus tard.",
+    "paymentDetails": "Détails du paiement",
+    "paymentDetailsHint": "Saisissez les informations de votre carte pour passer commande.",
+    "orderSummary": "Récapitulatif",
+    "quantityLine": "Qté {count}",
+    "total": "Total",
+    "itemsInOrder_one": "{count} article",
+    "itemsInOrder_other": "{count} articles",
+    "shippingTo": "Livraison à",
+    "backToShipping": "Retour à la livraison",
+    "payAmount": "Payer {amount}",
+    "processingPayment": "Traitement..."
   },
   "LocaleSwitcher": {
     "label": "Langue",

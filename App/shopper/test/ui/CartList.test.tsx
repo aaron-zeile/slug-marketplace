@@ -103,6 +103,8 @@ it('fetches and renders cart items', async () => {
     expect(screen.getByText(cartItems[1].item.name)).toBeDefined();
   });
   expect(screen.getByText('3 items in your cart')).toBeDefined();
+  expect(screen.getByText('Total')).toBeDefined();
+  expect(screen.getByText('$1,599.98')).toBeDefined();
 });
 
 it('renders a failed fetch message when the cart cannot load', async () => {
@@ -146,6 +148,7 @@ it('updates quantity when the shopper increases an item', async () => {
 
   expect(addCartItemAction).toHaveBeenCalledWith(cartItems[0].item.id);
   expect(screen.getByText('4 items in your cart')).toBeDefined();
+  expect(screen.getByText('$2,235.97')).toBeDefined();
 });
 
 it('removes an item when quantity reaches zero', async () => {

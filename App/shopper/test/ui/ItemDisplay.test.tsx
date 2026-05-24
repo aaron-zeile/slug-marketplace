@@ -94,9 +94,21 @@ it('renders the item price formatted', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
   await waitFor(() => {
-    expect(
-      screen.getByLabelText(`$${mockItem.price.toFixed(2)}`),
-    ).toBeDefined();
+    expect(screen.getByLabelText('$894.74')).toBeDefined();
+  });
+});
+
+it('renders large prices with thousands separators', async () => {
+  vi.mocked(fetchItemAction).mockResolvedValue({
+    success: true,
+    data: { ...mockItem, price: 39099.23 },
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('$39,099.23')).toBeDefined();
+    expect(screen.getByText('39,099')).toBeDefined();
   });
 });
 

@@ -33,7 +33,7 @@ export interface ShippingAddress {
   line1: string;
   line2?: string;
   city: string;
-  state?: string;
+  state: string;
   postal_code: string;
   country: string;
   is_default: boolean;
@@ -46,7 +46,7 @@ export interface ShippingAddressInput {
   line1: string;
   line2?: string;
   city: string;
-  state?: string;
+  state: string;
   postal_code: string;
   country?: string;
   is_default?: boolean;

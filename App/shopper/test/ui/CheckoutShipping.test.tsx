@@ -42,6 +42,7 @@ const savedAddress: ShippingAddress = {
   label: 'Work',
   line1: '456 Oak Ave',
   city: 'San Jose',
+  state: 'CA',
   postal_code: '95112',
   country: 'US',
   is_default: false,
@@ -55,6 +56,7 @@ const homeAddress: ShippingAddress = {
   label: 'Home',
   line1: '123 Main St',
   city: 'Santa Cruz',
+  state: 'CA',
   postal_code: '95060',
   country: 'US',
   is_default: true,
@@ -76,7 +78,7 @@ it('shows a loading state then the shipping step', async () => {
   expect(screen.getByText('Loading addresses...')).toBeInTheDocument();
 
   expect(await screen.findByText('Shipping address')).toBeInTheDocument();
-  expect(screen.getByText('123 Main St, Santa Cruz, 95060, US')).toBeInTheDocument();
+  expect(screen.getByText('123 Main St, Santa Cruz, CA, 95060, US')).toBeInTheDocument();
 });
 
 it('shows a load error when addresses cannot be fetched', async () => {
@@ -107,7 +109,7 @@ it('shows the address form when the member has no saved addresses', async () => 
 it('continues to payment with the selected address', async () => {
   render(<CheckoutShipping />);
 
-  await screen.findByText('123 Main St, Santa Cruz, 95060, US');
+  await screen.findByText('123 Main St, Santa Cruz, CA, 95060, US');
 
   fireEvent.click(screen.getByRole('button', { name: 'Continue to payment' }));
 
@@ -143,7 +145,7 @@ it('refreshes the list after saving a new address', async () => {
   fireEvent.click(await screen.findByRole('button', { name: 'Save mock address' }));
 
   await waitFor(() => {
-    expect(screen.getByText('456 Oak Ave, San Jose, 95112, US')).toBeInTheDocument();
+    expect(screen.getByText('456 Oak Ave, San Jose, CA, 95112, US')).toBeInTheDocument();
   });
 
   expect(listAddressesAction).toHaveBeenCalledTimes(2);
@@ -168,6 +170,6 @@ it('falls back to local state when refresh after save fails', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Save mock address' }));
 
   await waitFor(() => {
-    expect(screen.getByText('456 Oak Ave, San Jose, 95112, US')).toBeInTheDocument();
+    expect(screen.getByText('456 Oak Ave, San Jose, CA, 95112, US')).toBeInTheDocument();
   });
 });

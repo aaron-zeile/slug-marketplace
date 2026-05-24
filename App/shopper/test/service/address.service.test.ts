@@ -17,6 +17,7 @@ const sampleAddress = {
   label: 'Home',
   line1: '123 Main St',
   city: 'Santa Cruz',
+  state: 'CA',
   postal_code: '95060',
   country: 'US',
   is_default: true,
@@ -27,6 +28,7 @@ const sampleAddress = {
 const addressInput = {
   line1: '123 Main St',
   city: 'Santa Cruz',
+  state: 'CA',
   postal_code: '95060',
   country: 'US',
 };
@@ -69,6 +71,19 @@ it('lists addresses from the login service', async () => {
     },
     cache: 'no-store',
   });
+});
+
+it('lists legacy addresses with empty state', async () => {
+  mockFetchResponse([
+    {
+      ...sampleAddress,
+      state: '',
+    },
+  ]);
+
+  const addresses = await listAddresses(token);
+
+  expect(addresses[0]?.state).toBe('');
 });
 
 it('creates an address with POST', async () => {

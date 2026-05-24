@@ -107,6 +107,7 @@ it.skipIf(!dbReady)('creates, lists, sets default, and deletes addresses', async
     label: 'Home',
     line1: '123 Main St',
     city: 'Santa Cruz',
+    state: 'CA',
     postal_code: '95060',
     country: 'US',
   });
@@ -118,6 +119,7 @@ it.skipIf(!dbReady)('creates, lists, sets default, and deletes addresses', async
   const second = await createAddressAction({
     line1: '456 Oak Ave',
     city: 'Santa Cruz',
+    state: 'CA',
     postal_code: '95064',
     country: 'US',
     is_default: false,

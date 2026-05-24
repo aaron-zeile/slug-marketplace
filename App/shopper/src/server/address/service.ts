@@ -1,6 +1,9 @@
 import 'server-only';
 
-import { ShippingAddressSchema } from '../../address';
+import {
+  parseShippingAddress,
+  parseShippingAddressList,
+} from '../../address';
 import { getLoginServiceBaseUrl } from '../auth/service';
 import type { ShippingAddress, ShippingAddressInput } from './types';
 
@@ -53,7 +56,7 @@ async function addressFetch<T>(
 
 export async function listAddresses(token: string): Promise<ShippingAddress[]> {
   const data = await addressFetch<unknown>(token, '/addresses');
-  return ShippingAddressSchema.array().parse(data);
+  return parseShippingAddressList(data);
 }
 
 export async function createAddress(
@@ -64,7 +67,7 @@ export async function createAddress(
     method: 'POST',
     body: JSON.stringify(input),
   });
-  return ShippingAddressSchema.parse(data);
+  return parseShippingAddress(data);
 }
 
 export async function updateAddress(
@@ -76,7 +79,7 @@ export async function updateAddress(
     method: 'PUT',
     body: JSON.stringify(input),
   });
-  return ShippingAddressSchema.parse(data);
+  return parseShippingAddress(data);
 }
 
 export async function deleteAddress(
@@ -95,5 +98,5 @@ export async function setDefaultAddress(
   const data = await addressFetch<unknown>(token, `/addresses/${addressId}/default`, {
     method: 'PATCH',
   });
-  return ShippingAddressSchema.parse(data);
+  return parseShippingAddress(data);
 }

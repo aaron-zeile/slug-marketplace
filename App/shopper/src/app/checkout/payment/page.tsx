@@ -27,7 +27,7 @@ export default async function CheckoutPaymentPage({
   return (
     <>
       <Topbar />
-      <Payment />
+      <Payment addressId={addressId} />
     </>
   );
 }
