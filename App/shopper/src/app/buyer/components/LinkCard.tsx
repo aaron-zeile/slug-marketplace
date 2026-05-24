@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Box,
   CardActionArea,
@@ -12,7 +12,7 @@ export interface LinkCardItem {
   id: string;
   category: string;
   imageurl: string;
-  href: string;
+  path: string;
 }
 
 interface LinkCardProps {
@@ -22,11 +22,12 @@ interface LinkCardProps {
 const brandColor = "#0f766e";
 
 export default function LinkCard({ link }: LinkCardProps) {
+  const router = useRouter();
+
   return (
     <CardActionArea
       aria-label={"Category Link Card " + link.category}
-      component={Link}
-      href={link.href}
+      onClick={() => router.push(link.path)}
       sx={{
         bgcolor: "background.paper",
         border: 1,

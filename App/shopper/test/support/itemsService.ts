@@ -12,6 +12,7 @@ const itemsServiceRoot = path.resolve(
 type ItemsModules = {
   app: typeof import('../../../../Service/ItemsService/src/app').app;
   bootstrap: typeof import('../../../../Service/ItemsService/src/app').bootstrap;
+  reset: () => Promise<void>;
   resetSchema: () => Promise<void>;
   shutdown: () => void;
   createItemViaGraphql: typeof import('../../../../Service/ItemsService/test/helpers').createItemViaGraphql;
@@ -44,6 +45,7 @@ async function loadModules(): Promise<ItemsModules> {
     return {
       app: appModule.app,
       bootstrap: appModule.bootstrap,
+      reset: dbModule.reset,
       resetSchema: dbModule.resetSchema,
       shutdown: dbModule.shutdown,
       createItemViaGraphql: helpersModule.createItemViaGraphql,
@@ -151,6 +153,7 @@ export function registerItemsServiceHooks() {
   afterAll(async () => {
     vi.unstubAllGlobals();
     if (modules) {
+      await runInItemsServiceRoot(() => modules.reset());
       modules.shutdown();
     }
     server?.close();

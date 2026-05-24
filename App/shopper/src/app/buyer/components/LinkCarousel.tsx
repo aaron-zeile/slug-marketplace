@@ -22,10 +22,9 @@ export default function LinkCarousel({
 
   const scrollCarousel = (direction: -1 | 1) => {
     const rail = railRef.current;
-    const scrollAmount = Math.min(rail?.clientWidth ?? 280, 280);
 
     rail?.scrollBy({
-      left: direction * scrollAmount,
+      left: direction * 280,
       behavior: "smooth",
     });
   };
