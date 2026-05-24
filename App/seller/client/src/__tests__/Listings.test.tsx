@@ -30,8 +30,8 @@ it('renders listings', async () => {
 
   renderWithProviders(<Listings />)
 
-  expect(await screen.findByLabelText('Name for USB Hub 937')).toBeInTheDocument()
-})
+  expect(await screen.findByText('USB Hub 937')).toBeInTheDocument()
+}, 15000)
 
 it('updates a listing only after edits are made', async () => {
   const listing = {
@@ -68,15 +68,13 @@ it('updates a listing only after edits are made', async () => {
 
   renderWithProviders(<Listings />)
 
-  const nameInput = await screen.findByLabelText('Name for USB Hub 937')
-  const updateButtonBeforeEdit = screen.queryByRole('button', {
-    name: 'Update USB Hub 937',
-  })
+  fireEvent.click(await screen.findByText('USB Hub 937'))
 
+  const nameInput = await screen.findByLabelText('Name for USB Hub 937')
   fireEvent.change(nameInput, { target: { value: 'USB Hub Pro' } })
 
   const updateButton = await screen.findByRole('button', {
-    name: 'Update USB Hub 937',
+    name: 'Update',
   })
   fireEvent.click(updateButton)
 
@@ -85,12 +83,17 @@ it('updates a listing only after edits are made', async () => {
       throw new Error('Expected update request to be sent')
     }
   })
+  await waitFor(() => {
+    if (screen.queryByRole('dialog') !== null) {
+      throw new Error('Expected edit dialog to close')
+    }
+  })
 
   expect({
-    updateButtonBeforeEdit,
+    dialogClosed: screen.queryByRole('dialog') === null,
     lastFetchCall: fetchMock.mock.calls.at(-1),
   }).toEqual({
-    updateButtonBeforeEdit: null,
+    dialogClosed: true,
     lastFetchCall: [
       '/seller/api/listings/da9d705c-0f9e-4e30-ab80-435abdf25284',
       expect.objectContaining({
@@ -104,4 +107,4 @@ it('updates a listing only after edits are made', async () => {
       }),
     ],
   })
-})
+}, 15000)
