@@ -5,26 +5,27 @@ import ChevronRight from "@mui/icons-material/ChevronRight";
 import { Box, IconButton, Typography } from "@mui/material";
 import { useRef } from "react";
 
-import ItemCard, { type CardItem } from "./ItemCard";
+import LinkCard, { type LinkCardItem } from "./LinkCard";
 
-interface ItemCarouselProps {
-  items: CardItem[];
+interface LinkCarouselProps {
+  links: LinkCardItem[];
   carouselTitle: string;
   subtitle?: string;
 }
 
-export default function ItemCarousel({
-  items,
+export default function LinkCarousel({
+  links,
   carouselTitle,
   subtitle,
-}: ItemCarouselProps) {
+}: LinkCarouselProps) {
   const railRef = useRef<HTMLDivElement | null>(null);
 
   const scrollCarousel = (direction: -1 | 1) => {
     const rail = railRef.current;
+    const scrollAmount = Math.min(rail?.clientWidth ?? 280, 280);
 
     rail?.scrollBy({
-      left: direction * 280,
+      left: direction * scrollAmount,
       behavior: "smooth",
     });
   };
@@ -34,24 +35,24 @@ export default function ItemCarousel({
       aria-label={"Carousel " + carouselTitle}
       component="section"
       sx={{
-        bgcolor: 'background.paper',
+        bgcolor: "background.paper",
         border: 1,
-        borderColor: 'divider',
+        borderColor: "divider",
         borderRadius: 3,
-        boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
-        overflow: 'visible',
+        boxShadow: "0 2px 12px rgba(0, 0, 0, 0.04)",
+        overflow: "visible",
         pb: 2,
-        position: 'relative',
+        position: "relative",
         pt: 2,
-        width: '100%',
+        width: "100%",
       }}
     >
       <Box
         sx={{
-          alignItems: 'flex-start',
-          display: 'flex',
+          alignItems: "flex-start",
+          display: "flex",
           gap: 1,
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
           px: 2,
           pb: 1.5,
         }}
@@ -60,9 +61,9 @@ export default function ItemCarousel({
           <Typography
             component="h2"
             sx={{
-              fontSize: '1.05rem',
+              fontSize: "1.05rem",
               fontWeight: 700,
-              letterSpacing: '-0.01em',
+              letterSpacing: "-0.01em",
               lineHeight: 1.2,
             }}
           >
@@ -71,8 +72,8 @@ export default function ItemCarousel({
           {subtitle ? (
             <Typography
               sx={{
-                color: 'text.secondary',
-                fontSize: '0.8rem',
+                color: "text.secondary",
+                fontSize: "0.8rem",
                 lineHeight: 1.4,
                 mt: 0.5,
               }}
@@ -81,17 +82,17 @@ export default function ItemCarousel({
             </Typography>
           ) : null}
         </Box>
-        <Box sx={{ display: 'flex', flexShrink: 0, gap: 0.5 }}>
+        <Box sx={{ display: "flex", flexShrink: 0, gap: 0.5 }}>
           <IconButton
             aria-label={`Scroll ${carouselTitle} left`}
             onClick={() => scrollCarousel(-1)}
             sx={{
-              bgcolor: 'action.hover',
+              bgcolor: "action.hover",
               border: 1,
-              borderColor: 'divider',
+              borderColor: "divider",
               height: 36,
               width: 36,
-              '&:hover': { bgcolor: 'action.selected' },
+              "&:hover": { bgcolor: "action.selected" },
             }}
           >
             <ChevronLeft sx={{ fontSize: 20 }} />
@@ -100,12 +101,12 @@ export default function ItemCarousel({
             aria-label={`Scroll ${carouselTitle} right`}
             onClick={() => scrollCarousel(1)}
             sx={{
-              bgcolor: 'action.hover',
+              bgcolor: "action.hover",
               border: 1,
-              borderColor: 'divider',
+              borderColor: "divider",
               height: 36,
               width: 36,
-              '&:hover': { bgcolor: 'action.selected' },
+              "&:hover": { bgcolor: "action.selected" },
             }}
           >
             <ChevronRight sx={{ fontSize: 20 }} />
@@ -115,32 +116,32 @@ export default function ItemCarousel({
       <Box
         ref={railRef}
         sx={{
-          '& > *': {
-            scrollSnapAlign: 'start',
+          "& > *": {
+            scrollSnapAlign: "start",
           },
-          '&::-webkit-scrollbar': {
-            display: 'none',
+          "&::-webkit-scrollbar": {
+            display: "none",
           },
-          display: 'grid',
+          display: "grid",
           gap: 1.5,
-          gridAutoColumns: 'minmax(168px, 72vw)',
-          gridAutoFlow: 'column',
+          gridAutoColumns: "minmax(168px, 72vw)",
+          gridAutoFlow: "column",
           mb: -2.5,
           mt: -2,
-          overflowX: 'auto',
-          overflowY: 'visible',
-          overscrollBehaviorX: 'contain',
+          overflowX: "auto",
+          overflowY: "visible",
+          overscrollBehaviorX: "contain",
           pb: 2.5,
           pt: 2,
           px: 2,
           scrollPaddingInline: 16,
-          scrollSnapType: 'x mandatory',
-          scrollbarWidth: 'none',
-          WebkitOverflowScrolling: 'touch',
+          scrollSnapType: "x mandatory",
+          scrollbarWidth: "none",
+          WebkitOverflowScrolling: "touch",
         }}
       >
-        {items.map((item) => (
-          <ItemCard item={item} key={item.id} />
+        {links.map((link) => (
+          <LinkCard key={link.id} link={link} />
         ))}
       </Box>
     </Box>
