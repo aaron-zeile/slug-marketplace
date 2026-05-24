@@ -466,6 +466,7 @@
 import json
 import uuid
 import random
+import re
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -478,8 +479,104 @@ SAMPLE_SELLERS = [
 ]
 
 
+CATEGORY_TAGS = {
+    "beauty": ["beauty"],
+    "fragrances": ["beauty"],
+    "furniture": ["decor"],
+    "groceries": ["food"],
+    "home-decoration": ["decor"],
+    "kitchen-accessories": ["home", "tools"],
+    "laptops": ["electronics"],
+    "mens-shirts": ["clothing"],
+    "mens-shoes": ["clothing", "outdoors"],
+    "mens-watches": ["clothing", "accessories"],
+    "mobile-accessories": ["electronics", "travel"],
+    "motorcycle": ["vehicles", "outdoors"],
+    "skin-care": ["beauty", "health"],
+    "smartphones": ["electronics"],
+    "sports-accessories": ["outdoors", "fitness"],
+    "sunglasses": ["clothing", "travel"],
+    "tablets": ["electronics"],
+    "tops": ["clothing"],
+    "vehicle": ["vehicles", "tools"],
+    "womens-bags": ["clothing", "travel"],
+    "womens-dresses": ["clothing"],
+    "womens-jewellery": ["clothing", "accessories"],
+    "womens-shoes": ["clothing"],
+    "womens-watches": ["clothing", "accessories"],
+}
+
+
+KEYWORD_TAGS = {
+    "airpods": ["electronics", "travel"],
+    "air purifier": ["health"],
+    "baseball": ["outdoors", "fitness"],
+    "basketball": ["outdoors", "fitness"],
+    "backpack": ["travel"],
+    "bag": ["travel"],
+    "bat": ["outdoors", "fitness"],
+    "beef": ["food"],
+    "blender": ["home", "tools"],
+    "camp": ["outdoors"],
+    "cat": ["pets"],
+    "charger": ["electronics", "travel"],
+    "chicken": ["food"],
+    "cook": ["home", "tools"],
+    "dog": ["pets"],
+    "earphone": ["electronics", "travel"],
+    "earphones": ["electronics", "travel"],
+    "food": ["food"],
+    "football": ["outdoors", "fitness"],
+    "fitness": ["health"],
+    "garden": ["outdoors"],
+    "grater": ["home", "tools"],
+    "golf": ["outdoors"],
+    "glasses": ["clothing", "accessories"],
+    "health": ["health"],
+    "kettle": ["home", "tools"],
+    "lamp": ["decor"],
+    "laptop": ["electronics"],
+    "makeup": ["beauty"],
+    "mascara": ["beauty"],
+    "meat": ["food"],
+    "monopod": ["electronics", "travel"],
+    "motorcycle": ["vehicles", "outdoors"],
+    "mug": ["home", "decor"],
+    "nail polish": ["beauty"],
+    "phone": ["electronics"],
+    "phones": ["electronics"],
+    "plant": ["decor"],
+    "racket": ["outdoors", "fitness"],
+    "rice": ["food"],
+    "shoe": ["clothing"],
+    "skin": ["beauty", "health"],
+    "smartphone": ["electronics"],
+    "sport": ["outdoors", "fitness"],
+    "tennis": ["outdoors", "fitness"],
+    "tool": ["tools"],
+    "travel": ["travel"],
+    "volleyball": ["outdoors", "fitness"],
+    "watch": ["clothing", "accessories"],
+    "wok": ["home", "tools"],
+}
+
+
+def has_keyword(text: str, keyword: str) -> bool:
+    pattern = rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])"
+    return re.search(pattern, text) is not None
+
+
+def product_tags(product: dict) -> list:
+    tags = CATEGORY_TAGS.get(product.get("category", ""), []).copy()
+    text = f"{product.get('title', '')} {product.get('description', '')}".lower()
+    for keyword, keyword_tags in KEYWORD_TAGS.items():
+        if has_keyword(text, keyword):
+            tags.extend(keyword_tags)
+    return sorted(set(tags or ["misc"]))
+
+
 def fetch_products(limit: int = 100) -> list:
-    url = f"https://dummyjson.com/products?limit={limit}&select=title,description,price,images"
+    url = f"https://dummyjson.com/products?limit={limit}&select=title,description,price,images,category"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req) as res:
         return json.loads(res.read())["products"]
@@ -507,6 +604,7 @@ def generate_inserts(products: list, count: int) -> list:
             "price": price,
             "created_at": random_created_at(),
             "images": product["images"][:5],
+            "tags": product_tags(product),
         }
         json_data = json.dumps(item_data).replace("'", "''")
         item_id = str(uuid.uuid4())
