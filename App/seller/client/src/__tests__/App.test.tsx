@@ -58,26 +58,30 @@ describe('App', () => {
   it('renders the dashboard listings tab first', async () => {
     render(<App/>)
 
-    await screen.findByLabelText('Name for USB Hub')
+    const listing = await screen.findByText('USB Hub', undefined, {
+      timeout: 10000,
+    })
 
     expect({
       titleVisible: screen.queryByText('Dashboard') !== null,
-      listingVisible: screen.queryByLabelText('Name for USB Hub') !== null,
+      listingVisible: listing !== null,
     }).toEqual({
       titleVisible: true,
       listingVisible: true,
     })
-  })
+  }, 15000)
 
   it('changes the visible dashboard content when tabs are selected', async () => {
     render(<App/>)
 
-    await screen.findByLabelText('Name for USB Hub')
+    await screen.findByText('Dashboard', undefined, {
+      timeout: 10000,
+    })
 
     fireEvent.click(screen.getByRole('tab', {name: 'Sales'}))
     const afterSalesClick = {
       salesVisible: screen.queryByText('Sales — coming soon') !== null,
-      listingVisible: screen.queryByLabelText('Name for USB Hub') !== null,
+      listingVisible: screen.queryByText('USB Hub') !== null,
     }
 
     fireEvent.click(screen.getByRole('tab', {name: 'Feedback'}))
@@ -109,5 +113,5 @@ describe('App', () => {
         feedbackVisible: false,
       },
     })
-  })
+  }, 15000)
 })

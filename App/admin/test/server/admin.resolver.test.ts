@@ -17,6 +17,12 @@ function makeCtx(): GraphQLContext {
   };
 }
 
+describe('AdminResolver.health', () => {
+  it('returns true', () => {
+    expect(new AdminResolver().health()).toBe(true);
+  });
+});
+
 describe('AdminResolver.login', () => {
   const resolver = new AdminResolver();
 
@@ -59,6 +65,30 @@ describe('AdminResolver.login', () => {
     expect(mockSession.adminId).toBe(1);
     expect(mockSession.email).toBe('admin@test.com');
     expect(mockSession.save).toHaveBeenCalledOnce();
+  });
+
+  it('copies Set-Cookie headers from the temp response onto ctx.responseHeaders', async () => {
+    mockSql.mockResolvedValue([
+      { id: 1, email: 'admin@test.com', password_hash: 'hash' },
+    ]);
+    vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+    vi.mocked(getIronSession).mockImplementation(
+      async (_req, tempResponse: Response) => {
+        const session = {
+          adminId: 0,
+          email: '',
+          save: vi.fn(async () => {
+            tempResponse.headers.append('Set-Cookie', 'admin-session=test');
+          }),
+        };
+        return session as never;
+      },
+    );
+
+    const ctx = makeCtx();
+    await resolver.login('admin@test.com', 'correctpass', ctx);
+
+    expect(ctx.responseHeaders.get('Set-Cookie')).toContain('admin-session');
   });
 
   it('does not reveal whether the email exists — both failure cases return the same message', async () => {
@@ -126,5 +156,67 @@ describe('AdminResolver.logout', () => {
     const result = await resolver.logout(makeCtx());
 
     expect(result.message).toBeUndefined();
+  });
+
+  it('copies cleared session headers from the temp response onto ctx.responseHeaders', async () => {
+    vi.mocked(getIronSession).mockImplementation(
+      async (_req, tempResponse: Response) => ({
+        destroy: vi.fn(async () => {
+          tempResponse.headers.append('Set-Cookie', 'admin-session=; Max-Age=0');
+        }),
+      }) as never,
+    );
+
+    const ctx = makeCtx();
+    await resolver.logout(ctx);
+
+    expect(ctx.responseHeaders.get('Set-Cookie')).toContain('Max-Age=0');
+  });
+});
+
+describe('AdminResolver.sellerMessages', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('throws when the session has no adminId', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(resolver.sellerMessages(makeCtx())).rejects.toThrow(
+      'Not authenticated',
+    );
+    expect(mockSql).not.toHaveBeenCalled();
+  });
+
+  it('returns mapped seller messages when authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    mockSql.mockResolvedValue([
+      {
+        id: 'msg-1',
+        seller_id: 'seller-1',
+        seller_name: 'Taylor Brooks',
+        seller_email: 'seller@example.com',
+        subject: 'Help',
+        body: 'Need help',
+        created_at: new Date('2024-06-01T12:00:00.000Z'),
+      },
+    ]);
+
+    const result = await resolver.sellerMessages(makeCtx());
+
+    expect(result).toEqual([
+      {
+        id: 'msg-1',
+        sellerId: 'seller-1',
+        sellerName: 'Taylor Brooks',
+        sellerEmail: 'seller@example.com',
+        subject: 'Help',
+        body: 'Need help',
+        createdAt: '2024-06-01T12:00:00.000Z',
+      },
+    ]);
+    expect(mockSql).toHaveBeenCalledOnce();
   });
 });

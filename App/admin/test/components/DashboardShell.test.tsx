@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
@@ -72,5 +73,13 @@ describe('DashboardShell', () => {
     render(<DashboardShell currentLocale="en">test</DashboardShell>);
     // waitFor below confirms it does render after mount
     return waitFor(() => expect(screen.getByText('test')).toBeInTheDocument());
+  });
+
+  it('returns null on the server snapshot before hydration', () => {
+    const html = renderToString(
+      <DashboardShell currentLocale="en">hidden</DashboardShell>,
+    );
+
+    expect(html).toBe('');
   });
 });

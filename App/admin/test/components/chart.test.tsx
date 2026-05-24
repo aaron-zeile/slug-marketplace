@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 
 vi.mock('@mui/x-charts/BarChart', () => ({
   BarChart: () => <div data-testid="bar-chart" />,
@@ -75,5 +76,12 @@ describe('SimpleCharts', () => {
     await waitFor(() => {
       expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
     });
+  });
+
+  it('returns null on the server snapshot before hydration', () => {
+    mockFetch([]);
+    const html = renderToString(<SimpleCharts />);
+
+    expect(html).toBe('');
   });
 });

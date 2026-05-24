@@ -1,0 +1,248 @@
+import React, {useContext, useEffect, useState} from 'react'
+import {useTranslations} from 'next-intl'
+import DeleteIcon from '@mui/icons-material/Delete'
+import SaveIcon from '@mui/icons-material/Save'
+import {
+  Avatar,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+  Typography,
+  capitalize,
+} from '@mui/material'
+
+import type {Listing} from '../../../shared'
+import {ErrorContext} from '../error/Context'
+import {remove, update} from './model'
+
+type ListingDraft = {
+  name: string
+  description: string
+  price: string
+  images: string
+}
+
+type ListingEditDialogProps = {
+  open: boolean
+  listing?: Listing
+  onClose: () => void
+  onDeleted: (id: string) => void
+  onUpdated: (listing: Listing) => void
+}
+
+const draftFromListing = (listing: Listing): ListingDraft => ({
+  name: listing.name,
+  description: listing.description,
+  price: String(listing.price),
+  images: listing.images.join('\n'),
+})
+
+const normalizeImages = (images: string) =>
+  images
+    .split(/\r?\n/)
+    .map((image) => image.trim())
+    .filter(Boolean)
+
+export default function ListingEditDialog({
+  open,
+  listing,
+  onClose,
+  onDeleted,
+  onUpdated,
+}: ListingEditDialogProps) {
+  const t = useTranslations('Listings')
+  const errorCtx = useContext(ErrorContext)
+  const [draft, setDraft] = useState<ListingDraft | undefined>()
+  const [deleting, setDeleting] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const setError = errorCtx?.setError ?? (() => { /* no error provider */ })
+  const price = Number(draft?.price ?? '')
+  const priceError =
+    draft?.price !== undefined &&
+    draft.price !== '' &&
+    (!Number.isFinite(price) || price < 0.01)
+  const canSave = Boolean(
+    listing &&
+    draft?.name.trim() &&
+    draft.description.trim() &&
+    Number.isFinite(price) &&
+    price >= 0.01,
+  )
+
+  useEffect(() => {
+    setDraft(listing ? draftFromListing(listing) : undefined)
+  }, [listing])
+
+  const updateDraft =
+    (field: keyof ListingDraft) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setDraft((current) =>
+        current
+          ? {
+              ...current,
+              [field]: event.target.value,
+            }
+          : current,
+      )
+    }
+
+  const handleDelete = async () => {
+    if (!listing) {
+      return
+    }
+
+    setDeleting(true)
+    const deleted = await remove(listing.id, setError)
+    setDeleting(false)
+
+    if (deleted) {
+      onDeleted(listing.id)
+      onClose()
+    }
+  }
+
+  const handleSave = async () => {
+    if (!listing || !draft || !canSave) {
+      return
+    }
+
+    setSaving(true)
+    const updated = await update(
+      listing.id,
+      {
+        name: draft.name.trim(),
+        description: draft.description.trim(),
+        price,
+        images: normalizeImages(draft.images),
+      },
+      setError,
+    )
+    setSaving(false)
+
+    if (updated) {
+      onUpdated(updated)
+      onClose()
+    }
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="md"
+      aria-labelledby="listing-edit-title"
+    >
+      <DialogTitle id="listing-edit-title">
+        {listing ? t('editTitle', {name: listing.name}) : t('editFallbackTitle')}
+      </DialogTitle>
+
+      <DialogContent>
+        {listing && draft && (
+          <Stack spacing={3} sx={{pt: 1}}>
+            <Stack direction={{xs: 'column', sm: 'row'}} spacing={2}>
+              <Avatar
+                variant="rounded"
+                src={listing.images?.[0]}
+                alt={listing.name}
+                sx={{width: 168, height: 168}}
+              />
+              <Box sx={{minWidth: 0}}>
+                <Typography variant="overline">
+                  {capitalize(listing.status)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t('createdAt', {
+                    date: new Date(listing.created_at).toLocaleDateString(),
+                  })}
+                </Typography>
+              </Box>
+            </Stack>
+
+            <TextField
+              label={t('name')}
+              value={draft.name}
+              onChange={updateDraft('name')}
+              required
+              inputProps={{
+                'aria-label': t('nameInput', {name: listing.name}),
+                maxLength: 256,
+              }}
+              fullWidth
+            />
+
+            <TextField
+              label={t('description')}
+              value={draft.description}
+              onChange={updateDraft('description')}
+              required
+              multiline
+              minRows={5}
+              inputProps={{
+                'aria-label': t('descriptionInput', {name: listing.name}),
+                maxLength: 1024,
+              }}
+              fullWidth
+            />
+
+            <TextField
+              label={t('price')}
+              value={draft.price}
+              onChange={updateDraft('price')}
+              required
+              error={priceError}
+              helperText={priceError ? t('priceError') : undefined}
+              type="number"
+              inputProps={{
+                'aria-label': t('priceInput', {name: listing.name}),
+                min: 0.01,
+                step: '0.01',
+              }}
+              fullWidth
+            />
+
+            <TextField
+              label={t('images')}
+              value={draft.images}
+              onChange={updateDraft('images')}
+              multiline
+              minRows={3}
+              inputProps={{
+                'aria-label': t('imagesInput', {name: listing.name}),
+              }}
+              fullWidth
+            />
+          </Stack>
+        )}
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={onClose}>
+          {t('cancel')}
+        </Button>
+        <Button
+          color="error"
+          disabled={!listing || deleting || saving}
+          startIcon={<DeleteIcon />}
+          onClick={() => void handleDelete()}
+        >
+          {deleting ? t('deleting') : t('delete')}
+        </Button>
+        <Button
+          disabled={!canSave || deleting || saving}
+          variant="contained"
+          startIcon={<SaveIcon />}
+          onClick={() => void handleSave()}
+        >
+          {saving ? t('updating') : t('update')}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
