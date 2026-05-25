@@ -2,6 +2,7 @@
 
 import {
   addToCart,
+  clearCart,
   getCartItems,
   removeFromCart,
 } from '../../cart/service';
@@ -58,6 +59,23 @@ export async function removeCartItemAction(item: string) {
     return { success: true, data: removed };
   } catch (error) {
     console.error('removeCartItemAction error:', error);
+    const message = error instanceof Error && error.message;
+    return { success: false, error: message };
+  }
+}
+
+export async function clearCartAction() {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return { success: false, error: 'Not signed in' };
+    }
+
+    const cleared = await clearCart(user.id);
+    return { success: true, data: cleared };
+  } catch (error) {
+    console.error('clearCartAction error:', error);
     const message = error instanceof Error && error.message;
     return { success: false, error: message };
   }

@@ -1,5 +1,7 @@
 import { Box, Button, Container, Paper, Typography } from "@mui/material";
 
+import { clearCartAction } from "../cart/actions";
+
 interface PaymentSuccessPageProps {
   searchParams: Promise<{
     amount?: string;
@@ -10,6 +12,7 @@ export default async function PaymentSuccessPage({
   searchParams,
 }: PaymentSuccessPageProps) {
   const { amount } = await searchParams;
+  await clearCartAction();
 
   return (
     <Container component="main" maxWidth="sm" sx={{ py: 8 }}>

@@ -114,3 +114,19 @@ export async function removeFromCart(
     'removeFromCart',
   );
 }
+
+export async function clearCart(member: string): Promise<boolean> {
+  const query = `
+    mutation ClearCart($input: MemberCartInput!) {
+      clearCart(input: $input)
+    }
+  `;
+
+  return cartRequest<boolean>(
+    query,
+    {
+      input: { member },
+    },
+    'clearCart',
+  );
+}
