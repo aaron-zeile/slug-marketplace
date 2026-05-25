@@ -1,5 +1,11 @@
-import { createOrder, getBuyerOrders, getOrder } from './db';
-import { BuyerOrdersInput, CreateOrderInput, Order, OrderIdInput } from './schema';
+import { createOrder, getBuyerOrders, getOrder, getSellerOrders } from './db';
+import {
+  BuyerOrdersInput,
+  CreateOrderInput,
+  Order,
+  OrderIdInput,
+  SellerOrdersInput,
+} from './schema';
 
 export class OrderService {
   public async createOrder(input: CreateOrderInput): Promise<Order> {
@@ -12,5 +18,9 @@ export class OrderService {
 
   public async getBuyerOrders(input: BuyerOrdersInput): Promise<Order[]> {
     return getBuyerOrders(input);
+  }
+
+  public async getSellerOrders(input: SellerOrdersInput): Promise<Order[]> {
+    return getSellerOrders(input);
   }
 }

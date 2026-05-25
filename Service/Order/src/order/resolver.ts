@@ -4,6 +4,7 @@ import {
   CreateOrderInput,
   Order,
   OrderIdInput,
+  SellerOrdersInput,
 } from './schema';
 import { OrderService } from './service';
 
@@ -17,6 +18,11 @@ export class OrderResolver {
   @Query(() => [Order])
   async buyerOrders(@Arg('input') input: BuyerOrdersInput): Promise<Order[]> {
     return new OrderService().getBuyerOrders(input);
+  }
+
+  @Query(() => [Order])
+  async sellerOrders(@Arg('input') input: SellerOrdersInput): Promise<Order[]> {
+    return new OrderService().getSellerOrders(input);
   }
 
   @Mutation(() => Order)

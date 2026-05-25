@@ -37,6 +37,15 @@
     "gridLoadError": "Échec du chargement des annonces",
     "gridNoRows": "Aucune annonce active"
   },
+  "Sales": {
+    "order": "Commande",
+    "date": "Date",
+    "items": "Articles",
+    "amount": "Montant",
+    "shipTo": "Livrer à",
+    "gridLoadError": "Échec du chargement des commandes",
+    "gridNoRows": "Aucune commande"
+  },
   "CreateListing": {
     "title": "Créer une annonce",
     "createdSuccess": "{name} a été créée.",

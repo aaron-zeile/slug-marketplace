@@ -5,6 +5,7 @@ import express from 'express';
 import * as apiKeys from './apiKeys/router.js';
 import * as listings from './listings/router.js';
 import * as messages from './messages/router.js';
+import * as orders from './orders/router.js';
 import * as auth from './auth/router.js';
 import {doCheck} from './auth/middleware.js'
 
@@ -17,6 +18,7 @@ app.use(express.json());
 /** API ENDPOINTS HERE **/
 // app.get('/api/listings', listings.get);
 app.get('/seller/api/listings', doCheck, listings.get);
+app.get('/seller/api/orders', doCheck, orders.get);
 app.post('/seller/api/listings', doCheck, listings.post);
 app.put('/seller/api/listings/:id', doCheck, listings.put);
 app.delete('/seller/api/listings/:id', doCheck, listings.remove);

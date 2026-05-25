@@ -18,6 +18,7 @@ services:
       E2E_MOCK_GOOGLE_CREDENTIAL: ${E2E_MOCK_GOOGLE_CREDENTIAL:-}
       ITEMS_SERVICE_URL: http://localhost:4500/graphql
       LOGIN_SERVICE_URL: http://localhost:4010/api/v0
+      ORDER_SERVICE_URL: http://localhost:4700/graphql
       ORDER_POSTGRES_DB: orders
       POSTGRES_HOST: postgres
   postgres:

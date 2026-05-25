@@ -6,6 +6,7 @@
     "hello": "Bonjour {name}",
     "guest": "Invité",
     "sellerDashboard": "Tableau de bord vendeur",
+    "orders": "Commandes",
     "logout": "Déconnexion",
     "login": "Connexion",
     "navigation": "Navigation principale",

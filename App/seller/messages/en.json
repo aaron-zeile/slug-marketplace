@@ -37,6 +37,15 @@
     "gridLoadError": "Listings failed to load",
     "gridNoRows": "No active listings"
   },
+  "Sales": {
+    "order": "Order",
+    "date": "Date",
+    "items": "Items",
+    "amount": "Amount",
+    "shipTo": "Ship to",
+    "gridLoadError": "Orders failed to load",
+    "gridNoRows": "No orders yet"
+  },
   "CreateListing": {
     "title": "Create Listing",
     "createdSuccess": "Created {name}.",

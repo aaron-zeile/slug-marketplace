@@ -29,7 +29,7 @@ const emptyInput: ShippingAddressInput = {
   line1: '',
   line2: undefined,
   city: '',
-  state: undefined,
+  state: '',
   postal_code: '',
   country: 'US',
 };

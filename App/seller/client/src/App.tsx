@@ -8,13 +8,14 @@ import AuthGuard from './auth/AuthGaurd'
 import { ErrorProvider } from './error/Provider'
 import TopBar from './dashboard/Appbar'
 import SellerListings from './dashboard/Listings'
+import Sales from './dashboard/Sales'
 import CreateListing from './dashboard/CreateListing'
 import ContactAdmin from './dashboard/ContactAdmin'
 import { TabProvider } from './dashboard/Provider'
 import { useDashboard } from './dashboard/useDashboard'
 import AppProviders from './providers/AppProviders'
 
-function TabPlaceholder({ messageKey }: { messageKey: 'sales' | 'feedback' }) {
+function TabPlaceholder({ messageKey }: { messageKey: 'feedback' }) {
   const t = useTranslations('Placeholders')
   return (
     <Box sx={{ p: 3 }}>
@@ -31,7 +32,7 @@ export function AppContent() {
     content = <SellerListings />
   }
   if (tabValue === 1) {
-    content = <TabPlaceholder messageKey="sales" />
+    content = <Sales />
   }
   if (tabValue === 2) {
     content = <TabPlaceholder messageKey="feedback" />

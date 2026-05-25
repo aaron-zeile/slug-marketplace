@@ -29,5 +29,34 @@ export const CreateListingResponseSchema = z.object({
   listing: ListingSchema
 })
 
+export const OrderItemSchema = z.object({
+  itemId: z.string(),
+  sellerId: z.string(),
+})
+
+export const OrderAddressSchema = z.object({
+  label: z.string().optional(),
+  line1: z.string(),
+  line2: z.string().optional(),
+  city: z.string(),
+  state: z.string(),
+  postalCode: z.string(),
+  country: z.string(),
+})
+
+export const OrderSchema = z.object({
+  id: z.string(),
+  buyer: z.string(),
+  items: z.array(OrderItemSchema),
+  orderedAt: z.string(),
+  purchaseAmount: z.number(),
+  address: OrderAddressSchema,
+})
+
+export const OrdersResponseSchema = z.object({
+  orders: z.array(OrderSchema),
+})
+
 export type Listing = z.infer<typeof ListingSchema>;
 export type NewListing = z.infer<typeof NewListingSchema>;
+export type Order = z.infer<typeof OrderSchema>;

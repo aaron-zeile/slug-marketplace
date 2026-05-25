@@ -24,6 +24,7 @@ const brandColor = "#0f766e";
 
 interface CheckoutFormProps {
   amount: number;
+  addressId: string;
   payLabel: string;
   processingLabel: string;
   paymentError: string;
@@ -31,6 +32,7 @@ interface CheckoutFormProps {
 
 function CheckoutForm({
   amount,
+  addressId,
   payLabel,
   processingLabel,
   paymentError,
@@ -47,7 +49,10 @@ function CheckoutForm({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
+      body: JSON.stringify({
+        amount: convertToSubcurrency(amount),
+        addressId,
+      }),
     })
       .then((res) => {
         if (!res.ok) {
@@ -66,7 +71,7 @@ function CheckoutForm({
       .catch(() => {
         setErrorMessage(paymentError);
       });
-  }, [amount, paymentError]);
+  }, [addressId, amount, paymentError]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -90,7 +95,7 @@ function CheckoutForm({
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `${window.location.origin}/payment-success?amount=${amount}`,
+        return_url: `${window.location.origin}/checkout/complete`,
       },
     });
 

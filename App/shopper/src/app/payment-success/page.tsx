@@ -1,19 +1,6 @@
 import { Box, Button, Container, Paper, Typography } from "@mui/material";
 
-import { clearCartAction } from "../cart/actions";
-
-interface PaymentSuccessPageProps {
-  searchParams: Promise<{
-    amount?: string;
-  }>;
-}
-
-export default async function PaymentSuccessPage({
-  searchParams,
-}: PaymentSuccessPageProps) {
-  const { amount } = await searchParams;
-  await clearCartAction();
-
+export default async function PaymentSuccessPage() {
   return (
     <Container component="main" maxWidth="sm" sx={{ py: 8 }}>
       <Paper
@@ -28,7 +15,7 @@ export default async function PaymentSuccessPage({
           Payment successful
         </Typography>
         <Typography sx={{ mb: 4, color: "text.secondary" }}>
-          {amount ? `Your payment of $${amount} was completed.` : "Your payment was completed."}
+          Your payment was completed.
         </Typography>
         <Box>
           <Button href="/" variant="contained">

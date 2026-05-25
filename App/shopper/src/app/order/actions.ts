@@ -1,5 +1,6 @@
 'use server';
 
+import { createOrder, getBuyerOrders } from '../../order/service';
 import { check, getSessionToken } from '../../server/auth/service';
 
 interface OrderItemInput {
@@ -43,9 +44,27 @@ export async function createOrderAction(order: CreateOrderActionInput) {
       address: order.address,
     };
 
-    return { success: true, data: createOrderInput };
+    const createdOrder = await createOrder(createOrderInput);
+    return { success: true, data: createdOrder };
   } catch (error) {
     console.error('createOrderAction error:', error);
+    const message = error instanceof Error && error.message;
+    return { success: false, error: message };
+  }
+}
+
+export async function fetchCurrentUserOrdersAction() {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return { success: false, error: 'Not signed in' };
+    }
+
+    const orders = await getBuyerOrders(user.id);
+    return { success: true, data: orders };
+  } catch (error) {
+    console.error('fetchCurrentUserOrdersAction error:', error);
     const message = error instanceof Error && error.message;
     return { success: false, error: message };
   }

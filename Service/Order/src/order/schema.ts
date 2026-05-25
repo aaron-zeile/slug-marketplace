@@ -143,3 +143,10 @@ export class BuyerOrdersInput {
   @IsUUID()
   buyer!: string;
 }
+
+@InputType('SellerOrdersInput')
+export class SellerOrdersInput {
+  @Field()
+  @IsUUID()
+  seller!: string;
+}

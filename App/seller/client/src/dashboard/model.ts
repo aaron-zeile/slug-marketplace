@@ -1,8 +1,10 @@
 import {
   CreateListingResponseSchema,
   ListingsResponseSchema,
+  OrdersResponseSchema,
   type Listing,
   type NewListing,
+  type Order,
 } from '../../../shared'
 
 export const list = async (
@@ -87,5 +89,22 @@ export const remove = async (
   } catch (error: unknown) {
     setError(String(error))
     return false
+  }
+}
+
+export const listOrders = async (
+  setError: (error: string | undefined) => void,
+  setOrders: (orders: Order[]) => void
+) : Promise<void> => {
+  try {
+    const response = await fetch('/seller/api/orders')
+    if (!response.ok) throw new Error(response.statusText)
+
+    const data = OrdersResponseSchema.parse(await response.json())
+    setOrders(data.orders)
+    setError(undefined)
+
+  } catch (error: unknown) {
+    setError(String(error))
   }
 }

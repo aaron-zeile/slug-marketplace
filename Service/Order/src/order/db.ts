@@ -7,6 +7,7 @@ import {
   OrderAddress,
   OrderIdInput,
   OrderItem,
+  SellerOrdersInput,
 } from './schema';
 
 interface OrderRow {
@@ -124,5 +125,36 @@ export const getBuyerOrders = async (
   `;
 
   const { rows } = await pool.query<OrderRow>(query, [input.buyer]);
+  return rows.map(mapOrder);
+};
+
+export const getSellerOrders = async (
+  input: SellerOrdersInput,
+): Promise<Order[]> => {
+  const query = `
+    SELECT
+      buyer_order.id,
+      buyer_order.buyer,
+      buyer_order.ordered_at,
+      buyer_order.purchase_amount,
+      buyer_order.address,
+      COALESCE(
+        jsonb_agg(
+          jsonb_build_object(
+            'itemId', order_item.item,
+            'sellerId', order_item.seller
+          )
+          ORDER BY order_item.id
+        ) FILTER (WHERE order_item.id IS NOT NULL),
+        '[]'::jsonb
+      ) AS items
+    FROM buyer_order
+    INNER JOIN order_item ON order_item.order_id = buyer_order.id
+    WHERE order_item.seller = $1
+    GROUP BY buyer_order.id
+    ORDER BY buyer_order.ordered_at DESC
+  `;
+
+  const { rows } = await pool.query<OrderRow>(query, [input.seller]);
   return rows.map(mapOrder);
 };

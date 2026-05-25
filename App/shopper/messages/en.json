@@ -6,6 +6,7 @@
     "hello": "Hello {name}",
     "guest": "Guest",
     "sellerDashboard": "Seller Dashboard",
+    "orders": "Orders",
     "logout": "Logout",
     "login": "Login",
     "navigation": "Main navigation",

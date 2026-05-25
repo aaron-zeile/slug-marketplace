@@ -80,7 +80,11 @@ export default function Payment({ addressId }: PaymentProps) {
       ]);
 
       if (!cartResult.success || !cartResult.data) {
-        setError(cartResult.error ?? t("paymentLoadError"));
+        setError(
+          typeof cartResult.error === "string"
+            ? cartResult.error
+            : t("paymentLoadError"),
+        );
         setLoading(false);
         return;
       }
@@ -303,6 +307,7 @@ export default function Payment({ addressId }: PaymentProps) {
           >
             <CheckoutForm
               amount={subtotal}
+              addressId={addressId}
               payLabel={payLabel}
               processingLabel={t("processingPayment")}
               paymentError={t("paymentStartError")}

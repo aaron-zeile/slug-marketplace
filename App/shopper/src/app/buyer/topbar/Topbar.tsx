@@ -5,6 +5,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import {
   AppBar,
@@ -320,6 +321,16 @@ export default function Topbar() {
                 <StorefrontOutlinedIcon aria-hidden sx={{ fontSize: 20 }} />
               </ListItemIcon>
               {tTopbar('sellerDashboard')}
+            </MenuItem>
+            <MenuItem
+              component="a"
+              href="/account/orders"
+              sx={{ py: 1.25 }}
+            >
+              <ListItemIcon>
+                <ReceiptLongOutlinedIcon aria-hidden sx={{ fontSize: 20 }} />
+              </ListItemIcon>
+              {tTopbar('orders')}
             </MenuItem>
             <MenuItem onClick={handleLogout} sx={{ py: 1.25 }}>
               <ListItemIcon>
