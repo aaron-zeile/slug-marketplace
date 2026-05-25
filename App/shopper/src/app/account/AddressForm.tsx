@@ -79,6 +79,10 @@ export default function AddressForm({ address, onSaved, onCancel }: Props) {
       setError(t('cityRequired'));
       return;
     }
+    if (!input.state?.trim()) {
+      setError(t('stateRequired'));
+      return;
+    }
     if (!input.postal_code.trim()) {
       setError(t('postalCodeRequired'));
       return;
@@ -89,7 +93,7 @@ export default function AddressForm({ address, onSaved, onCancel }: Props) {
       line1: input.line1.trim(),
       line2: input.line2?.trim() || undefined,
       city: input.city.trim(),
-      state: input.state?.trim() || undefined,
+      state: input.state.trim(),
       postal_code: input.postal_code.trim(),
       country: input.country?.trim() || 'US',
       is_default: input.is_default,
@@ -164,14 +168,23 @@ export default function AddressForm({ address, onSaved, onCancel }: Props) {
           label={t('state')}
           value={input.state ?? ''}
           onChange={(event) => updateField('state', event.target.value)}
+          required
           fullWidth
         />
         <TextField
           label={t('postalCode')}
           value={input.postal_code}
-          onChange={(event) => updateField('postal_code', event.target.value)}
+          onChange={(event) => {
+            updateField('postal_code', event.target.value.replace(/\D/g, ''));
+          }}
           required
           fullWidth
+          slotProps={{
+            htmlInput: {
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            },
+          }}
         />
         <TextField
           label={t('country')}

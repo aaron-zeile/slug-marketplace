@@ -1,10 +1,7 @@
-import Topbar from '../../buyer/topbar';
-import SearchList, { type SearchFilters } from './SearchList';
+import Topbar from '../buyer/topbar';
+import SearchList, { type SearchFilters } from './[searchText]/SearchList';
 
-interface ItemPageProps {
-  params: Promise<{
-    searchText: string;
-  }>;
+interface SearchPageProps {
   searchParams?: Promise<{
     category?: string;
     maxPrice?: string;
@@ -23,8 +20,7 @@ function toNumber(value?: string) {
   return Number.isFinite(number) ? number : undefined;
 }
 
-const page = async ({ params, searchParams }: ItemPageProps) => {
-  const { searchText } = await params;
+const page = async ({ searchParams }: SearchPageProps) => {
   const filters = (await searchParams) ?? {};
 
   return (
@@ -38,7 +34,6 @@ const page = async ({ params, searchParams }: ItemPageProps) => {
           minStars: toNumber(filters.minStars),
           sortBy: filters.sortBy,
         }}
-        searchText={searchText}
       />
     </>
   );

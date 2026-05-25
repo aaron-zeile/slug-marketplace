@@ -50,7 +50,7 @@ function mapRow(row: ShippingAddressRow): ShippingAddress {
     line1: row.data.line1,
     line2: row.data.line2,
     city: row.data.city,
-    state: row.data.state,
+    state: row.data.state ?? '',
     postal_code: row.data.postal_code,
     country: row.data.country,
     is_default: row.data.is_default,
@@ -72,6 +72,7 @@ function validateInput(input: ShippingAddressInput): Omit<AddressData, 'created_
 } {
   const line1 = input.line1?.trim();
   const city = input.city?.trim();
+  const state = input.state?.trim();
   const postalCode = input.postal_code?.trim();
 
   if (!line1) {
@@ -80,8 +81,14 @@ function validateInput(input: ShippingAddressInput): Omit<AddressData, 'created_
   if (!city) {
     throw new Error('City is required');
   }
+  if (!state) {
+    throw new Error('State is required');
+  }
   if (!postalCode) {
     throw new Error('Postal code is required');
+  }
+  if (!/^\d+$/.test(postalCode)) {
+    throw new Error('Postal code must contain only numbers');
   }
 
   return {
@@ -89,7 +96,7 @@ function validateInput(input: ShippingAddressInput): Omit<AddressData, 'created_
     line1,
     line2: input.line2?.trim() || undefined,
     city,
-    state: input.state?.trim() || undefined,
+    state,
     postal_code: postalCode,
     country: normalizeCountry(input.country),
     is_default: input.is_default,

@@ -119,6 +119,7 @@ it.skipIf(!dbReady)('continues to payment with a selected address', async () => 
         label: 'Home',
         line1: '123 Main St',
         city: 'Santa Cruz',
+        state: 'CA',
         postal_code: '95060',
         country: 'US',
         is_default: true,
@@ -130,7 +131,7 @@ it.skipIf(!dbReady)('continues to payment with a selected address', async () => 
 
   render(<CheckoutShipping />);
 
-  expect(await screen.findByText('123 Main St, Santa Cruz, 95060, US')).toBeInTheDocument();
+  expect(await screen.findByText('123 Main St, Santa Cruz, CA, 95060, US')).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: 'Continue to payment' }));
 

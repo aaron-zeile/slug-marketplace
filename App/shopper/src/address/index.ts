@@ -27,13 +27,31 @@ function requiredTrimmed(message: string) {
   );
 }
 
+function requiredDigits(emptyMessage: string, invalidMessage: string) {
+  return z.preprocess(
+    (value) => (typeof value === 'string' ? value : ''),
+    z
+      .string()
+      .transform((trimmed) => trimmed.trim())
+      .pipe(
+        z
+          .string()
+          .min(1, emptyMessage)
+          .regex(/^\d+$/, invalidMessage),
+      ),
+  );
+}
+
 export const ShippingAddressInputSchema = z.object({
   label: optionalTrimmed,
   line1: requiredTrimmed('Address line 1 is required'),
   line2: optionalTrimmed,
   city: requiredTrimmed('City is required'),
-  state: optionalTrimmed,
-  postal_code: requiredTrimmed('Postal code is required'),
+  state: requiredTrimmed('State is required'),
+  postal_code: requiredDigits(
+    'Postal code is required',
+    'Postal code must contain only numbers',
+  ),
   country: z
     .string()
     .optional()
@@ -49,8 +67,8 @@ export const ShippingAddressSchema = z.object({
   line1: z.string().min(1),
   line2: z.string().optional(),
   city: z.string().min(1),
-  state: z.string().optional(),
-  postal_code: z.string().min(1),
+  state: z.string(),
+  postal_code: z.string().regex(/^\d+$/),
   country: z.string().length(2),
   is_default: z.boolean(),
   created_at: z.iso.datetime(),
@@ -88,4 +106,41 @@ export function parseAddressId(
     return { success: false, error: 'Invalid address id' };
   }
   return { success: true, data: result.data };
+}
+
+function formatZodError(error: z.ZodError): string {
+  const issue = error.issues[0];
+  if (!issue) {
+    return 'Invalid address';
+  }
+
+  const field = issue.path.at(-1);
+  const fieldLabel =
+    typeof field === 'string' ? field.replace(/_/g, ' ') : 'field';
+
+  if (issue.message && issue.message !== 'Invalid input') {
+    return issue.message;
+  }
+
+  if (typeof issue.path[0] === 'number' && fieldLabel !== 'field') {
+    return `Address ${issue.path[0] + 1}: ${fieldLabel} is invalid`;
+  }
+
+  return `${fieldLabel} is invalid`;
+}
+
+export function parseShippingAddress(data: unknown): ShippingAddress {
+  const result = ShippingAddressSchema.safeParse(data);
+  if (!result.success) {
+    throw new Error(formatZodError(result.error));
+  }
+  return result.data;
+}
+
+export function parseShippingAddressList(data: unknown): ShippingAddress[] {
+  const result = ShippingAddressSchema.array().safeParse(data);
+  if (!result.success) {
+    throw new Error(formatZodError(result.error));
+  }
+  return result.data;
 }

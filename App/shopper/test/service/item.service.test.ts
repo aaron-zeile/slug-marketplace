@@ -1,6 +1,11 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { getItem, getRandomItems, getSearchItems } from '../../src/item/service';
+import {
+  getFilteredItems,
+  getItem,
+  getRandomItems,
+  getSearchItems,
+} from '../../src/item/service';
 import {
   registerItemsServiceHooks,
   releaseFetchStubForServiceTests,
@@ -26,6 +31,14 @@ describe('shopper item service', () => {
       description: 'Only found by search text.',
       images: ['https://example.com/lamp.webp'],
       price: 18,
+    });
+
+    await seedItemsServiceItem({
+      name: 'Tagged Shopper Book',
+      description: 'Only found by category tag.',
+      images: ['https://example.com/book.webp'],
+      price: 12,
+      tags: ['books'],
     });
 
     releaseFetchStubForServiceTests();
@@ -58,5 +71,13 @@ describe('shopper item service', () => {
 
     expect(result.length).toBeGreaterThan(0);
     expect(result[0]?.status).toBe('active');
+  });
+
+  it('fetches filtered items by tag', async () => {
+    const result = await getFilteredItems({ tag: 'books', status: 'active' });
+
+    expect(result.some((entry) => entry.name === 'Tagged Shopper Book')).toBe(
+      true,
+    );
   });
 });

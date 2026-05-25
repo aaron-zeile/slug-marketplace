@@ -1,6 +1,11 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { getItem, getRandomItems, getSearchItems } from '../../src/item/service';
+import {
+  getFilteredItems,
+  getItem,
+  getRandomItems,
+  getSearchItems,
+} from '../../src/item/service';
 import {
   registerItemsServiceHooks,
   releaseFetchStubForServiceTests,
@@ -58,6 +63,18 @@ describe('shopper item service errors', () => {
 
     await expect(getSearchItems('anything')).rejects.toThrow(
       'Failed to fetch search items',
+    );
+  });
+
+  it('throws when filtered items response is not ok', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      statusText: 'Bad Gateway',
+      json: async () => ({}),
+    } as Response);
+
+    await expect(getFilteredItems({ tag: 'books' })).rejects.toThrow(
+      'Failed to fetch filtered items',
     );
   });
 

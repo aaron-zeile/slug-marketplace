@@ -1,16 +1,26 @@
 'use client';
 
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
-import { useTranslations } from 'next-intl';
+import { Box, Button, Container, Divider, Stack, Typography } from '@mui/material';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CartItem as CartListItem } from '../../cart';
 import { checkLogin, type CheckLoginResult } from '../buyer/login/actions';
 import CartItem from './CartItem';
 import { fetchCartItemsAction } from './actions';
 
+const brandColor = '#0f766e';
+
+function localeTagForNumbers(locale: string): string {
+  if (locale.startsWith('fr')) {
+    return 'fr-FR';
+  }
+  return 'en-US';
+}
+
 export default function CartList() {
   const t = useTranslations('Cart');
+  const locale = useLocale();
   const [cartItems, setCartItems] = useState<CartListItem[]>([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -43,6 +53,21 @@ export default function CartList() {
     itemCount === 1
       ? t('itemsInCart_one', { count: itemCount })
       : t('itemsInCart_other', { count: itemCount });
+
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat(localeTagForNumbers(locale), {
+        style: 'currency',
+        currency: 'USD',
+      }),
+    [locale],
+  );
+
+  const subtotal = cartItems.reduce(
+    (total, cartItem) => total + cartItem.item.price * cartItem.quantity,
+    0,
+  );
+  const formattedTotal = currencyFormatter.format(subtotal);
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
     setCartItems((currentCartItems) => (
@@ -89,6 +114,26 @@ export default function CartList() {
               quantity={cartItem.quantity}
             />
           ))}
+          <Divider sx={{ mt: 2 }} />
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              pt: 2,
+            }}
+          >
+            <Typography sx={{ fontWeight: 700 }}>{t('total')}</Typography>
+            <Typography
+              sx={{
+                fontSize: '1.35rem',
+                fontWeight: 800,
+                color: brandColor,
+              }}
+            >
+              {formattedTotal}
+            </Typography>
+          </Box>
           <Box sx={{ pt: 2 }}>
             {isAuthenticated ? (
               <Button

@@ -18,6 +18,7 @@ it('submits a new address', async () => {
       label: 'Home',
       line1: '123 Main St',
       city: 'Santa Cruz',
+      state: 'CA',
       postal_code: '95060',
       country: 'US',
       is_default: true,
@@ -34,6 +35,9 @@ it('submits a new address', async () => {
   });
   fireEvent.change(screen.getByLabelText(/City/i), {
     target: { value: 'Santa Cruz' },
+  });
+  fireEvent.change(screen.getByLabelText(/State \/ Province/i), {
+    target: { value: 'CA' },
   });
   fireEvent.change(screen.getByLabelText(/Postal code/i), {
     target: { value: '95060' },
@@ -60,10 +64,22 @@ it('shows an error when save fails', async () => {
   fireEvent.change(screen.getByLabelText(/City/i), {
     target: { value: 'Santa Cruz' },
   });
+  fireEvent.change(screen.getByLabelText(/State \/ Province/i), {
+    target: { value: 'CA' },
+  });
   fireEvent.change(screen.getByLabelText(/Postal code/i), {
     target: { value: '95060' },
   });
   fireEvent.click(screen.getByRole('button', { name: 'Add address' }));
 
   expect(await screen.findByRole('alert')).toHaveTextContent('Unable to save address.');
+});
+
+it('strips non-numeric characters from the postal code field', () => {
+  render(<AddressForm onSaved={vi.fn()} />);
+
+  const postalField = screen.getByLabelText(/Postal code/i) as HTMLInputElement;
+  fireEvent.change(postalField, { target: { value: '95a06b0' } });
+
+  expect(postalField.value).toBe('95060');
 });

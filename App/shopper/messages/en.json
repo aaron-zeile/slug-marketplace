@@ -29,6 +29,24 @@
     "heroTitle": "Find your next favorite find",
     "spotlightTitle": "Today's spotlight",
     "spotlightEmpty": "Our spotlight pick is loading soon. Explore featured items below.",
+    "categoriesTitle": "Shop by category",
+    "categoriesSubtitle": "Browse popular sections across the marketplace.",
+    "category": {
+      "electronics": "Electronics",
+      "clothing": "Clothing",
+      "accessories": "Accessories",
+      "home": "Home",
+      "tools": "Tools",
+      "food": "Food",
+      "beauty": "Beauty",
+      "travel": "Travel",
+      "health": "Health",
+      "outdoors": "Outdoors",
+      "fitness": "Fitness",
+      "vehicles": "Vehicles",
+      "pets": "Pets",
+      "decor": "Decor"
+    },
     "featuredItems": "Featured items",
     "featuredSubtitle": "Scroll to discover more products hand-picked for you.",
     "viewDetails": "Tap to view details"
@@ -57,7 +75,8 @@
     "increaseQuantityAria": "Increase quantity for {name}",
     "quantityAria": "Quantity for {name}",
     "checkout": "Checkout",
-    "signInToCheckout": "Sign in to checkout."
+    "signInToCheckout": "Sign in to checkout.",
+    "total": "Total"
   },
   "Address": {
     "title": "Shipping addresses",
@@ -67,6 +86,7 @@
     "saveError": "Unable to save address.",
     "line1Required": "Address line 1 is required.",
     "cityRequired": "City is required.",
+    "stateRequired": "State is required.",
     "postalCodeRequired": "Postal code is required.",
     "deleteError": "Unable to delete address.",
     "defaultError": "Unable to set default address.",
@@ -96,7 +116,24 @@
     "selectRequired": "Select or add a shipping address to continue.",
     "untitledAddress": "Address",
     "addAddress": "Add a new address",
-    "continueToPayment": "Continue to payment"
+    "continueToPayment": "Continue to payment",
+    "paymentTitle": "Payment",
+    "paymentSubtitle": "Review your order and complete checkout.",
+    "paymentLoading": "Loading checkout...",
+    "paymentLoadError": "Unable to load checkout.",
+    "paymentNotConfigured": "Payment is not configured.",
+    "paymentStartError": "Unable to start payment. Please try again later.",
+    "paymentDetails": "Payment details",
+    "paymentDetailsHint": "Enter your card information to place the order.",
+    "orderSummary": "Order summary",
+    "quantityLine": "Qty {count}",
+    "total": "Total",
+    "itemsInOrder_one": "{count} item",
+    "itemsInOrder_other": "{count} items",
+    "shippingTo": "Shipping to",
+    "backToShipping": "Back to shipping",
+    "payAmount": "Pay {amount}",
+    "processingPayment": "Processing..."
   },
   "LocaleSwitcher": {
     "label": "Locale",

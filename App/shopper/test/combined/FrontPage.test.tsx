@@ -1,5 +1,5 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
-import { beforeAll, expect, it } from 'vitest';
+import { beforeAll, expect, it, describe } from 'vitest';
 
 import FrontPage from '../../src/app/FrontPage';
 import {
@@ -52,5 +52,13 @@ describe('FrontPage', () => {
         1,
       );
     });
+  });
+
+  it('renders category links above featured items', async () => {
+    render(<FrontPage />);
+
+    const categoryCarousel = screen.getByLabelText('Carousel Shop by category');
+
+    expect(within(categoryCarousel).getByText('Electronics')).toBeDefined();
   });
 });

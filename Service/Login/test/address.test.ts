@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { afterEach, beforeEach, expect, test } from 'vitest';
 
 import { AddressService } from '../address-service';
+import type { ShippingAddressInput } from '../src';
 import { setAuthDbForTest } from '../service';
 
 const memberId = '11111111-1111-4111-8111-111111111111';
@@ -133,6 +134,7 @@ test('create makes the first address the default', async () => {
   const created = await new AddressService().create(memberId, {
     line1: '123 Main St',
     city: 'Santa Cruz',
+    state: 'CA',
     postal_code: '95060',
     country: 'us',
   });
@@ -150,10 +152,36 @@ test('create rejects invalid country codes', async () => {
     new AddressService().create(memberId, {
       line1: '123 Main St',
       city: 'Santa Cruz',
+      state: 'CA',
       postal_code: '95060',
       country: 'USA',
     }),
   ).rejects.toThrow('Country must be a 2-letter ISO code');
+});
+
+test('create rejects missing state', async () => {
+  setAuthDbForTest(createMockDb());
+
+  await expect(
+    new AddressService().create(memberId, {
+      line1: '123 Main St',
+      city: 'Santa Cruz',
+      postal_code: '95060',
+    } as ShippingAddressInput),
+  ).rejects.toThrow('State is required');
+});
+
+test('create rejects non-numeric postal codes', async () => {
+  setAuthDbForTest(createMockDb());
+
+  await expect(
+    new AddressService().create(memberId, {
+      line1: '123 Main St',
+      city: 'Santa Cruz',
+      state: 'CA',
+      postal_code: '9506A',
+    }),
+  ).rejects.toThrow('Postal code must contain only numbers');
 });
 
 test('setDefault marks one address as default', async () => {
@@ -164,11 +192,13 @@ test('setDefault marks one address as default', async () => {
   const first = await service.create(memberId, {
     line1: '123 Main St',
     city: 'Santa Cruz',
+    state: 'CA',
     postal_code: '95060',
   });
   const second = await service.create(memberId, {
     line1: '456 Oak Ave',
     city: 'Santa Cruz',
+    state: 'CA',
     postal_code: '95064',
     is_default: false,
   });
@@ -188,11 +218,13 @@ test('remove promotes another address when deleting the default', async () => {
   const first = await service.create(memberId, {
     line1: '123 Main St',
     city: 'Santa Cruz',
+    state: 'CA',
     postal_code: '95060',
   });
   await service.create(memberId, {
     line1: '456 Oak Ave',
     city: 'Santa Cruz',
+    state: 'CA',
     postal_code: '95064',
     is_default: false,
   });

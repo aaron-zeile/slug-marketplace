@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import StarRounded from '@mui/icons-material/StarRounded';
 import {
@@ -42,6 +43,34 @@ const priceUnitSx = {
   color: 'text.primary',
 } as const;
 
+function localeTagForNumbers(locale: string): string {
+  if (locale.startsWith('fr')) {
+    return 'fr-FR';
+  }
+  return 'en-US';
+}
+
+function formatPriceParts(price: number, locale: string) {
+  const localeTag = localeTagForNumbers(locale);
+  const parts = new Intl.NumberFormat(localeTag, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).formatToParts(price);
+
+  const dollars = parts
+    .filter((part) => part.type === 'integer' || part.type === 'group')
+    .map((part) => part.value)
+    .join('');
+  const decimal = parts.find((part) => part.type === 'decimal')?.value ?? '.';
+  const cents = parts.find((part) => part.type === 'fraction')?.value ?? '00';
+  const ariaLabel = new Intl.NumberFormat(localeTag, {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price);
+
+  return { dollars, decimal, cents, ariaLabel };
+}
+
 const itemStatusDisplay = {
   active: {
     label: 'In stock',
@@ -61,6 +90,7 @@ const itemStatusDisplay = {
 
 const ItemDisplay = ({ id }: Props) => {
   const router = useRouter();
+  const locale = useLocale();
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -167,8 +197,8 @@ const ItemDisplay = ({ id }: Props) => {
     setAddingToCart(false);
   };
 
-  const priceFixed = item.price.toFixed(2);
-  const [priceDollars, priceCents] = priceFixed.split('.');
+  const { dollars: priceDollars, decimal: priceDecimal, cents: priceCents, ariaLabel: priceAriaLabel } =
+    formatPriceParts(item.price, locale);
   const statusInfo = itemStatusDisplay[item.status];
   const isInStock = item.status === 'active';
 
@@ -418,7 +448,7 @@ const ItemDisplay = ({ id }: Props) => {
                   <Box
                     component="div"
                     role="group"
-                    aria-label={`$${priceFixed}`}
+                    aria-label={priceAriaLabel}
                     sx={{
                       m: 0,
                       display: 'flex',
@@ -436,7 +466,7 @@ const ItemDisplay = ({ id }: Props) => {
                       {priceDollars}
                     </Typography>
                     <Typography component="span" sx={priceUnitSx}>
-                      .{priceCents}
+                      {priceDecimal}{priceCents}
                     </Typography>
                   </Box>
                   <Chip

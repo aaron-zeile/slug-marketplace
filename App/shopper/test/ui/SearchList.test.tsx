@@ -3,9 +3,13 @@ import { beforeEach, expect, it, vi } from 'vitest';
 
 import SearchList from '../../src/app/search/[searchText]/SearchList';
 import { Item } from '../../src/item';
-import { fetchSearchItemsAction } from '../../src/app/search/[searchText]/actions';
+import {
+  fetchFilteredItemsAction,
+  fetchSearchItemsAction,
+} from '../../src/app/search/[searchText]/actions';
 
 vi.mock('../../src/app/search/[searchText]/actions', () => ({
+  fetchFilteredItemsAction: vi.fn(),
   fetchSearchItemsAction: vi.fn(),
 }));
 
@@ -43,9 +47,17 @@ const stubSearchResponse = (searchItems: Item[]) => {
   });
 };
 
+const stubFilteredResponse = (filteredItems: Item[]) => {
+  vi.mocked(fetchFilteredItemsAction).mockResolvedValue({
+    success: true,
+    data: filteredItems,
+  });
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   stubSearchResponse(items);
+  stubFilteredResponse(items);
 });
 
 it('renders the decoded search text', async () => {
@@ -102,4 +114,54 @@ it('renders an empty state when the search action fails', async () => {
 
   screen.getByText('0 items found');
   screen.getByText('No items match your search.');
+});
+
+it('fetches active category results with filtered items', async () => {
+  const result = await SearchList({
+    filters: {
+      category: 'books',
+      maxPrice: 50,
+      minPrice: 10,
+      minStars: 4,
+      sortBy: 'priceAsc',
+    },
+    searchText: 'desk%20lamp',
+  });
+
+  render(result);
+
+  expect(fetchFilteredItemsAction).toHaveBeenCalledWith({
+    maxPrice: 50,
+    minPrice: 10,
+    minStars: 4,
+    searchText: 'desk lamp',
+    sortBy: 'priceAsc',
+    status: 'active',
+    tag: 'books',
+  });
+});
+
+it('uses the category as the title for category-only results', async () => {
+  const result = await SearchList({ filters: { category: 'school%20books' } });
+
+  render(result);
+
+  screen.getByText('Search results for school books');
+});
+
+it('uses all items as the title when no search text or category is provided', async () => {
+  const result = await SearchList({});
+
+  render(result);
+
+  screen.getByText('Search results for all items');
+  expect(fetchFilteredItemsAction).toHaveBeenCalledWith({
+    maxPrice: undefined,
+    minPrice: undefined,
+    minStars: undefined,
+    searchText: undefined,
+    sortBy: undefined,
+    status: 'active',
+    tag: undefined,
+  });
 });
