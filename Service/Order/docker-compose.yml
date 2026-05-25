@@ -1,0 +1,12 @@
+services:
+  postgres:
+    container_name: order-service-db
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${ORDER_DB_PORT:-5435}:5432"
+    volumes:
+      - ./src/sql/databases.sql:/docker-entrypoint-initdb.d/1.databases.sql
+      - ./src/sql/schema.sql:/docker-entrypoint-initdb.d/2.schema.sql

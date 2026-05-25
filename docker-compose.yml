@@ -13,10 +13,12 @@ services:
       - "3002:3002"
       - "3010:3010"
       - "4010:4010"
+      - "4700:4700"
     environment:
       E2E_MOCK_GOOGLE_CREDENTIAL: ${E2E_MOCK_GOOGLE_CREDENTIAL:-}
       ITEMS_SERVICE_URL: http://localhost:4500/graphql
       LOGIN_SERVICE_URL: http://localhost:4010/api/v0
+      ORDER_POSTGRES_DB: orders
       POSTGRES_HOST: postgres
   postgres:
     container_name: postgres
@@ -41,3 +43,5 @@ services:
       - ./App/admin/db/data.sql:/docker-entrypoint-initdb.d/10.data.sql
       - ./Service/Cart/src/sql/databases.sql:/docker-entrypoint-initdb.d/11.databases.sql
       - ./Service/Cart/src/sql/schema.sql:/docker-entrypoint-initdb.d/12.schema.sql
+      - ./Service/Order/src/sql/databases.sql:/docker-entrypoint-initdb.d/13.databases.sql
+      - ./Service/Order/src/sql/schema.sql:/docker-entrypoint-initdb.d/14.schema.sql

@@ -1,5 +1,5 @@
 FROM node:25-alpine
-EXPOSE 3000 3002 3010
+EXPOSE 3000 3002 3010 4700
 
 WORKDIR /home/app
 
@@ -30,6 +30,13 @@ COPY Service/Cart/src/ /home/app/Service/Cart/src/
 COPY Service/Cart/tsconfig.json /home/app/Service/Cart/
 COPY Service/Cart/package.json /home/app/Service/Cart/
 COPY Service/Cart/package-lock.json /home/app/Service/Cart/
+
+# Order Service
+COPY Service/Order/build/ /home/app/Service/Order/build/
+COPY Service/Order/src/ /home/app/Service/Order/src/
+COPY Service/Order/tsconfig.json /home/app/Service/Order/
+COPY Service/Order/package.json /home/app/Service/Order/
+COPY Service/Order/package-lock.json /home/app/Service/Order/
 
 # Shopper
 COPY App/shopper/.next/ /home/app/App/shopper/.next/

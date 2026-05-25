@@ -1,0 +1,46 @@
+{
+  "name": "OrderService",
+  "version": "1.0.0",
+  "description": "Service for orders",
+  "license": "UNLICENSED",
+  "repository": "none",
+  "devDependencies": {
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/node": "25.6.0",
+    "@types/pg": "8.20.0",
+    "eslint": "10.3.0",
+    "eslint-config-typescript": "3.0.0",
+    "jscpd": "^4.2.3",
+    "nodemon": "3.1.14",
+    "ts-node": "10.9.2",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.59.2"
+  },
+  "dependencies": {
+    "class-validator": "0.15.1",
+    "cors": "2.8.6",
+    "dotenv": "17.4.2",
+    "express": "4.22.1",
+    "graphql": "16.13.2",
+    "graphql-http": "1.22.4",
+    "graphql-playground-middleware-express": "1.7.23",
+    "pg": "8.20.0",
+    "reflect-metadata": "0.2.2",
+    "type-graphql": "2.0.0-rc.3"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src"
+    ],
+    "ext": "ts",
+    "exec": "ts-node src/server.ts"
+  },
+  "scripts": {
+    "dev": "npx nodemon",
+    "build": "tsc",
+    "start": "node build/server.js",
+    "lint": "eslint src/**/*.[jt]s --fix",
+    "cpd": "npx jscpd src --silent"
+  }
+}
