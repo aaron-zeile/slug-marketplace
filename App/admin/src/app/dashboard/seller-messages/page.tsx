@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import EmailIcon from '@mui/icons-material/Email';
 import sql from '@/lib/db';
 
-export default async function MessagesPage() {
+export default async function SellerMessagesPage() {
   const messages = await sql<{
     id: string;
     seller_name: string;

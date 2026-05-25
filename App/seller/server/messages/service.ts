@@ -14,7 +14,7 @@ const ADMIN_INTERNAL_SECRET = process.env.ADMIN_INTERNAL_SECRET || 'dev-internal
 
 export class MessageService {
   public async sendMessage(seller: Seller, input: MessageInput): Promise<void> {
-    const response = await fetch(`${ADMIN_API_URL}/api/messages`, {
+    const response = await fetch(`${ADMIN_API_URL}/admin/api/messages`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

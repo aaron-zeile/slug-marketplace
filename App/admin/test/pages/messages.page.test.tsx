@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 const { mockSql } = vi.hoisted(() => ({ mockSql: vi.fn() }));
 vi.mock('@/lib/db', () => ({ default: mockSql }));
 
-import MessagesPage from '@/app/dashboard/messages/page';
+import MessagesPage from '@/app/dashboard/seller-messages/page';
 
 describe('MessagesPage', () => {
   beforeEach(() => {

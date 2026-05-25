@@ -51,7 +51,7 @@ export default function DashboardShell({
           </Typography>
           <Button
             component={Link}
-            href="/admin/dashboard/messages"
+            href="/dashboard/seller-messages"
             color="inherit"
             startIcon={<EmailIcon />}
             sx={{ mr: 1 }}

@@ -1,0 +1,16 @@
+-- Copy to data.sql (gitignored) for local dev seeding via scripts/dev.ps1 or docker-compose.
+-- UCSC admins — password: slugmarket123
+--   admin1@slugmarketplace.ucsc.edu
+--   admin2@slugmarketplace.ucsc.edu
+--   admin3@slugmarketplace.ucsc.edu
+-- Local admin — password: admin123
+--   admin@slugmarketplace.local
+
+INSERT INTO admins (email, password_hash)
+VALUES
+  (
+    'admin1@slugmarketplace.ucsc.edu',
+    '$2b$10$/WNA9D3kucRfQHSnJWcSRuRIbE56nJm7xnfCNPHI9IqXfsajixt56'
+  )
+ON CONFLICT (email) DO UPDATE
+  SET password_hash = EXCLUDED.password_hash;
