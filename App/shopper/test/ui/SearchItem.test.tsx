@@ -19,7 +19,9 @@ const item: Item = {
     'https://m.media-amazon.com/images/I/71ii5ow8slL._AC_UY218_.jpg',
   ],
   price: 635.99,
+  quantity: 1,
   created_at: '2026-05-11T12:00:00.000Z',
+  status: 'active',
 };
 
 beforeEach(() => {
@@ -46,6 +48,21 @@ it('renders the image', () => {
   const image = screen.getByRole('img', { name: item.name });
 
   expect(image.getAttribute('src')).toBe(item.images[0]);
+});
+
+it('shows Sold when the item is out of stock', () => {
+  render(
+    <SearchItem
+      item={{
+        ...item,
+        name: 'Amazon Echo Plus',
+        quantity: 0,
+        status: 'sold',
+      }}
+    />,
+  );
+
+  expect(screen.getByLabelText('Sold')).toBeDefined();
 });
 
 it('routes to the item page when clicked', async () => {

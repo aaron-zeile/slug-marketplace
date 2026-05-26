@@ -9,7 +9,18 @@ import {
   SellerItemsInput,
   UpdateItem,
 } from './schema';
+import { statusForQuantity } from './status';
 
+const itemQuantitySql = `(COALESCE((data->>'quantity')::int, 1)) AS quantity`;
+const filteredItemQuantitySql = `(COALESCE((i.data->>'quantity')::int, 1)) AS quantity`;
+const purchasableItemWhere = `
+  status = 'active'
+  AND COALESCE((data->>'quantity')::int, 1) > 0
+`;
+const filteredPurchasableItemWhere = `
+  i.status = 'active'
+  AND COALESCE((i.data->>'quantity')::int, 1) > 0
+`;
 
 export const getAllItems = async (): Promise<Item[]> => {
   const select = `
@@ -24,6 +35,7 @@ export const getAllItems = async (): Promise<Item[]> => {
       data->'images' AS images,
       COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
+      ${itemQuantitySql},
       (data->>'created_at')::timestamptz AS created_at,
       status
     FROM item
@@ -51,6 +63,7 @@ export const createItem = async (params: {
   input: NewItem;
   seller: { id: string; name: string };
 }): Promise<Item> => {
+  const quantity = params.input.quantity ?? 1;
   const data = {
     sellerId: params.seller.id,
     sellerName: params.seller.name,
@@ -59,12 +72,14 @@ export const createItem = async (params: {
     images: params.input.images,
     tags: params.input.tags ?? [],
     price: params.input.price,
+    quantity,
     created_at: new Date().toISOString(),
   };
+  const status = statusForQuantity(quantity);
 
   const insert = `
-    INSERT INTO item (data)
-    VALUES ($1::jsonb)
+    INSERT INTO item (data, status)
+    VALUES ($1::jsonb, $2)
     RETURNING
       id,
       jsonb_build_object(
@@ -76,11 +91,15 @@ export const createItem = async (params: {
       data->'images' AS images,
       COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
+      ${itemQuantitySql},
       (data->>'created_at')::timestamptz AS created_at,
       status
   `;
 
-  const { rows } = await pool.query<Item>(insert, [JSON.stringify(data)]);
+  const { rows } = await pool.query<Item>(insert, [
+    JSON.stringify(data),
+    status,
+  ]);
 
   const item = rows[0];
   if (!item) {
@@ -96,7 +115,16 @@ export const updateItem = async (
 ): Promise<Item | undefined> => {
   const update = `
     UPDATE item
-    SET data = data || $3::jsonb
+    SET
+      data = data || $3::jsonb,
+      status = CASE
+        WHEN COALESCE(
+          (data || $3::jsonb)->>'quantity',
+          data->>'quantity',
+          '1'
+        )::int <= 0 THEN 'sold'::item_status
+        ELSE 'active'::item_status
+      END
     WHERE id = $1
       AND data->>'sellerId' = $2
     RETURNING
@@ -110,6 +138,7 @@ export const updateItem = async (
       data->'images' AS images,
       COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
+      ${itemQuantitySql},
       (data->>'created_at')::timestamptz AS created_at,
       status;
   `;
@@ -122,6 +151,9 @@ export const updateItem = async (
   };
   if (input.tags !== undefined) {
     data.tags = input.tags;
+  }
+  if (input.quantity !== undefined) {
+    data.quantity = input.quantity;
   }
 
   const { rows } = await pool.query<Item>(update, [
@@ -146,6 +178,7 @@ export const getItem = async (itemId: ItemId): Promise<Item> => {
       data->'images' AS images,
       COALESCE(data->'tags', '[]'::jsonb) AS tags,
       (data->>'price')::numeric AS price,
+      ${itemQuantitySql},
       (data->>'created_at')::timestamptz AS created_at,
       status
     FROM item
@@ -170,6 +203,7 @@ export const getSellerItems = async (input: SellerItemsInput): Promise<Item[]> =
     data->'images' AS images,
     COALESCE(data->'tags', '[]'::jsonb) AS tags,
     (data->>'price')::numeric AS price,
+    ${itemQuantitySql},
     (data->>'created_at')::timestamptz AS created_at,
     status
   FROM item
@@ -197,9 +231,11 @@ export const getRandomItems = async (input: RandomItemsInput): Promise<Item[]> =
     data->'images' AS images,
     COALESCE(data->'tags', '[]'::jsonb) AS tags,
     (data->>'price')::numeric AS price,
+    ${itemQuantitySql},
     (data->>'created_at')::timestamptz AS created_at,
     status
   FROM item
+  WHERE ${purchasableItemWhere}
   ORDER BY random()
   LIMIT $1
   `
@@ -230,6 +266,7 @@ export const getSearchItems = async (input: SearchItemsInput): Promise<Item[]> =
     data->'images' AS images,
     COALESCE(data->'tags', '[]'::jsonb) AS tags,
     (data->>'price')::numeric AS price,
+    ${itemQuantitySql},
     (data->>'created_at')::timestamptz AS created_at,
     status
   FROM item
@@ -272,9 +309,20 @@ export const getFilteredItems = async (
     where.push(`i.data->>'sellerId' = $${values.length}`);
   }
 
-  if (input.status !== undefined) {
-    values.push(input.status);
+  const isCatalogDiscovery =
+    input.tag !== undefined || Boolean(input.searchText?.trim());
+
+  if (input.status === 'sold' && !isCatalogDiscovery) {
+    values.push('sold');
     where.push(`i.status = $${values.length}`);
+  } else if (isCatalogDiscovery) {
+    where.push(`(i.status = 'active' OR i.status = 'sold')`);
+  } else if (input.status === 'active') {
+    values.push('active');
+    where.push(`i.status = $${values.length}`);
+    where.push(`COALESCE((i.data->>'quantity')::int, 1) > 0`);
+  } else {
+    where.push(filteredPurchasableItemWhere);
   }
 
   const searchText = input.searchText?.trim();
@@ -315,6 +363,7 @@ export const getFilteredItems = async (
       i.data->'images' AS images,
       COALESCE(i.data->'tags', '[]'::jsonb) AS tags,
       (i.data->>'price')::numeric AS price,
+      ${filteredItemQuantitySql},
       (i.data->>'created_at')::timestamptz AS created_at,
       i.status,
       AVG((r.data->>'rating')::float) AS average_rating

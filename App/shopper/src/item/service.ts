@@ -31,6 +31,7 @@ export async function getItem(id: string): Promise<Item> {
         description
         images
         price
+        quantity
         created_at
         status
       }
@@ -77,6 +78,7 @@ export async function getRandomItems(count: number): Promise<Item[]> {
         description
         images
         price
+        quantity
         created_at
         status
       }
@@ -123,6 +125,7 @@ export async function getSearchItems(searchText: string): Promise<Item[]> {
         description
         images
         price
+        quantity
         created_at
         status
       }
@@ -171,6 +174,7 @@ export async function getFilteredItems(
         description
         images
         price
+        quantity
         created_at
         status
       }

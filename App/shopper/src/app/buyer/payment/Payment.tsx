@@ -15,10 +15,16 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { CartItem } from "../../../cart";
 import convertToSubcurrency from "@/lib/convertToSubcurrency";
+import {
+  expireCheckoutAction,
+  markCheckoutPendingPaymentAction,
+  releaseCheckoutReservationAction,
+  reserveCheckoutAction,
+} from "../../checkout/reservationActions";
 import { listAddressesAction } from "../../account/actions";
 import { fetchCartItemsAction } from "../../cart/actions";
 import type { ShippingAddress } from "../../../address/types";
@@ -48,6 +54,12 @@ function formatAddress(address: ShippingAddress): string {
     .join(", ");
 }
 
+function formatCountdown(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
 interface PaymentProps {
   addressId: string;
 }
@@ -62,6 +74,12 @@ export default function Payment({ addressId }: PaymentProps) {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reservationId, setReservationId] = useState<string | null>(null);
+  const [expiresAtMs, setExpiresAtMs] = useState<number | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const paymentStartedRef = useRef(false);
+  const expiryHandledRef = useRef(false);
+  const reservationIdRef = useRef<string | null>(null);
 
   const currencyFormatter = useMemo(
     () =>
@@ -72,12 +90,31 @@ export default function Payment({ addressId }: PaymentProps) {
     [locale],
   );
 
+  const handleCheckoutExpired = useCallback(async () => {
+    if (expiryHandledRef.current) {
+      return;
+    }
+    expiryHandledRef.current = true;
+
+    if (reservationId) {
+      await expireCheckoutAction(reservationId);
+    }
+
+    router.replace("/?cartExpired=1");
+  }, [reservationId, router]);
+
   useEffect(() => {
+    let cancelled = false;
+
     async function loadCheckout() {
       const [cartResult, addressResult] = await Promise.all([
         fetchCartItemsAction(),
         listAddressesAction(),
       ]);
+
+      if (cancelled) {
+        return;
+      }
 
       if (!cartResult.success || !cartResult.data) {
         setError(
@@ -94,7 +131,31 @@ export default function Payment({ addressId }: PaymentProps) {
         return;
       }
 
+      const reserveResult = await reserveCheckoutAction(cartResult.data);
+
+      if (cancelled) {
+        if (reserveResult.success) {
+          await releaseCheckoutReservationAction(reserveResult.data.id);
+        }
+        return;
+      }
+
+      if (!reserveResult.success) {
+        const isOutOfStock =
+          reserveResult.error === "Insufficient stock for one or more items";
+        if (isOutOfStock) {
+          router.replace("/?outOfStock=1");
+          return;
+        }
+        setError(reserveResult.error ?? t("paymentLoadError"));
+        setLoading(false);
+        return;
+      }
+
+      reservationIdRef.current = reserveResult.data.id;
       setCartItems(cartResult.data);
+      setReservationId(reserveResult.data.id);
+      setExpiresAtMs(new Date(reserveResult.data.expiresAt).getTime());
 
       if (addressResult.success && addressResult.data) {
         const selected = addressResult.data.find(
@@ -107,8 +168,64 @@ export default function Payment({ addressId }: PaymentProps) {
     }
 
     void loadCheckout();
+
+    return () => {
+      cancelled = true;
+      const heldId = reservationIdRef.current;
+      if (
+        heldId &&
+        !paymentStartedRef.current &&
+        !expiryHandledRef.current
+      ) {
+        void releaseCheckoutReservationAction(heldId);
+        reservationIdRef.current = null;
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addressId]);
+
+  useEffect(() => {
+    if (expiresAtMs === null) {
+      return;
+    }
+
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((expiresAtMs - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+
+      if (remaining === 0 && !paymentStartedRef.current) {
+        void handleCheckoutExpired();
+      }
+    };
+
+    tick();
+    const intervalId = window.setInterval(tick, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [expiresAtMs, handleCheckoutExpired]);
+
+  const handlePaymentStart = useCallback(async () => {
+    if (!reservationId) {
+      return false;
+    }
+
+    paymentStartedRef.current = true;
+    const result = await markCheckoutPendingPaymentAction(reservationId);
+
+    if (!result.success) {
+      paymentStartedRef.current = false;
+      void handleCheckoutExpired();
+      return false;
+    }
+
+    return true;
+  }, [handleCheckoutExpired, reservationId]);
+
+  const handlePaymentAbort = useCallback(async () => {
+    paymentStartedRef.current = false;
+    if (reservationId) {
+      await releaseCheckoutReservationAction(reservationId);
+    }
+  }, [reservationId]);
 
   const itemCount = cartItems.reduce(
     (total, cartItem) => total + cartItem.quantity,
@@ -120,6 +237,12 @@ export default function Payment({ addressId }: PaymentProps) {
   );
   const formattedTotal = currencyFormatter.format(subtotal);
   const payLabel = t("payAmount", { amount: formattedTotal });
+  const timerLabel =
+    secondsLeft === null
+      ? null
+      : secondsLeft > 0
+        ? t("checkoutTimer", { time: formatCountdown(secondsLeft) })
+        : t("checkoutTimerExpired");
 
   if (!stripePublicKey) {
     return (
@@ -157,6 +280,8 @@ export default function Payment({ addressId }: PaymentProps) {
     );
   }
 
+  const checkoutLocked = secondsLeft === 0;
+
   return (
     <Container component="main" maxWidth="lg" sx={{ py: { xs: 3, sm: 4 } }}>
       <Box sx={{ mb: 3 }}>
@@ -166,6 +291,16 @@ export default function Payment({ addressId }: PaymentProps) {
         <Typography sx={{ color: "text.secondary", mt: 0.5 }}>
           {t("paymentSubtitle")}
         </Typography>
+        {timerLabel ? (
+          <Alert
+            severity={checkoutLocked ? "warning" : "info"}
+            sx={{ mt: 2 }}
+            role="timer"
+            aria-live="polite"
+          >
+            {timerLabel}
+          </Alert>
+        ) : null}
       </Box>
 
       <Box
@@ -311,6 +446,9 @@ export default function Payment({ addressId }: PaymentProps) {
               payLabel={payLabel}
               processingLabel={t("processingPayment")}
               paymentError={t("paymentStartError")}
+              disabled={checkoutLocked}
+              onPaymentStart={handlePaymentStart}
+              onPaymentAbort={handlePaymentAbort}
             />
           </Elements>
         </Paper>

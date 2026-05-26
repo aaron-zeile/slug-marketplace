@@ -59,7 +59,8 @@
     "submitSearch": "Submit search",
     "resultsFor": "Search results for {query}",
     "itemsFound": "{count} items found",
-    "noResults": "No items match your search."
+    "noResults": "No items match your search.",
+    "sold": "Sold"
   },
   "Cart": {
     "tooltip": "Cart",
@@ -134,7 +135,11 @@
     "shippingTo": "Shipping to",
     "backToShipping": "Back to shipping",
     "payAmount": "Pay {amount}",
-    "processingPayment": "Processing..."
+    "processingPayment": "Processing...",
+    "checkoutTimer": "Complete purchase within {time}",
+    "checkoutTimerExpired": "Checkout time expired",
+    "insufficientStock": "One or more items are out of stock.",
+    "cartExpired": "Cart expired"
   },
   "LocaleSwitcher": {
     "label": "Locale",

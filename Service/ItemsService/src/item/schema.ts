@@ -42,6 +42,9 @@ export class Item {
   @Field()
   price!: number;
 
+  @Field(() => Int)
+  quantity!: number;
+
   @Field(() => GraphQLISODateTime)
   created_at!: Date;
 
@@ -74,6 +77,11 @@ export class NewItem {
   @Field(() => Float)
   @Min(0)
   price!: number;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @Min(1)
+  quantity?: number;
 }
 
 @InputType()
@@ -98,6 +106,11 @@ export class UpdateItem {
   @Field(() => Float)
   @Min(0)
   price!: number;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @Min(1)
+  quantity?: number;
 }
 
 @InputType('SellerId')

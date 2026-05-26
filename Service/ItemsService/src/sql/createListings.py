@@ -602,6 +602,7 @@ def generate_inserts(products: list, count: int) -> list:
             "name": product["title"],
             "description": product["description"],
             "price": price,
+            "quantity": random.randint(1, 50),
             "created_at": random_created_at(),
             "images": product["images"][:5],
             "tags": product_tags(product),

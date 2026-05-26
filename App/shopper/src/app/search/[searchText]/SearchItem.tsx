@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Box, CardActionArea, CardMedia, Typography } from '@mui/material';
+import { Box, CardActionArea, CardMedia, Chip, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { Item } from '../../../item';
 
 interface SearchItemProps {
@@ -15,7 +16,9 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 
 export default function SearchItem({ item }: SearchItemProps) {
   const router = useRouter();
+  const t = useTranslations('Search');
   const image = item.images[0];
+  const isSold = item.quantity <= 0 || item.status === 'sold';
 
   return (
     <CardActionArea
@@ -92,16 +95,37 @@ export default function SearchItem({ item }: SearchItemProps) {
         <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>
           {item.seller.name}
         </Typography>
-        <Typography
+        <Box
           sx={{
             mt: 0.5,
-            fontSize: '1.35rem',
-            fontWeight: 700,
-            lineHeight: 1,
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: 1,
           }}
         >
-          {currencyFormatter.format(item.price)}
-        </Typography>
+          <Typography
+            sx={{
+              fontSize: '1.35rem',
+              fontWeight: 700,
+              lineHeight: 1,
+            }}
+          >
+            {currencyFormatter.format(item.price)}
+          </Typography>
+          {isSold ? (
+            <Chip
+              aria-label={t('sold')}
+              label={t('sold')}
+              size="small"
+              sx={{
+                fontWeight: 600,
+                bgcolor: 'grey.400',
+                color: 'grey.900',
+              }}
+            />
+          ) : null}
+        </Box>
       </Box>
     </CardActionArea>
   );

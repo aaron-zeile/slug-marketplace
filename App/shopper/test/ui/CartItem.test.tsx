@@ -34,6 +34,7 @@ const item: Item = {
     'https://m.media-amazon.com/images/I/71ii5ow8slL._AC_UY218_.jpg',
   ],
   price: 635.99,
+  quantity: 1,
   created_at: '2026-05-11T12:00:00.000Z',
 };
 

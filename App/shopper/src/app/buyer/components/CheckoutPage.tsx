@@ -28,6 +28,9 @@ interface CheckoutFormProps {
   payLabel: string;
   processingLabel: string;
   paymentError: string;
+  disabled?: boolean;
+  onPaymentStart?: () => Promise<boolean>;
+  onPaymentAbort?: () => Promise<void>;
 }
 
 function CheckoutForm({
@@ -36,6 +39,9 @@ function CheckoutForm({
   payLabel,
   processingLabel,
   paymentError,
+  disabled = false,
+  onPaymentStart,
+  onPaymentAbort,
 }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -91,6 +97,14 @@ function CheckoutForm({
       return;
     }
 
+    if (onPaymentStart) {
+      const canContinue = await onPaymentStart();
+      if (!canContinue) {
+        setLoading(false);
+        return;
+      }
+    }
+
     const { error } = await stripe.confirmPayment({
       elements,
       clientSecret,
@@ -101,6 +115,9 @@ function CheckoutForm({
 
     if (error) {
       setErrorMessage(error.message);
+      if (onPaymentAbort) {
+        await onPaymentAbort();
+      }
     }
 
     setLoading(false);
@@ -146,7 +163,7 @@ function CheckoutForm({
         type="submit"
         variant="contained"
         fullWidth
-        disabled={!stripe || loading}
+        disabled={!stripe || loading || disabled}
         sx={{
           mt: 2.5,
           py: 1.5,

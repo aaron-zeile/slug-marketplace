@@ -50,6 +50,7 @@ describe('createItem', () => {
       description: newItem.description,
       images: newItem.images,
       price: newItem.price,
+      quantity: 1,
       seller: {
         id: testUser.id,
         name: testUser.name,
@@ -78,6 +79,7 @@ describe('createItem', () => {
             description
             images
             price
+            quantity
             seller {
               id
               name
@@ -94,7 +96,36 @@ describe('createItem', () => {
       description: created.description,
       images: created.images,
       price: created.price,
+      quantity: 1,
       seller: created.seller,
+    });
+  });
+
+  it('sets status to sold when created with zero quantity', async () => {
+    const created = await createItemViaGraphql(server, {
+      name: 'Out of Stock Widget',
+      description: 'No inventory.',
+      images: [],
+      price: 1,
+      quantity: 0,
+    });
+
+    expect(created).toMatchObject({
+      quantity: 0,
+      status: 'sold',
+    });
+  });
+
+  it('persists a custom quantity when provided on create', async () => {
+    const created = await createItemViaGraphql(server, {
+      ...newItem,
+      name: 'Limited Stock Widget',
+      quantity: 7,
+    });
+
+    expect(created).toMatchObject({
+      name: 'Limited Stock Widget',
+      quantity: 7,
     });
   });
 

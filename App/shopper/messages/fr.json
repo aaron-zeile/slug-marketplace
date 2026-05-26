@@ -59,7 +59,8 @@
     "submitSearch": "Lancer la recherche",
     "resultsFor": "Résultats de recherche pour {query}",
     "itemsFound": "{count} article(s) trouvé(s)",
-    "noResults": "Aucun article ne correspond à votre recherche."
+    "noResults": "Aucun article ne correspond à votre recherche.",
+    "sold": "Vendu"
   },
   "Cart": {
     "tooltip": "Panier",
@@ -134,7 +135,11 @@
     "shippingTo": "Livraison à",
     "backToShipping": "Retour à la livraison",
     "payAmount": "Payer {amount}",
-    "processingPayment": "Traitement..."
+    "processingPayment": "Traitement...",
+    "checkoutTimer": "Finalisez l'achat dans {time}",
+    "checkoutTimerExpired": "Délai de paiement expiré",
+    "insufficientStock": "Un ou plusieurs articles sont en rupture de stock.",
+    "cartExpired": "Panier expiré"
   },
   "LocaleSwitcher": {
     "label": "Langue",

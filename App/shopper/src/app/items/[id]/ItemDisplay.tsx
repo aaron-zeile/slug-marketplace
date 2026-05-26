@@ -199,8 +199,10 @@ const ItemDisplay = ({ id }: Props) => {
 
   const { dollars: priceDollars, decimal: priceDecimal, cents: priceCents, ariaLabel: priceAriaLabel } =
     formatPriceParts(item.price, locale);
-  const statusInfo = itemStatusDisplay[item.status];
-  const isInStock = item.status === 'active';
+  const displayStatus =
+    item.quantity <= 0 || item.status === 'sold' ? 'sold' : 'active';
+  const statusInfo = itemStatusDisplay[displayStatus];
+  const isInStock = displayStatus === 'active';
 
   return (
     <Box sx={clipShellSx}>
@@ -469,17 +471,33 @@ const ItemDisplay = ({ id }: Props) => {
                       {priceDecimal}{priceCents}
                     </Typography>
                   </Box>
-                  <Chip
-                    aria-label={statusInfo.label}
-                    label={statusInfo.label}
+                  <Box
                     sx={{
-                      fontWeight: 600,
-                      height: 28,
-                      fontSize: '0.75rem',
-                      ...statusInfo.chipSx,
-                      '& .MuiChip-label': { px: 1.5 },
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      flexWrap: 'wrap',
                     }}
-                  />
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600, color: 'text.secondary' }}
+                    >
+                      Qty {item.quantity}
+                    </Typography>
+                    <Chip
+                      aria-label={statusInfo.label}
+                      label={statusInfo.label}
+                      sx={{
+                        fontWeight: 600,
+                        height: 28,
+                        fontSize: '0.75rem',
+                        ...statusInfo.chipSx,
+                        '& .MuiChip-label': { px: 1.5 },
+                      }}
+                    />
+                  </Box>
                 </Box>
 
                 <Box

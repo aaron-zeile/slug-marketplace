@@ -5,6 +5,10 @@ import Stripe from "stripe";
 import { listAddressesAction } from "../../account/actions";
 import { checkLogin } from "../../buyer/login/actions";
 import { clearCartAction, fetchCartItemsAction } from "../../cart/actions";
+import {
+  confirmCheckoutReservationAction,
+  getCheckoutReservationIdFromCookie,
+} from "../reservationActions";
 import { createOrderAction } from "../../order/actions";
 
 interface CheckoutCompletePageProps {
@@ -114,6 +118,11 @@ export default async function CheckoutCompletePage({
 
   if (!orderResult.success) {
     return <CompletionError message={orderResult.error || "Could not create order."} />;
+  }
+
+  const reservationId = await getCheckoutReservationIdFromCookie();
+  if (reservationId) {
+    await confirmCheckoutReservationAction(reservationId);
   }
 
   await clearCartAction();

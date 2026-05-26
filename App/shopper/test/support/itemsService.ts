@@ -128,6 +128,7 @@ export async function seedItemsServiceItem(input: {
   images: string[];
   price: number;
   tags?: string[];
+  quantity?: number;
 }) {
   if (!server) {
     await startItemsServiceForTests();

@@ -10,6 +10,7 @@ export const ListingSchema = z.object({
   name: z.string(),
   description: z.string(),
   price: z.number(),
+  quantity: z.number().int().min(0),
   created_at: z.string(),
   images: z.array(z.string()).default([]),
   status: z.enum(['active', 'sold'])
@@ -22,7 +23,8 @@ export const NewListingSchema = z.object({
   name: z.string().min(1).max(256),
   description: z.string().min(1).max(1024),
   price: z.number().min(0),
-  images: z.array(z.string()).default([])
+  images: z.array(z.string()).default([]),
+  quantity: z.number().int().min(1).optional(),
 })
 
 export const CreateListingResponseSchema = z.object({

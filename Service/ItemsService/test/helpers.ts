@@ -13,6 +13,8 @@ export interface CreatedItem {
   name: string;
   description: string;
   price: number;
+  quantity: number;
+  status: 'active' | 'sold';
   images: string[];
   seller: { id: string; name: string };
 }
@@ -89,6 +91,7 @@ export async function createItemViaGraphql(
     images: string[];
     price: number;
     tags?: string[];
+    quantity?: number;
   },
 ): Promise<CreatedItem> {
   const response = await supertest(server)
@@ -101,6 +104,8 @@ export async function createItemViaGraphql(
           name
           description
           price
+          quantity
+          status
           images
           seller {
             id

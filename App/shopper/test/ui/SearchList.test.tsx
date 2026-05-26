@@ -24,6 +24,7 @@ const items: Item[] = [
     description: 'A bright lamp for late-night study sessions.',
     images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&fit=crop'],
     price: 24.99,
+    quantity: 1,
     created_at: '2026-05-11T12:00:00.000Z',
   },
   {
@@ -36,6 +37,7 @@ const items: Item[] = [
     description: 'A replacement bulb for compact desk lamps.',
     images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&fit=crop'],
     price: 6.5,
+    quantity: 1,
     created_at: '2026-05-12T12:00:00.000Z',
   },
 ];

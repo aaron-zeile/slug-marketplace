@@ -83,6 +83,7 @@ const intlMessages: Record<string, Record<string, string>> = {
     resultsFor: 'Search results for {query}',
     itemsFound: '{count} items found',
     noResults: 'No items match your search.',
+    sold: 'Sold',
   },
   Cart: {
     tooltip: 'Cart',
@@ -158,6 +159,10 @@ const intlMessages: Record<string, Record<string, string>> = {
     backToShipping: 'Back to shipping',
     payAmount: 'Pay {amount}',
     processingPayment: 'Processing...',
+    checkoutTimer: 'Complete purchase within {time}',
+    checkoutTimerExpired: 'Checkout time expired',
+    insufficientStock: 'One or more items are out of stock.',
+    cartExpired: 'Cart expired',
   },
   LocaleSwitcher: {
     label: 'Locale',
@@ -202,6 +207,7 @@ vi.mock('next/navigation', () => {
       return MockRouter;
     }),
     usePathname: vi.fn(() => '/'),
+    useSearchParams: vi.fn(() => new URLSearchParams()),
   };
 });
 

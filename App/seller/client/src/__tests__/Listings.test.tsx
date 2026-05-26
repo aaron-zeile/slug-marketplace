@@ -16,6 +16,7 @@ it('renders listings', async () => {
       name: 'USB Hub 937',
       description: 'Crafted with care to deliver outstanding value and satisfaction.',
       price: 441.37,
+      quantity: 1,
       created_at: '2025-07-18T23:28:50.000Z',
       status: 'active'
     },
@@ -43,6 +44,7 @@ it('updates a listing only after edits are made', async () => {
     name: 'USB Hub 937',
     description: 'Crafted with care to deliver outstanding value and satisfaction.',
     price: 441.37,
+    quantity: 1,
     created_at: '2025-07-18T23:28:50.000Z',
     images: ['https://example.com/hub.jpg'],
     status: 'active'

@@ -38,6 +38,7 @@ const mockItem: Item = {
   description: 'Sleek modern design that fits seamlessly into any lifestyle.',
   images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
   price: 894.74,
+  quantity: 12,
   created_at: '2025-10-07T18:56:33.000Z',
   status: 'active',
 };
@@ -98,6 +99,14 @@ it('renders the item price formatted', async () => {
   });
 });
 
+it('renders the item quantity', async () => {
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByText(`Qty ${mockItem.quantity}`)).toBeDefined();
+  });
+});
+
 it('renders large prices with thousands separators', async () => {
   vi.mocked(fetchItemAction).mockResolvedValue({
     success: true,
@@ -117,6 +126,19 @@ it('shows In stock when item status is active', async () => {
 
   await waitFor(() => {
     expect(screen.getByLabelText('In stock')).toBeDefined();
+  });
+});
+
+it('shows Sold when quantity is zero', async () => {
+  vi.mocked(fetchItemAction).mockResolvedValue({
+    success: true,
+    data: { ...mockItem, status: 'active', quantity: 0 },
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Sold')).toBeDefined();
   });
 });
 

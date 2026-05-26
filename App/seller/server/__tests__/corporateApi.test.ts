@@ -42,6 +42,7 @@ const listing = {
   name: 'Corporate Listing',
   description: 'Created through the REST API',
   price: 19.99,
+  quantity: 1,
   created_at: '2026-05-17T00:00:00.000Z',
   images: ['https://example.com/image.jpg'],
   status: 'active',

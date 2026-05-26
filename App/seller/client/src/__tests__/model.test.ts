@@ -11,6 +11,7 @@ const listing = {
   name: 'USB Hub',
   description: 'A useful hub.',
   price: 24.99,
+  quantity: 1,
   created_at: '2025-07-18T23:28:50.000Z',
   images: [],
   status: 'active'

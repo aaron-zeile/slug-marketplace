@@ -19,6 +19,7 @@ const GET_ITEMS_QUERY = `
       name
       description
       price
+      quantity
       created_at
       images
       status
@@ -37,6 +38,7 @@ const CREATE_ITEM_MUTATION = `
       name
       description
       price
+      quantity
       created_at
       images
       status
@@ -61,6 +63,7 @@ const UPDATE_ITEM_MUTATION = `
       name
       description
       price
+      quantity
       created_at
       images
       status
