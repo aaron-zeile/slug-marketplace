@@ -18,6 +18,7 @@ app.use(express.json());
 /** API ENDPOINTS HERE **/
 // app.get('/api/listings', listings.get);
 app.get('/seller/api/listings', doCheck, listings.get);
+app.get('/seller/api/listings/:id/reviews', doCheck, listings.getReviews);
 app.get('/seller/api/orders', doCheck, orders.get);
 app.post('/seller/api/listings', doCheck, listings.post);
 app.put('/seller/api/listings/:id', doCheck, listings.put);

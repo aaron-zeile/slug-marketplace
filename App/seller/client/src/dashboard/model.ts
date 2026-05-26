@@ -2,9 +2,11 @@ import {
   CreateListingResponseSchema,
   ListingsResponseSchema,
   OrdersResponseSchema,
+  ReviewsResponseSchema,
   type Listing,
   type NewListing,
   type Order,
+  type Review,
 } from '../../../shared'
 
 export const list = async (
@@ -89,6 +91,22 @@ export const remove = async (
   } catch (error: unknown) {
     setError(String(error))
     return false
+  }
+}
+
+export const getReviews = async (
+  id: string,
+  setError: (error: string | undefined) => void,
+): Promise<Review[]> => {
+  try {
+    const response = await fetch(`/seller/api/listings/${id}/reviews`)
+    if (!response.ok) throw new Error(response.statusText)
+    const data = ReviewsResponseSchema.parse(await response.json())
+    setError(undefined)
+    return data.reviews
+  } catch (error: unknown) {
+    setError(String(error))
+    return []
   }
 }
 

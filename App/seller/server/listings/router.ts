@@ -52,6 +52,22 @@ export const put = async (req: Request, res: Response) => {
   res.json({ listing });
 };
 
+export const getReviews = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const id = req.params.id;
+  if (typeof id !== 'string') {
+    res.sendStatus(400);
+    return;
+  }
+
+  const reviews = await new ListingService().getReviews(id);
+  res.json({ reviews });
+};
+
 export const remove = async (req: Request, res: Response) => {
   if (!req.user || !req.sessionToken) {
     res.sendStatus(401);

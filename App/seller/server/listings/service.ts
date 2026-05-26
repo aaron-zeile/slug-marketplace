@@ -71,6 +71,18 @@ const UPDATE_ITEM_MUTATION = `
   }
 `;
 
+const GET_REVIEWS_QUERY = `
+  query GetReviews($input: ItemId!) {
+    reviews(input: $input) {
+      id
+      user { id name }
+      rating
+      content
+      created_at
+    }
+  }
+`;
+
 interface SellerItemsResponse {
   data?: {
     sellerItems?: unknown
@@ -105,6 +117,13 @@ type UpdateItemResponse = {
   errors?: Array<{
     message?: string
   }>
+}
+
+interface GetReviewsResponse {
+  data?: {
+    reviews?: unknown[]
+  }
+  errors?: { message?: string }[]
 }
 
 export class ListingService {
@@ -218,6 +237,29 @@ export class ListingService {
     if (body.data?.deleteItem !== true) {
       throw new Error('Delete item response did not confirm deletion');
     }
+  }
+
+  public async getReviews(itemId: string): Promise<unknown[]> {
+    const response = await fetch(ITEMS_SERVICE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: GET_REVIEWS_QUERY,
+        variables: { input: { id: itemId } },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch reviews: ${response.statusText}`);
+    }
+
+    const body = await response.json() as GetReviewsResponse;
+
+    if (body.errors?.length) {
+      throw new Error(body.errors[0]?.message ?? 'GraphQL error');
+    }
+
+    return body.data?.reviews ?? [];
   }
 
   public async updateListing(

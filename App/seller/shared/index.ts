@@ -59,6 +59,16 @@ export const OrdersResponseSchema = z.object({
   orders: z.array(OrderSchema),
 })
 
+export const ReviewSchema = z.object({
+  id: z.string(),
+  user: z.object({ id: z.string(), name: z.string() }),
+  rating: z.number(),
+  content: z.string(),
+  created_at: z.string(),
+});
+export const ReviewsResponseSchema = z.object({ reviews: z.array(ReviewSchema) });
+
 export type Listing = z.infer<typeof ListingSchema>;
 export type NewListing = z.infer<typeof NewListingSchema>;
 export type Order = z.infer<typeof OrderSchema>;
+export type Review = z.infer<typeof ReviewSchema>;

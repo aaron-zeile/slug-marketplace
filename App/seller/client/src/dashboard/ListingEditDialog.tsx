@@ -19,6 +19,7 @@ import {
 import type {Listing} from '../../../shared'
 import {ErrorContext} from '../error/Context'
 import {remove, update} from './model'
+import ListingReviews from './ListingReviews'
 
 type ListingDraft = {
   name: string
@@ -218,6 +219,13 @@ export default function ListingEditDialog({
               }}
               fullWidth
             />
+
+            <Box>
+              <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                Customer Reviews
+              </Typography>
+              <ListingReviews itemId={listing.id} />
+            </Box>
           </Stack>
         )}
       </DialogContent>
