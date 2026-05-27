@@ -42,6 +42,22 @@ const items: Item[] = [
   },
 ];
 
+const expensiveItems: Item[] = [
+  {
+    id: '55555555-5555-4555-8555-555555555555',
+    seller: {
+      id: '66666666-6666-4666-8666-666666666666',
+      name: 'Jordan Lee',
+    },
+    name: 'High-end Workstation',
+    description: 'A powerful desktop for demanding projects.',
+    images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&fit=crop'],
+    price: 2502,
+    quantity: 1,
+    created_at: '2026-05-13T12:00:00.000Z',
+  },
+];
+
 const stubSearchResponse = (searchItems: Item[]) => {
   vi.mocked(fetchSearchItemsAction).mockResolvedValue({
     success: true,
@@ -94,6 +110,16 @@ it('renders the item count', async () => {
   screen.getByText('2 items found');
 });
 
+it('renders the search filters sidebar', async () => {
+  const result = await SearchList({ searchText: 'desk%20lamp' });
+
+  render(result);
+
+  screen.getByRole('heading', { name: 'Filters' });
+  expect(screen.getAllByRole('slider', { name: 'Price range' })).toHaveLength(2);
+  screen.getByRole('checkbox', { name: '4+ stars' });
+});
+
 it('renders an empty state when no items match', async () => {
   stubSearchResponse([]);
 
@@ -132,7 +158,7 @@ it('fetches active category results with filtered items', async () => {
 
   render(result);
 
-  expect(fetchFilteredItemsAction).toHaveBeenCalledWith({
+  expect(fetchFilteredItemsAction).toHaveBeenNthCalledWith(1, {
     maxPrice: 50,
     minPrice: 10,
     minStars: 4,
@@ -141,6 +167,61 @@ it('fetches active category results with filtered items', async () => {
     status: 'active',
     tag: 'books',
   });
+});
+
+it('uses the unpriced matching result set for the max price filter ceiling', async () => {
+  vi.mocked(fetchFilteredItemsAction)
+    .mockResolvedValueOnce({
+      success: true,
+      data: [items[1]],
+    })
+    .mockResolvedValueOnce({
+      success: true,
+      data: expensiveItems,
+    });
+
+  const result = await SearchList({
+    filters: {
+      maxPrice: 50,
+      minPrice: 5,
+    },
+    searchText: 'desk%20lamp',
+  });
+
+  render(result);
+
+  expect(fetchFilteredItemsAction).toHaveBeenNthCalledWith(2, {
+    searchText: 'desk lamp',
+    status: 'active',
+    tag: undefined,
+  });
+  expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(50);
+  expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveAttribute(
+    'max',
+    '2505',
+  );
+});
+
+it('falls back to visible items when the price ceiling fetch fails', async () => {
+  vi.mocked(fetchFilteredItemsAction)
+    .mockResolvedValueOnce({
+      success: true,
+      data: expensiveItems,
+    })
+    .mockResolvedValueOnce({
+      success: false,
+      error: 'Price ceiling failed',
+    });
+
+  const result = await SearchList({
+    filters: {
+      category: 'electronics',
+    },
+  });
+
+  render(result);
+
+  expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(2505);
 });
 
 it('uses the category as the title for category-only results', async () => {

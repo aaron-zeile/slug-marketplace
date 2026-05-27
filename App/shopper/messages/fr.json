@@ -60,7 +60,19 @@
     "resultsFor": "Résultats de recherche pour {query}",
     "itemsFound": "{count} article(s) trouvé(s)",
     "noResults": "Aucun article ne correspond à votre recherche.",
-    "sold": "Vendu"
+    "sold": "Vendu",
+    "filters": "Filtres",
+    "clearFilters": "Effacer",
+    "price": "Prix",
+    "priceRange": "Fourchette de prix",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "rating": "Note",
+    "allRatings": "Toutes",
+    "fourPlusStars": "4+ étoiles",
+    "threePlusStars": "3+ étoiles",
+    "twoPlusStars": "2+ étoiles",
+    "onePlusStars": "1+ étoile"
   },
   "Cart": {
     "tooltip": "Panier",

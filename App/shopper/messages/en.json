@@ -60,7 +60,19 @@
     "resultsFor": "Search results for {query}",
     "itemsFound": "{count} items found",
     "noResults": "No items match your search.",
-    "sold": "Sold"
+    "sold": "Sold",
+    "filters": "Filters",
+    "clearFilters": "Clear",
+    "price": "Price",
+    "priceRange": "Price range",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "rating": "Rating",
+    "allRatings": "All",
+    "fourPlusStars": "4+ stars",
+    "threePlusStars": "3+ stars",
+    "twoPlusStars": "2+ stars",
+    "onePlusStars": "1+ stars"
   },
   "Cart": {
     "tooltip": "Cart",
