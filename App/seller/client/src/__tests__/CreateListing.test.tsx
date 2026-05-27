@@ -3,8 +3,10 @@ import {describe, expect, it, vi} from 'vitest'
 import React from 'react'
 
 import CreateListing from '../dashboard/CreateListing'
+import {TabContext} from '../dashboard/Context'
 import {TabProvider} from '../dashboard/Provider'
 import AppProviders from '../providers/AppProviders'
+import {ErrorProvider} from '../error/Provider'
 import {renderWithProviders} from '../test/renderWithProviders'
 
 const createdListing = {
@@ -57,6 +59,33 @@ describe('CreateListing', () => {
     }).toEqual({
       priceErrorVisible: true,
       submitDisabled: true,
+      fetchCalls: [],
+    })
+  })
+
+  it('returns early from form submit while the price is invalid', () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    const {container} = renderWithProviders(<CreateListing />)
+
+    fireEvent.change(nameField(), {
+      target: {value: 'USB Hub'},
+    })
+    fireEvent.change(descriptionField(), {
+      target: {value: 'A useful hub.'},
+    })
+    fireEvent.change(priceField(), {
+      target: {value: '0'},
+    })
+    fireEvent.submit(container.querySelector('form') as HTMLFormElement)
+
+    expect({
+      priceErrorVisible:
+        screen.queryByText('Price must be at least $0.01.') !== null,
+      fetchCalls: fetchMock.mock.calls,
+    }).toEqual({
+      priceErrorVisible: true,
       fetchCalls: [],
     })
   })
@@ -125,6 +154,45 @@ describe('CreateListing', () => {
         images: '',
       },
     })
+  })
+
+  it('switches back to listings when the success view button is clicked', async () => {
+    const setTab = vi.fn()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          listing: createdListing,
+        }),
+      })),
+    )
+
+    render(
+      <AppProviders>
+        <ErrorProvider>
+          <TabContext.Provider value={{tabValue: 3, setTab}}>
+            <CreateListing />
+          </TabContext.Provider>
+        </ErrorProvider>
+      </AppProviders>,
+    )
+
+    fireEvent.change(nameField(), {
+      target: {value: 'USB Hub'},
+    })
+    fireEvent.change(descriptionField(), {
+      target: {value: 'A useful hub.'},
+    })
+    fireEvent.change(priceField(), {
+      target: {value: '24.99'},
+    })
+    fireEvent.click(screen.getByRole('button', {name: 'Create Listing'}))
+
+    await screen.findByText('Created USB Hub.')
+    fireEvent.click(screen.getByRole('button', {name: 'View'}))
+
+    expect(setTab.mock.calls).toEqual([[0]])
   })
 
   it('can render without an error provider and still report a create failure', async () => {
