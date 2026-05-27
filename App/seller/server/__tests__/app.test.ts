@@ -30,13 +30,22 @@ vi.mock('../auth/middleware.js', () => ({
 
 vi.mock('../listings/router.js', () => ({
   get: 'get-listings',
+  getReviews: 'get-listing-reviews',
   post: 'post-listing',
   put: 'put-listing',
   remove: 'remove-listing',
 }))
 
+vi.mock('../orders/router.js', () => ({
+  get: 'get-orders',
+}))
+
 vi.mock('../apiKeys/router.js', () => ({
   post: 'post-api-key',
+}))
+
+vi.mock('../auth/router.js', () => ({
+  getSession: 'get-session',
 }))
 
 vi.mock('../messages/router.js', () => ({
@@ -59,7 +68,16 @@ describe('seller app', () => {
       app: expressMocks.app,
       jsonCalls: [[]],
       useCalls: [['json-middleware']],
-      getCalls: [['/seller/api/listings', 'auth-middleware', 'get-listings']],
+      getCalls: [
+        ['/seller/api/listings', 'auth-middleware', 'get-listings'],
+        [
+          '/seller/api/listings/:id/reviews',
+          'auth-middleware',
+          'get-listing-reviews',
+        ],
+        ['/seller/api/orders', 'auth-middleware', 'get-orders'],
+        ['/seller/api/sessions', 'auth-middleware', 'get-session'],
+      ],
       postCalls: [
         ['/seller/api/listings', 'auth-middleware', 'post-listing'],
         ['/seller/api/keys', 'auth-middleware', 'post-api-key'],

@@ -9,6 +9,7 @@ export default defineConfig({
       reportsDirectory: './coverage/server',
       include: ['server/**/*.ts'],
       exclude: [
+      'server/__tests__/**',
       './server/*.config.ts',
       './*.config.ts',
       './server/*.setup.ts',

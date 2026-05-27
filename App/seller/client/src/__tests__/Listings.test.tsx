@@ -58,6 +58,10 @@ it('updates a listing only after edits are made', async () => {
     })
     .mockResolvedValueOnce({
       ok: true,
+      json: async () => ({ reviews: [] }),
+    })
+    .mockResolvedValueOnce({
+      ok: true,
       json: async () => ({
         listing: {
           ...listing,
@@ -80,8 +84,14 @@ it('updates a listing only after edits are made', async () => {
   })
   fireEvent.click(updateButton)
 
+  let updateCall: unknown[] | undefined
   await waitFor(() => {
-    if (fetchMock.mock.calls.length !== 2) {
+    updateCall = fetchMock.mock.calls.find(
+      ([url, options]) =>
+        url === '/seller/api/listings/da9d705c-0f9e-4e30-ab80-435abdf25284' &&
+        options?.method === 'PUT',
+    )
+    if (!updateCall) {
       throw new Error('Expected update request to be sent')
     }
   })
@@ -93,10 +103,10 @@ it('updates a listing only after edits are made', async () => {
 
   expect({
     dialogClosed: screen.queryByRole('dialog') === null,
-    lastFetchCall: fetchMock.mock.calls.at(-1),
+    updateCall,
   }).toEqual({
     dialogClosed: true,
-    lastFetchCall: [
+    updateCall: [
       '/seller/api/listings/da9d705c-0f9e-4e30-ab80-435abdf25284',
       expect.objectContaining({
         method: 'PUT',
