@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslations } from 'next-intl'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import AuthGuard from './auth/AuthGaurd'
+import AuthGuard from './auth/AuthGuard'
 import { ErrorProvider } from './error/Provider'
 import TopBar from './dashboard/Appbar'
 import SellerListings from './dashboard/Listings'

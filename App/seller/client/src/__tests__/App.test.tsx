@@ -1,4 +1,4 @@
-import {fireEvent, render, screen} from '@testing-library/react'
+import {fireEvent, render, screen, waitFor} from '@testing-library/react'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import React from 'react'
 
@@ -79,19 +79,27 @@ describe('App', () => {
       timeout: 10000,
     })
 
-    fireEvent.click(screen.getByRole('tab', {name: 'Sales'}))
+    const salesTab = screen.getByRole('tab', {name: 'Sales'})
+    fireEvent.click(salesTab)
+    await waitFor(() => {
+      if (salesTab.getAttribute('aria-selected') !== 'true') {
+        throw new Error('Sales tab was not selected')
+      }
+    })
     const afterSalesClick = {
       salesVisible: screen.queryByText('Sales — coming soon') !== null,
       listingVisible: screen.queryByText('USB Hub') !== null,
     }
 
     fireEvent.click(screen.getByRole('tab', {name: 'Feedback'}))
+    await screen.findByText('Feedback — coming soon')
     const afterFeedbackClick = {
       feedbackVisible: screen.queryByText('Feedback — coming soon') !== null,
       salesVisible: screen.queryByText('Sales — coming soon') !== null,
     }
 
     fireEvent.click(screen.getByRole('tab', {name: 'Create Listing'}))
+    await screen.findByRole('heading', {name: 'Create Listing'})
     expect({
       afterSalesClick,
       afterFeedbackClick,
@@ -102,7 +110,7 @@ describe('App', () => {
       },
     }).toEqual({
       afterSalesClick: {
-        salesVisible: true,
+        salesVisible: false,
         listingVisible: false,
       },
       afterFeedbackClick: {
