@@ -1,12 +1,13 @@
 import type {Request, Response} from 'express'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {get, post, put, remove} from '../listings/router.js'
+import {get, getReviews, post, put, remove} from '../listings/router.js'
 
 const serviceMocks = vi.hoisted(() => ({
   getListings: vi.fn(),
   createListing: vi.fn(),
   updateListing: vi.fn(),
   deleteListing: vi.fn(),
+  getReviews: vi.fn(),
 }))
 
 vi.mock('../listings/service.js', () => ({
@@ -28,6 +29,17 @@ const listing = {
   status: 'active',
 }
 
+const review = {
+  id: 'review-1',
+  user: {
+    id: 'buyer-1',
+    name: 'Buyer One',
+  },
+  rating: 4.5,
+  content: 'Great hub.',
+  created_at: '2026-05-20T12:00:00.000Z',
+}
+
 function response() {
   const res = {
     status: vi.fn(() => res),
@@ -44,6 +56,7 @@ describe('listings router', () => {
     serviceMocks.createListing.mockReset()
     serviceMocks.updateListing.mockReset()
     serviceMocks.deleteListing.mockReset()
+    serviceMocks.getReviews.mockReset()
   })
 
   it('gets active listings for the authenticated seller by default', async () => {
@@ -221,6 +234,68 @@ describe('listings router', () => {
     expect({
       statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
       serviceCalls: serviceMocks.updateListing.mock.calls,
+    }).toEqual({
+      statusCall: [400],
+      serviceCalls: [],
+    })
+  })
+
+  it('gets reviews for an authenticated seller listing', async () => {
+    serviceMocks.getReviews.mockResolvedValue([review])
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      params: {
+        id: 'item-1',
+      },
+    } as unknown as Request
+    const res = response()
+
+    await getReviews(req, res)
+
+    expect({
+      serviceCall: serviceMocks.getReviews.mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: ['item-1'],
+      jsonCall: [{reviews: [review]}],
+    })
+  })
+
+  it('rejects review requests without an authenticated user', async () => {
+    const req = {
+      params: {
+        id: 'item-1',
+      },
+    } as unknown as Request
+    const res = response()
+
+    await getReviews(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.getReviews.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      serviceCalls: [],
+    })
+  })
+
+  it('rejects review requests without an item id', async () => {
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      params: {},
+    } as Request
+    const res = response()
+
+    await getReviews(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.getReviews.mock.calls,
     }).toEqual({
       statusCall: [400],
       serviceCalls: [],

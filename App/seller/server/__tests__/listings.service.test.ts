@@ -16,6 +16,17 @@ const listing = {
   status: 'active',
 }
 
+const review = {
+  id: 'review-1',
+  user: {
+    id: 'buyer-1',
+    name: 'Buyer One',
+  },
+  rating: 4.5,
+  content: 'Great hub.',
+  created_at: '2026-05-20T12:00:00.000Z',
+}
+
 describe('ListingService', () => {
   const fetchMock = vi.fn()
 
@@ -240,6 +251,101 @@ describe('ListingService', () => {
       },
       queryIncludesUpdateItem: true,
     })
+  })
+
+  it('fetches reviews for a listing from the items service', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          reviews: [review],
+        },
+      }),
+    })
+
+    const reviews = await new ListingService().getReviews('item-1')
+
+    const [, request] = fetchMock.mock.calls[0] as [
+      string,
+      {body: string; headers: Record<string, string>},
+    ]
+    const body = JSON.parse(request.body)
+
+    expect({
+      reviews,
+      fetchCall: fetchMock.mock.calls[0],
+      variables: body.variables,
+      queryIncludesReviews: body.query.includes('reviews'),
+    }).toEqual({
+      reviews: [review],
+      fetchCall: [
+        'http://localhost:4500/graphql',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }),
+      ],
+      variables: {
+        input: {
+          id: 'item-1',
+        },
+      },
+      queryIncludesReviews: true,
+    })
+  })
+
+  it('returns an empty review list when the items service omits reviews data', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {},
+      }),
+    })
+
+    await expect(new ListingService().getReviews('item-1')).resolves.toEqual([])
+  })
+
+  it('throws when fetching reviews receives a non-ok response', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      statusText: 'Service Unavailable',
+    })
+
+    await expect(
+      new ListingService().getReviews('item-1'),
+    ).rejects.toThrow('Failed to fetch reviews: Service Unavailable')
+  })
+
+  it('throws the graphql error message when fetching reviews fails', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [
+          {
+            message: 'Cannot query field reviews on type Query',
+          },
+        ],
+      }),
+    })
+
+    await expect(
+      new ListingService().getReviews('item-1'),
+    ).rejects.toThrow('Cannot query field reviews on type Query')
+  })
+
+  it('throws the fallback graphql error when review errors have no message', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [{}],
+      }),
+    })
+
+    await expect(
+      new ListingService().getReviews('item-1'),
+    ).rejects.toThrow('GraphQL error')
   })
 
   it('throws when the create listing response does not match the schema', async () => {

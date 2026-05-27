@@ -37,9 +37,9 @@ export const OrderItemSchema = z.object({
 })
 
 export const OrderAddressSchema = z.object({
-  label: z.string().optional(),
+  label: z.string().nullish(),
   line1: z.string(),
-  line2: z.string().optional(),
+  line2: z.string().nullish(),
   city: z.string(),
   state: z.string(),
   postalCode: z.string(),

@@ -8,97 +8,103 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Field, Float, InputType, ObjectType } from 'type-graphql';
+import {
+  Field,
+  Float,
+  GraphQLISODateTime,
+  InputType,
+  ObjectType,
+} from 'type-graphql';
 
 @ObjectType()
 export class OrderItem {
-  @Field()
+  @Field(() => String)
   itemId!: string;
 
-  @Field()
+  @Field(() => String)
   sellerId!: string;
 }
 
 @InputType('OrderItemInput')
 export class OrderItemInput {
-  @Field()
+  @Field(() => String)
   @IsUUID()
   itemId!: string;
 
-  @Field()
+  @Field(() => String)
   @IsUUID()
   sellerId!: string;
 }
 
 @ObjectType()
 export class OrderAddress {
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   label?: string;
 
-  @Field()
+  @Field(() => String)
   line1!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   line2?: string;
 
-  @Field()
+  @Field(() => String)
   city!: string;
 
-  @Field()
+  @Field(() => String)
   state!: string;
 
-  @Field()
+  @Field(() => String)
   postalCode!: string;
 
-  @Field()
+  @Field(() => String)
   country!: string;
 }
 
 @InputType('OrderAddressInput')
 export class OrderAddressInput {
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
   label?: string;
 
-  @Field()
+  @Field(() => String)
   @IsString()
   line1!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
   line2?: string;
 
-  @Field()
+  @Field(() => String)
   @IsString()
   city!: string;
 
-  @Field()
+  @Field(() => String)
   @IsString()
   state!: string;
 
-  @Field()
+  @Field(() => String)
   @IsString()
   postalCode!: string;
 
-  @Field()
+  @Field(() => String)
   @IsString()
   country!: string;
 }
 
 @ObjectType()
 export class Order {
-  @Field()
+  @Field(() => String)
   id!: string;
 
-  @Field()
+  @Field(() => String)
   buyer!: string;
 
   @Field(() => [OrderItem])
   items!: OrderItem[];
 
-  @Field()
+  @Field(() => GraphQLISODateTime)
   orderedAt!: Date;
 
   @Field(() => Float)
@@ -110,7 +116,7 @@ export class Order {
 
 @InputType('CreateOrderInput')
 export class CreateOrderInput {
-  @Field()
+  @Field(() => String)
   @IsUUID()
   buyer!: string;
 
@@ -132,21 +138,21 @@ export class CreateOrderInput {
 
 @InputType('OrderIdInput')
 export class OrderIdInput {
-  @Field()
+  @Field(() => String)
   @IsUUID()
   id!: string;
 }
 
 @InputType('BuyerOrdersInput')
 export class BuyerOrdersInput {
-  @Field()
+  @Field(() => String)
   @IsUUID()
   buyer!: string;
 }
 
 @InputType('SellerOrdersInput')
 export class SellerOrdersInput {
-  @Field()
+  @Field(() => String)
   @IsUUID()
   seller!: string;
 }
