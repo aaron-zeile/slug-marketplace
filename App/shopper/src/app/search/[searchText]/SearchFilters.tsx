@@ -8,12 +8,14 @@ import {
   Checkbox,
   Divider,
   FormControlLabel,
+  IconButton,
   Rating,
   Slider,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useTranslations } from 'next-intl';
 import type { SearchFilters as SearchFilterValues } from './SearchList';
 
@@ -56,6 +58,7 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const selectedMinStars = filters?.minStars;
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const maxPrice = Math.max(
     DEFAULT_MAX_PRICE,
     roundUpToPriceStep(maxItemPrice),
@@ -157,7 +160,7 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
         pr: { md: 3 },
       }}
     >
-      <Stack spacing={2}>
+      <Stack spacing={{ xs: 1, md: 2 }}>
         <Box
           sx={{
             alignItems: 'center',
@@ -166,9 +169,36 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
             gap: 1,
           }}
         >
-          <Typography component="h2" sx={{ fontSize: '1.1rem', fontWeight: 700 }}>
-            {t('filters')}
-          </Typography>
+          <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.5 }}>
+            <Typography component="h2" sx={{ fontSize: '1.1rem', fontWeight: 700 }}>
+              <Box
+                component="button"
+                aria-expanded={filtersOpen}
+                onClick={() => setFiltersOpen((open) => !open)}
+                sx={{
+                  all: 'unset',
+                  cursor: 'pointer',
+                  display: { xs: 'inline', md: 'contents' },
+                }}
+              >
+                {t('filters')}
+              </Box>
+            </Typography>
+            <IconButton
+              aria-expanded={filtersOpen}
+              aria-label={t('toggleFilters')}
+              onClick={() => setFiltersOpen((open) => !open)}
+              sx={{
+                color: 'common.black',
+                display: { xs: 'inline-flex', md: 'none' },
+                p: 0.25,
+                transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 150ms ease',
+              }}
+            >
+              <KeyboardArrowDownIcon sx={{ fontSize: 42, strokeWidth: 2 }} />
+            </IconButton>
+          </Box>
           <Button
             size="small"
             onClick={clearFilters}
@@ -180,103 +210,107 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
 
         <Divider />
 
-        <Stack spacing={1.5}>
-          <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: 0 }}>
-            {t('price')}
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              color: 'primary.main',
-              fontSize: '0.8rem',
-            }}
-          >
-            <span>${priceRange[0]}</span>
-            <span>${priceRange[1]}</span>
-          </Box>
-          <Box sx={{ px: 1 }}>
-            <Slider
-              aria-label={t('priceRange')}
-              min={MIN_PRICE}
-              max={maxPrice}
-              step={PRICE_STEP}
-              value={priceRange}
-              onChange={(_, value) => {
-                const [min, max] = value as number[];
-                setPriceRange([min, max]);
-              }}
-              onChangeCommitted={(_, value) => {
-                const [min, max] = value as number[];
-                commitPriceRange([min, max]);
-              }}
-              valueLabelDisplay="auto"
-              sx={{ display: 'block' }}
-            />
-          </Box>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-            <TextField
-              label={t('minPrice')}
-              size="small"
-              type="number"
-              value={priceRange[0]}
-              onChange={(event) => {
-                const nextMin = clampPrice(Number(event.target.value), MIN_PRICE, maxPrice);
-                setPriceRange([Math.min(nextMin, priceRange[1]), priceRange[1]]);
-              }}
-              onBlur={() => commitPriceRange()}
-              slotProps={{ htmlInput: { min: MIN_PRICE, max: maxPrice, step: PRICE_STEP } }}
-            />
-            <TextField
-              label={t('maxPrice')}
-              size="small"
-              type="number"
-              value={priceRange[1]}
-              onChange={(event) => {
-                const nextMax = clampPrice(Number(event.target.value), maxPrice, maxPrice);
-                setPriceRange([priceRange[0], Math.max(nextMax, priceRange[0])]);
-              }}
-              onBlur={() => commitPriceRange()}
-              slotProps={{ htmlInput: { min: MIN_PRICE, max: maxPrice, step: PRICE_STEP } }}
-            />
-          </Box>
-        </Stack>
-
-        <Divider />
-
-        <Stack spacing={0.1}>
-          <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: 0 }}>
-            {t('rating')}
-          </Typography>
-          {ratingOptions.map((option) => (
-            <FormControlLabel
-              key={option.label}
-              control={
-                <Checkbox
-                  checked={selectedMinStars === option.value}
-                  onChange={() => updateRating(option.value)}
-                  size="small"
+        <Box sx={{ display: { xs: filtersOpen ? 'block' : 'none', md: 'block' } }}>
+          <Stack spacing={2}>
+            <Stack spacing={1.5}>
+              <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: 0 }}>
+                {t('price')}
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  color: 'primary.main',
+                  fontSize: '0.8rem',
+                }}
+              >
+                <span>${priceRange[0]}</span>
+                <span>${priceRange[1]}</span>
+              </Box>
+              <Box sx={{ px: 1 }}>
+                <Slider
+                  aria-label={t('priceRange')}
+                  min={MIN_PRICE}
+                  max={maxPrice}
+                  step={PRICE_STEP}
+                  value={priceRange}
+                  onChange={(_, value) => {
+                    const [min, max] = value as number[];
+                    setPriceRange([min, max]);
+                  }}
+                  onChangeCommitted={(_, value) => {
+                    const [min, max] = value as number[];
+                    commitPriceRange([min, max]);
+                  }}
+                  valueLabelDisplay="auto"
+                  sx={{ display: 'block' }}
                 />
-              }
-              label={ratingLabel(option)}
-              sx={{
-                m: 0,
-                minHeight: 22,
-                alignItems: 'center',
-                '& .MuiFormControlLabel-label': {
-                  fontSize: '0.9rem',
-                  lineHeight: 1,
-                },
-                '& .MuiCheckbox-root': {
-                  ml: 0,
-                  mr: 0.75,
-                  p: 0,
-                  py: 0.25,
-                },
-              }}
-            />
-          ))}
-        </Stack>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                <TextField
+                  label={t('minPrice')}
+                  size="small"
+                  type="number"
+                  value={priceRange[0]}
+                  onChange={(event) => {
+                    const nextMin = clampPrice(Number(event.target.value), MIN_PRICE, maxPrice);
+                    setPriceRange([Math.min(nextMin, priceRange[1]), priceRange[1]]);
+                  }}
+                  onBlur={() => commitPriceRange()}
+                  slotProps={{ htmlInput: { min: MIN_PRICE, max: maxPrice, step: PRICE_STEP } }}
+                />
+                <TextField
+                  label={t('maxPrice')}
+                  size="small"
+                  type="number"
+                  value={priceRange[1]}
+                  onChange={(event) => {
+                    const nextMax = clampPrice(Number(event.target.value), maxPrice, maxPrice);
+                    setPriceRange([priceRange[0], Math.max(nextMax, priceRange[0])]);
+                  }}
+                  onBlur={() => commitPriceRange()}
+                  slotProps={{ htmlInput: { min: MIN_PRICE, max: maxPrice, step: PRICE_STEP } }}
+                />
+              </Box>
+            </Stack>
+
+            <Divider />
+
+            <Stack spacing={0.1}>
+              <Typography sx={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: 0 }}>
+                {t('rating')}
+              </Typography>
+              {ratingOptions.map((option) => (
+                <FormControlLabel
+                  key={option.label}
+                  control={
+                    <Checkbox
+                      checked={selectedMinStars === option.value}
+                      onChange={() => updateRating(option.value)}
+                      size="small"
+                    />
+                  }
+                  label={ratingLabel(option)}
+                  sx={{
+                    m: 0,
+                    minHeight: 22,
+                    alignItems: 'center',
+                    '& .MuiFormControlLabel-label': {
+                      fontSize: '0.9rem',
+                      lineHeight: 1,
+                    },
+                    '& .MuiCheckbox-root': {
+                      ml: 0,
+                      mr: 0.75,
+                      p: 0,
+                      py: 0.25,
+                    },
+                  }}
+                />
+              ))}
+            </Stack>
+          </Stack>
+        </Box>
       </Stack>
     </Box>
   );

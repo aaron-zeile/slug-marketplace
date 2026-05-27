@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import SearchList from '../../src/app/search/[searchText]/SearchList';
@@ -116,6 +116,7 @@ it('renders the search filters sidebar', async () => {
   render(result);
 
   screen.getByRole('heading', { name: 'Filters' });
+  fireEvent.click(screen.getByRole('button', { name: 'Toggle filters' }));
   expect(screen.getAllByRole('slider', { name: 'Price range' })).toHaveLength(2);
   screen.getByRole('checkbox', { name: '4+ stars' });
 });
@@ -189,6 +190,7 @@ it('uses the unpriced matching result set for the max price filter ceiling', asy
   });
 
   render(result);
+  fireEvent.click(screen.getByRole('button', { name: 'Toggle filters' }));
 
   expect(fetchFilteredItemsAction).toHaveBeenNthCalledWith(2, {
     searchText: 'desk lamp',
@@ -220,6 +222,7 @@ it('falls back to visible items when the price ceiling fetch fails', async () =>
   });
 
   render(result);
+  fireEvent.click(screen.getByRole('button', { name: 'Toggle filters' }));
 
   expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(2505);
 });

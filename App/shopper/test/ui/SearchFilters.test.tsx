@@ -14,6 +14,10 @@ beforeEach(() => {
   mockSearchParams.mockReturnValue(new URLSearchParams());
 });
 
+function openFilters() {
+  fireEvent.click(screen.getByRole('button', { name: 'Toggle filters' }));
+}
+
 it('renders price controls and compact rating options', () => {
   render(
     <SearchFilters
@@ -21,6 +25,7 @@ it('renders price controls and compact rating options', () => {
       maxItemPrice={2006}
     />,
   );
+  openFilters();
 
   expect(screen.getByRole('heading', { name: 'Filters' })).toBeDefined();
   expect(screen.getByRole('spinbutton', { name: 'Min' })).toHaveValue(10);
@@ -31,6 +36,7 @@ it('renders price controls and compact rating options', () => {
 
 it('rounds the slider ceiling up to the nearest five dollars', () => {
   render(<SearchFilters maxItemPrice={2006} />);
+  openFilters();
 
   expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(2010);
 });
@@ -42,6 +48,7 @@ it('falls back when incoming price filters are not finite numbers', () => {
       maxItemPrice={100}
     />,
   );
+  openFilters();
 
   expect(screen.getByRole('spinbutton', { name: 'Min' })).toHaveValue(0);
   expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(2000);
@@ -49,6 +56,7 @@ it('falls back when incoming price filters are not finite numbers', () => {
 
 it('orders incoming price filters when the minimum is above the maximum', () => {
   render(<SearchFilters filters={{ maxPrice: 50, minPrice: 100 }} />);
+  openFilters();
 
   expect(screen.getByRole('spinbutton', { name: 'Min' })).toHaveValue(50);
   expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(100);
@@ -60,6 +68,7 @@ it('keeps existing params when a minimum price is applied', () => {
   );
 
   render(<SearchFilters maxItemPrice={2500} />);
+  openFilters();
 
   const minInput = screen.getByRole('spinbutton', { name: 'Min' });
   fireEvent.change(minInput, { target: { value: '25' } });
@@ -72,6 +81,7 @@ it('keeps existing params when a minimum price is applied', () => {
 
 it('updates the maximum price filter from the max input', () => {
   render(<SearchFilters maxItemPrice={2500} />);
+  openFilters();
 
   const maxInput = screen.getByRole('spinbutton', { name: 'Max' });
   fireEvent.change(maxInput, { target: { value: '125' } });
@@ -82,6 +92,7 @@ it('updates the maximum price filter from the max input', () => {
 
 it('updates the price range when the slider changes', () => {
   render(<SearchFilters maxItemPrice={2500} />);
+  openFilters();
 
   const sliders = screen.getAllByRole('slider', { name: 'Price range' });
   fireEvent.change(sliders[0], { target: { value: '20' } });
@@ -95,6 +106,7 @@ it('updates the minimum stars filter from the rating checkboxes', () => {
   mockSearchParams.mockReturnValue(new URLSearchParams('minPrice=20'));
 
   render(<SearchFilters />);
+  openFilters();
 
   fireEvent.click(screen.getByRole('checkbox', { name: '3+ stars' }));
 
@@ -107,10 +119,33 @@ it('removes the rating filter when all ratings is selected', () => {
   mockSearchParams.mockReturnValue(new URLSearchParams('minStars=4'));
 
   render(<SearchFilters filters={{ minStars: 4 }} />);
+  openFilters();
 
   fireEvent.click(screen.getByRole('checkbox', { name: 'All' }));
 
   expect(MockRouter.push).toHaveBeenCalledWith('/search/desk');
+});
+
+it('toggles the mobile filters menu', () => {
+  render(<SearchFilters />);
+
+  const toggle = screen.getByRole('button', { name: 'Toggle filters' });
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+  fireEvent.click(toggle);
+
+  expect(toggle).toHaveAttribute('aria-expanded', 'true');
+});
+
+it('toggles the mobile filters menu from the filters label', () => {
+  render(<SearchFilters />);
+
+  const labelToggle = screen.getByRole('button', { name: 'Filters' });
+  expect(labelToggle).toHaveAttribute('aria-expanded', 'false');
+
+  fireEvent.click(labelToggle);
+
+  expect(labelToggle).toHaveAttribute('aria-expanded', 'true');
 });
 
 it('clears price and rating params without removing unrelated params', () => {

@@ -25,16 +25,6 @@ function filterLabel(filters?: SearchFilters) {
   return filters?.category ? decodeURIComponent(filters.category) : 'all items';
 }
 
-function filterStateKey(filters?: SearchFilters) {
-  return [
-    filters?.category,
-    filters?.maxPrice,
-    filters?.minPrice,
-    filters?.minStars,
-    filters?.sortBy,
-  ].join(':');
-}
-
 export default async function SearchList({ searchText, filters }: SearchListProps) {
   const t = await getTranslations('Search');
   const decodedSearchText = searchText ? decodeURIComponent(searchText) : '';
@@ -72,7 +62,7 @@ export default async function SearchList({ searchText, filters }: SearchListProp
       maxWidth={false}
       sx={{
         px: { xs: 2, sm: 4, md: 4 },
-        py: 3,
+        py: { xs: 1, md: 3 },
       }}
     >
       <Box
@@ -84,7 +74,6 @@ export default async function SearchList({ searchText, filters }: SearchListProp
         }}
       >
         <SearchFiltersPanel
-          key={filterStateKey(filters)}
           filters={filters}
           maxItemPrice={maxItemPrice}
         />

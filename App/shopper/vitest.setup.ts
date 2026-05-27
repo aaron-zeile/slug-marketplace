@@ -85,6 +85,7 @@ const intlMessages: Record<string, Record<string, string>> = {
     noResults: 'No items match your search.',
     sold: 'Sold',
     filters: 'Filters',
+    toggleFilters: 'Toggle filters',
     clearFilters: 'Clear',
     price: 'Price',
     priceRange: 'Price range',

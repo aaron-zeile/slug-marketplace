@@ -62,6 +62,7 @@
     "noResults": "Aucun article ne correspond à votre recherche.",
     "sold": "Vendu",
     "filters": "Filtres",
+    "toggleFilters": "Afficher ou masquer les filtres",
     "clearFilters": "Effacer",
     "price": "Prix",
     "priceRange": "Fourchette de prix",
