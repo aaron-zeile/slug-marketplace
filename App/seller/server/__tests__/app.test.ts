@@ -1,94 +1,127 @@
 import {describe, expect, it, vi} from 'vitest'
 
-const expressMocks = vi.hoisted(() => {
-  const app = {
-    use: vi.fn(),
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  }
-  const json = vi.fn(() => 'json-middleware')
-  const express = vi.fn(() => app)
-
-  return {
-    app,
-    express,
-    json,
-  }
-})
-
-vi.mock('express', () => ({
-  default: Object.assign(expressMocks.express, {
-    json: expressMocks.json,
-  }),
-}))
-
 vi.mock('../auth/middleware.js', () => ({
-  doCheck: 'auth-middleware',
+  doCheck: (
+    _req: unknown,
+    _res: unknown,
+    next: (...args: unknown[]) => void,
+  ) => next(),
 }))
 
 vi.mock('../listings/router.js', () => ({
-  get: 'get-listings',
-  getReviews: 'get-listing-reviews',
-  post: 'post-listing',
-  put: 'put-listing',
-  remove: 'remove-listing',
+  get: (_req: unknown, res: {json: (body: unknown) => void}) =>
+    res.json({route: 'get-listings'}),
+  getReviews: (
+    req: {params: {id: string}},
+    res: {json: (body: unknown) => void},
+  ) => res.json({route: 'get-listing-reviews', id: req.params.id}),
+  post: (_req: unknown, res: {json: (body: unknown) => void}) =>
+    res.json({route: 'post-listing'}),
+  put: (
+    req: {params: {id: string}},
+    res: {json: (body: unknown) => void},
+  ) => res.json({route: 'put-listing', id: req.params.id}),
+  remove: (
+    req: {params: {id: string}},
+    res: {json: (body: unknown) => void},
+  ) => res.json({route: 'remove-listing', id: req.params.id}),
 }))
 
 vi.mock('../orders/router.js', () => ({
-  get: 'get-orders',
+  get: (_req: unknown, res: {json: (body: unknown) => void}) =>
+    res.json({route: 'get-orders'}),
 }))
 
 vi.mock('../apiKeys/router.js', () => ({
-  post: 'post-api-key',
+  post: (_req: unknown, res: {json: (body: unknown) => void}) =>
+    res.json({route: 'post-api-key'}),
 }))
 
 vi.mock('../auth/router.js', () => ({
-  getSession: 'get-session',
+  getSession: (_req: unknown, res: {json: (body: unknown) => void}) =>
+    res.json({route: 'get-session'}),
 }))
 
 vi.mock('../messages/router.js', () => ({
-  post: 'post-message',
+  post: (_req: unknown, res: {json: (body: unknown) => void}) =>
+    res.json({route: 'post-message'}),
 }))
 
-describe('seller app', () => {
-  it('registers seller listing routes behind auth middleware', async () => {
-    const {default: app} = await import('../app.js')
+interface RouteCase {
+  method: 'get' | 'post' | 'put' | 'delete'
+  path: string
+  expected: Record<string, unknown>
+}
 
-    expect({
-      app,
-      jsonCalls: expressMocks.json.mock.calls,
-      useCalls: expressMocks.app.use.mock.calls,
-      getCalls: expressMocks.app.get.mock.calls,
-      postCalls: expressMocks.app.post.mock.calls,
-      putCalls: expressMocks.app.put.mock.calls,
-      deleteCalls: expressMocks.app.delete.mock.calls,
-    }).toEqual({
-      app: expressMocks.app,
-      jsonCalls: [[]],
-      useCalls: [['json-middleware']],
-      getCalls: [
-        ['/seller/api/listings', 'auth-middleware', 'get-listings'],
-        [
-          '/seller/api/listings/:id/reviews',
-          'auth-middleware',
-          'get-listing-reviews',
-        ],
-        ['/seller/api/orders', 'auth-middleware', 'get-orders'],
-        ['/seller/api/sessions', 'auth-middleware', 'get-session'],
-      ],
-      postCalls: [
-        ['/seller/api/listings', 'auth-middleware', 'post-listing'],
-        ['/seller/api/keys', 'auth-middleware', 'post-api-key'],
-        ['/seller/api/messages', 'auth-middleware', 'post-message'],
-      ],
-      putCalls: [
-        ['/seller/api/listings/:id', 'auth-middleware', 'put-listing'],
-      ],
-      deleteCalls: [
-        ['/seller/api/listings/:id', 'auth-middleware', 'remove-listing'],
-      ],
-    })
+const routeCases: RouteCase[] = [
+  {method: 'get', path: '/api/listings', expected: {route: 'get-listings'}},
+  {
+    method: 'get',
+    path: '/api/listings/abc/reviews',
+    expected: {route: 'get-listing-reviews', id: 'abc'},
+  },
+  {method: 'get', path: '/api/orders', expected: {route: 'get-orders'}},
+  {method: 'get', path: '/api/sessions', expected: {route: 'get-session'}},
+  {method: 'post', path: '/api/listings', expected: {route: 'post-listing'}},
+  {method: 'post', path: '/api/keys', expected: {route: 'post-api-key'}},
+  {method: 'post', path: '/api/messages', expected: {route: 'post-message'}},
+  {
+    method: 'put',
+    path: '/api/listings/abc',
+    expected: {route: 'put-listing', id: 'abc'},
+  },
+  {
+    method: 'delete',
+    path: '/api/listings/abc',
+    expected: {route: 'remove-listing', id: 'abc'},
+  },
+]
+
+async function callRoute(
+  app: import('express').Express,
+  method: RouteCase['method'],
+  path: string,
+): Promise<{status: number; body: unknown}> {
+  const {createServer} = await import('node:http')
+  const server = createServer(app)
+  await new Promise<void>((resolve) => {
+    server.listen(0, resolve)
   })
+  const address = server.address()
+  if (!address || typeof address === 'string') {
+    server.close()
+    throw new Error('Failed to start test server')
+  }
+
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:${String(address.port)}${path}`,
+      {method: method.toUpperCase()},
+    )
+    const body = (await response.json()) as unknown
+    return {status: response.status, body}
+  } finally {
+    await new Promise<void>((resolve) => {
+      server.close(() => {
+        resolve()
+      })
+    })
+  }
+}
+
+describe('seller app', () => {
+  it.each(routeCases)(
+    'mounts $method $path at both /seller/api and /api prefixes',
+    async ({method, path, expected}) => {
+      const {default: app} = await import('../app.js')
+
+      const prefixed = await callRoute(app, method, `/seller${path}`)
+      expect(prefixed.status).toBe(200)
+      expect(prefixed.body).toEqual(expected)
+
+      const stripped = await callRoute(app, method, path)
+      expect(stripped.status).toBe(200)
+      expect(stripped.body).toEqual(expected)
+    },
+  )
 })
