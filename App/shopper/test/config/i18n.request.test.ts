@@ -48,4 +48,14 @@ describe('i18n requestConfig', () => {
     expect(result.locale).toBe('fr');
     expect(result.messages).toBeDefined();
   });
+
+  it('falls back to english messages for unsupported locale', async () => {
+    mockCookiesGet.mockReturnValue({ value: 'es' });
+    const result = await (requestConfig as RequestConfigFn)({});
+    expect(result.locale).toBe('es');
+    expect(
+      (result.messages as { Search?: { placeholder?: string } }).Search
+        ?.placeholder,
+    ).toBe('Search SlugMarketplace');
+  });
 });

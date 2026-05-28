@@ -8,6 +8,7 @@ import {
   deleteAddressAction,
   listAddressesAction,
   setDefaultAddressAction,
+  updateAddressAction,
 } from '../../src/app/account/actions';
 import { setLoginCookieStoreForTest } from '../../src/app/buyer/login/cookies';
 
@@ -154,4 +155,103 @@ it('returns not signed in when there is no session cookie', async () => {
   const result = await listAddressesAction();
   expect(result.success).toBe(false);
   expect(result.error).toBe('Not signed in');
+});
+
+it.skipIf(!dbReady)('returns validation error when create input is invalid', async () => {
+  const result = await createAddressAction({
+    line1: '',
+    city: 'Santa Cruz',
+    state: 'CA',
+    postal_code: '95060',
+    country: 'US',
+  });
+
+  expect(result.success).toBe(false);
+  expect(result.error).toBe('Address line 1 is required.');
+});
+
+it.skipIf(!dbReady)('returns validation error when update address id is invalid', async () => {
+  const result = await updateAddressAction('not-a-uuid', {
+    line1: '123 Main St',
+    city: 'Santa Cruz',
+    state: 'CA',
+    postal_code: '95060',
+    country: 'US',
+  });
+
+  expect(result.success).toBe(false);
+  expect(result.error).toContain('Invalid address id');
+});
+
+it.skipIf(!dbReady)('returns validation error when update payload is invalid', async () => {
+  const created = await createAddressAction({
+    line1: '123 Main St',
+    city: 'Santa Cruz',
+    state: 'CA',
+    postal_code: '95060',
+    country: 'US',
+  });
+
+  expect(created.success).toBe(true);
+
+  const result = await updateAddressAction(created.data!.id, {
+    line1: '456 Oak Ave',
+    city: '',
+    state: 'CA',
+    postal_code: '95064',
+    country: 'US',
+  });
+
+  expect(result.success).toBe(false);
+  expect(result.error).toBe('City is required.');
+});
+
+it.skipIf(!dbReady)('updates an existing address', async () => {
+  const created = await createAddressAction({
+    line1: '123 Main St',
+    city: 'Santa Cruz',
+    state: 'CA',
+    postal_code: '95060',
+    country: 'US',
+  });
+
+  expect(created.success).toBe(true);
+
+  const result = await updateAddressAction(created.data!.id, {
+    label: 'Work',
+    line1: '456 Oak Ave',
+    city: 'Santa Cruz',
+    state: 'CA',
+    postal_code: '95064',
+    country: 'US',
+  });
+
+  expect(result.success).toBe(true);
+  expect(result.data?.label).toBe('Work');
+  expect(result.data?.line1).toBe('456 Oak Ave');
+});
+
+it.skipIf(!dbReady)('returns validation error when delete address id is invalid', async () => {
+  const result = await deleteAddressAction('not-a-uuid');
+
+  expect(result.success).toBe(false);
+  expect(result.error).toContain('Invalid address id');
+});
+
+it.skipIf(!dbReady)('returns validation error when default address id is invalid', async () => {
+  const result = await setDefaultAddressAction('not-a-uuid');
+
+  expect(result.success).toBe(false);
+  expect(result.error).toContain('Invalid address id');
+});
+
+it.skipIf(!dbReady)('returns service error when login service is unavailable', async () => {
+  const originalUrl = process.env.LOGIN_SERVICE_URL;
+  process.env.LOGIN_SERVICE_URL = 'http://127.0.0.1:1/api/v0';
+
+  const result = await listAddressesAction();
+
+  expect(result.success).toBe(false);
+  expect(result.error).toContain('fetch failed');
+  process.env.LOGIN_SERVICE_URL = originalUrl;
 });

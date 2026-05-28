@@ -73,3 +73,30 @@ it('deletes an address', async () => {
     expect(onChange).toHaveBeenCalled();
   });
 });
+
+it('shows an error when delete fails', async () => {
+  vi.mocked(deleteAddressAction).mockResolvedValue({
+    success: false,
+    error: 'Unable to delete address.',
+  });
+
+  render(<AddressList addresses={addresses} onChange={vi.fn()} />);
+
+  fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0]);
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Unable to delete address.',
+  );
+});
+
+it('shows the edit form and can cancel editing', async () => {
+  render(<AddressList addresses={addresses} onChange={vi.fn()} />);
+
+  fireEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]);
+
+  expect(await screen.findByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+  expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+});

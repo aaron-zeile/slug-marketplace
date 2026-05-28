@@ -2,6 +2,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 
 import {
   addToCart,
+  clearCart,
   getCart,
   getCartItems,
   removeFromCart,
@@ -140,6 +141,25 @@ it('removes an item from the cart', async () => {
     expect.objectContaining({
       variables: {
         input: { member, item: itemId },
+      },
+    }),
+  );
+});
+
+it('clears the cart for a member', async () => {
+  mockFetchResponse({
+    data: {
+      clearCart: true,
+    },
+  });
+
+  await clearCart(member);
+
+  const [, options] = vi.mocked(fetch).mock.calls[0];
+  expect(JSON.parse(options?.body as string)).toEqual(
+    expect.objectContaining({
+      variables: {
+        input: { member },
       },
     }),
   );

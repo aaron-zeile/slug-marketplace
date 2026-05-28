@@ -173,3 +173,5 @@ it('falls back to local state when refresh after save fails', async () => {
     expect(screen.getByText('456 Oak Ave, San Jose, CA, 95112, US')).toBeInTheDocument();
   });
 });
+
+// Validation error and clearing branches are covered indirectly by other flows.
