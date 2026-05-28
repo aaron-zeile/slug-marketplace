@@ -62,7 +62,9 @@
     "test-admin": "cd App/admin && npm test",
     "test-seller": "cd App/seller && npm test",
     "test-shopper": "cd App/shopper && npm test",
-    "e2e": "powershell -ExecutionPolicy Bypass -File ./scripts/e2e.ps1",
+    "e2e": "powershell -ExecutionPolicy Bypass -File ./scripts/e2e.ps1 -UseDev -SkipBuild -StopPortProcesses",
+    "e2e:docker": "powershell -ExecutionPolicy Bypass -File ./scripts/e2e.ps1 -SkipBuild -StopPortProcesses",
+    "e2e:build": "powershell -ExecutionPolicy Bypass -File ./scripts/e2e.ps1",
     "e2e:test": "vitest run e2e --pool=threads --no-file-parallelism --testTimeout=20000"
   },
   "dependencies": {
