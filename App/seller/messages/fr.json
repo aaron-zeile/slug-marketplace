@@ -54,6 +54,8 @@
     "descriptionLabel": "Description",
     "priceLabel": "Prix",
     "priceError": "Le prix doit être d'au moins 0,01 $.",
+    "quantityLabel": "Quantité",
+    "quantityError": "La quantité doit être un nombre entier d'au moins 1.",
     "imagesLabel": "URL des images",
     "imagesHelper": "Saisissez une URL d'image par ligne.",
     "submit": "Créer l'annonce",

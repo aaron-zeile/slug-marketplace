@@ -29,6 +29,8 @@ describe('CreateListing', () => {
   const descriptionField = () =>
     screen.getByRole('textbox', {name: /description/i})
   const priceField = () => screen.getByRole('spinbutton', {name: /price/i})
+  const quantityField = () =>
+    screen.getByRole('spinbutton', {name: /quantity/i})
   const imagesField = () => screen.getByRole('textbox', {name: /image urls/i})
 
   it('does not submit while the price is invalid', () => {
@@ -110,6 +112,9 @@ describe('CreateListing', () => {
     fireEvent.change(priceField(), {
       target: {value: '24.99'},
     })
+    fireEvent.change(quantityField(), {
+      target: {value: '3'},
+    })
     fireEvent.change(imagesField(), {
       target: {value: 'https://example.com/hub.png\n\n  '},
     })
@@ -128,6 +133,7 @@ describe('CreateListing', () => {
         name: (nameField() as HTMLInputElement).value,
         description: (descriptionField() as HTMLTextAreaElement).value,
         price: (priceField() as HTMLInputElement).value,
+        quantity: (quantityField() as HTMLInputElement).value,
         images: (imagesField() as HTMLTextAreaElement).value,
       },
     }).toEqual({
@@ -143,6 +149,7 @@ describe('CreateListing', () => {
             name: 'USB Hub',
             description: 'A useful hub.',
             price: 24.99,
+            quantity: 3,
             images: ['https://example.com/hub.png'],
           }),
         },
@@ -151,6 +158,7 @@ describe('CreateListing', () => {
         name: '',
         description: '',
         price: '',
+        quantity: '',
         images: '',
       },
     })

@@ -26,6 +26,8 @@ async function createListing() {
   await page.type('aria/Description', 'Test Description')
   await page.click('aria/Price')
   await page.type('aria/Price', '10')
+  await page.click('aria/Quantity')
+  await page.type('aria/Quantity', '2')
   await page.click('aria/Image URLs')
   await page.type('aria/Image URLs', listingImageUrl)
 
