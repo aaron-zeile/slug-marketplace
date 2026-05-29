@@ -15,7 +15,7 @@ import { TabProvider } from './dashboard/Provider'
 import { useDashboard } from './dashboard/useDashboard'
 import AppProviders from './providers/AppProviders'
 
-function TabPlaceholder({ messageKey }: { messageKey: 'feedback' }) {
+function TabPlaceholder({ messageKey }: { messageKey: 'analytics' }) {
   const t = useTranslations('Placeholders')
   return (
     <Box sx={{ p: 3 }}>
@@ -35,7 +35,7 @@ export function AppContent() {
     content = <Sales />
   }
   if (tabValue === 2) {
-    content = <TabPlaceholder messageKey="feedback" />
+    content = <TabPlaceholder messageKey="analytics" />
   }
   if (tabValue === 3) {
     content = <CreateListing />

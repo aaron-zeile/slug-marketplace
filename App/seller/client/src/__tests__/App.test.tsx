@@ -91,10 +91,10 @@ describe('App', () => {
       listingVisible: screen.queryByText('USB Hub') !== null,
     }
 
-    fireEvent.click(screen.getByRole('tab', {name: 'Feedback'}))
-    await screen.findByText('Feedback — coming soon')
-    const afterFeedbackClick = {
-      feedbackVisible: screen.queryByText('Feedback — coming soon') !== null,
+    fireEvent.click(screen.getByRole('tab', {name: 'analytics'}))
+    await screen.findByText('Analytics — coming soon')
+    const afteranalyticsClick = {
+      analyticsVisible: screen.queryByText('Analytics — coming soon') !== null,
       salesVisible: screen.queryByText('Sales — coming soon') !== null,
     }
 
@@ -102,24 +102,24 @@ describe('App', () => {
     await screen.findByRole('heading', {name: 'Create Listing'})
     expect({
       afterSalesClick,
-      afterFeedbackClick,
+      afteranalyticsClick,
       afterCreateListingClick: {
         createHeadingVisible:
           screen.queryByRole('heading', {name: 'Create Listing'}) !== null,
-        feedbackVisible: screen.queryByText('Feedback — coming soon') !== null,
+        analyticsVisible: screen.queryByText('analytics — coming soon') !== null,
       },
     }).toEqual({
       afterSalesClick: {
         salesVisible: false,
         listingVisible: false,
       },
-      afterFeedbackClick: {
-        feedbackVisible: true,
+      afteranalyticsClick: {
+        analyticsVisible: true,
         salesVisible: false,
       },
       afterCreateListingClick: {
         createHeadingVisible: true,
-        feedbackVisible: false,
+        analyticsVisible: false,
       },
     })
   }, 15000)

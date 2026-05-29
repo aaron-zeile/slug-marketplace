@@ -6,7 +6,7 @@
   "Tabs": {
     "listings": "Listings",
     "sales": "Sales",
-    "feedback": "Feedback",
+    "analytics": "Analytics",
     "createListing": "Create Listing",
     "contactAdmin": "Contact Admin",
     "ariaLabel": "Seller dashboard tabs"
@@ -71,7 +71,7 @@
   },
   "Placeholders": {
     "sales": "Sales — coming soon",
-    "feedback": "Feedback — coming soon"
+    "analytics": "analytics — coming soon"
   },
   "ContactAdmin": {
     "title": "Contact Admin",

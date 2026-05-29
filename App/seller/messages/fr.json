@@ -6,7 +6,7 @@
   "Tabs": {
     "listings": "Annonces",
     "sales": "Ventes",
-    "feedback": "Commentaires",
+    "analytics": "Commentaires",
     "createListing": "Créer une annonce",
     "contactAdmin": "Contacter l'admin",
     "ariaLabel": "Onglets du tableau de bord vendeur"
@@ -71,7 +71,7 @@
   },
   "Placeholders": {
     "sales": "Ventes — bientôt disponible",
-    "feedback": "Commentaires — bientôt disponible"
+    "analytics": "Commentaires — bientôt disponible"
   },
   "ContactAdmin": {
     "title": "Contacter l'admin",

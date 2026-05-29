@@ -6,7 +6,7 @@ const intlMessages: Record<string, Record<string, string>> = {
   Tabs: {
     listings: 'Listings',
     sales: 'Sales',
-    feedback: 'Feedback',
+    analytics: 'Analytics',
     createListing: 'Create Listing',
     ariaLabel: 'Seller dashboard tabs',
   },
@@ -55,7 +55,7 @@ const intlMessages: Record<string, Record<string, string>> = {
   LocaleSwitcher: { label: 'Locale', en: 'English', fr: 'Français' },
   Placeholders: {
     sales: 'Sales — coming soon',
-    feedback: 'Feedback — coming soon',
+    analytics: 'analytics — coming soon',
   },
 };
 
