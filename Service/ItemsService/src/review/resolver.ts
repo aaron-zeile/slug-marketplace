@@ -1,8 +1,8 @@
-import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Authorized, Ctx, Float, Mutation, Query, Resolver } from 'type-graphql';
 
 import type { ItemsGraphQLContext } from '../auth/context';
 import { ItemId } from '../item/schema';
-import { NewReview, Review, ReviewId } from './schema';
+import { NewReview, Review, ReviewId, SellerId } from './schema';
 import { ReviewService } from './service';
 
 @Resolver()
@@ -37,5 +37,12 @@ export class ReviewResolver {
     }
     await new ReviewService().deleteReview(user, input);
     return true;
+  }
+
+  @Query(() => Float)
+  async getAvgRating(
+    @Arg('input') input: SellerId
+  ): Promise<GLfloat> {
+    return new ReviewService().getAvgRating(input)
   }
 }

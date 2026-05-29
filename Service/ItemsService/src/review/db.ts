@@ -1,6 +1,6 @@
 import { pool } from '../db';
 import { ItemId } from '../item/schema';
-import { Review } from './schema';
+import { Review, SellerId } from './schema';
 
 const reviewSelectShape = `
   r.id,
@@ -71,3 +71,19 @@ export const deleteReviewById = async (
   const result = await pool.query(del, [reviewId, userId]);
   return (result.rowCount ?? 0) > 0;
 };
+
+export async function getAvgRating(sellerId: SellerId):
+  Promise<GLfloat> {
+    const select = `
+    SELECT AVG((data->>'rating')::float) AS rating
+    FROM review r
+    JOIN item i ON i.id = r.item
+    WHERE i.data->>'sellerId' = $1;
+    `
+    const query = {
+      text: select,
+      values: [sellerId.id]
+    }
+    const {rows} = await pool.query(query)
+    return rows[0].rating
+}
