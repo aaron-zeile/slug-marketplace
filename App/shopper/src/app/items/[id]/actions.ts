@@ -1,6 +1,7 @@
 'use server';
 
 import { checkLogin } from '../../buyer/login/actions';
+import { buyerHasOrderedItem } from '../../../order/service';
 import {
   createReview,
   deleteReview,
@@ -41,15 +42,22 @@ export async function fetchItemReviewsAction(id: string) {
   }
 }
 
-export async function fetchItemReviewSessionAction() {
+export async function fetchItemReviewSessionAction(itemId: string) {
   try {
     const { user } = await checkLogin();
+    if (!user) {
+      return { loggedIn: false as const };
+    }
+
+    const canReview = await buyerHasOrderedItem(user.id, itemId);
+
     return {
-      loggedIn: Boolean(user),
-      userId: user?.id,
+      loggedIn: true as const,
+      userId: user.id,
+      canReview,
     };
   } catch {
-    return { loggedIn: false };
+    return { loggedIn: false as const };
   }
 }
 

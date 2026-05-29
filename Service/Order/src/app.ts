@@ -24,6 +24,7 @@ async function bootstrap() {
   const schema = await buildSchema({
     resolvers,
     validate: true,
+    authChecker: async () => true,
     emitSchemaFile: {
       path: path.resolve(__dirname, '../build/schema.gql'),
       sortedSchema: true,

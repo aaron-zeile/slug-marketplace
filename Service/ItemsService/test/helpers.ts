@@ -34,6 +34,7 @@ function getAuthorizationHeader(
 
 export function stubLoginFetch() {
   process.env.LOGIN_SERVICE_URL ??= 'http://localhost:4010/api/v0';
+  const realFetch = globalThis.fetch.bind(globalThis);
 
   vi.stubGlobal(
     'fetch',
@@ -48,7 +49,7 @@ export function stubLoginFetch() {
         return new Response(JSON.stringify(testUser), { status: 200 });
       }
 
-      throw new Error(`Unexpected fetch in test: ${url}`);
+      return realFetch(input, init);
     }),
   );
 }

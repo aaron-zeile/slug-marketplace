@@ -1,7 +1,8 @@
 import 'server-only';
 
-const ORDER_SERVICE_URL =
-  process.env.ORDER_SERVICE_URL || 'http://localhost:4700/graphql';
+function orderServiceUrl() {
+  return process.env.ORDER_SERVICE_URL || 'http://localhost:4700/graphql';
+}
 
 export interface CreateOrderInput {
   buyer: string;
@@ -66,7 +67,7 @@ async function orderRequest<T>(
   variables: Record<string, unknown>,
   dataKey: string,
 ): Promise<T> {
-  const response = await fetch(ORDER_SERVICE_URL, {
+  const response = await fetch(orderServiceUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -100,6 +101,25 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
   `;
 
   return orderRequest<Order>(query, { input }, 'createOrder');
+}
+
+export async function buyerHasOrderedItem(
+  buyer: string,
+  itemId: string,
+): Promise<boolean> {
+  const query = `
+    query BuyerHasOrderedItem($input: BuyerHasOrderedItemInput!) {
+      buyerHasOrderedItem(input: $input)
+    }
+  `;
+
+  return orderRequest<boolean>(
+    query,
+    {
+      input: { buyer, itemId },
+    },
+    'buyerHasOrderedItem',
+  );
 }
 
 export async function getBuyerOrders(buyer: string): Promise<Order[]> {

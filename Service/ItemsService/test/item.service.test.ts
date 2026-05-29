@@ -6,6 +6,10 @@ import { ReviewService } from '../src/review/service';
 import { testUser } from './helpers';
 import { resetServiceDatabase, shutdownServiceDatabase } from './service.setup';
 
+vi.mock('../src/order/client', () => ({
+  buyerHasOrderedItem: vi.fn().mockResolvedValue(true),
+}));
+
 describe('ItemService', () => {
   beforeAll(async () => {
     await resetServiceDatabase();

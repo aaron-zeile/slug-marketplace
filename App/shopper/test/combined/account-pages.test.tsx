@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import * as loginActions from '../../src/app/buyer/login/actions';
@@ -113,8 +114,7 @@ it('renders formatted order details for a single-item order', async () => {
     data: [
       {
         id: 'order-1',
-        memberId: sessionUser.id,
-        purchasedBy: sessionUser.email,
+        buyer: sessionUser.id,
         purchaseAmount: 12.5,
         orderedAt: '2026-05-17T19:23:00.000Z',
         address: {
@@ -125,7 +125,17 @@ it('renders formatted order details for a single-item order', async () => {
           postalCode: '95060',
           country: 'US',
         },
-        items: [{ itemId: 'item-1', quantity: 1, sellerId: 'seller-1', priceAtPurchase: 12.5 }],
+        items: [{ itemId: 'item-1', sellerId: 'seller-1' }],
+        lineItems: [
+          {
+            itemId: 'item-1',
+            sellerId: 'seller-1',
+            quantity: 1,
+            name: 'Vintage Lamp',
+            image: 'https://example.com/lamp.jpg',
+            price: 12.5,
+          },
+        ],
       },
     ],
   });
@@ -139,18 +149,18 @@ it('renders formatted order details for a single-item order', async () => {
   expect(
     screen.getByText('Shipping to: 123 Main St, Apt 9, Santa Cruz, CA, 95060, US'),
   ).toBeInTheDocument();
-  expect(screen.getByText('Items: item-1')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /view item breakdown/i })).toBeInTheDocument();
 });
 
-it('renders plural item count and address without empty line2', async () => {
+it('renders plural item count and expands item breakdown', async () => {
+  const user = userEvent.setup();
   vi.spyOn(loginActions, 'checkLogin').mockResolvedValue({ user: sessionUser });
   vi.spyOn(orderActions, 'fetchCurrentUserOrdersAction').mockResolvedValue({
     success: true,
     data: [
       {
         id: 'order-2',
-        memberId: sessionUser.id,
-        purchasedBy: sessionUser.email,
+        buyer: sessionUser.id,
         purchaseAmount: 30,
         orderedAt: '2026-05-18T10:00:00.000Z',
         address: {
@@ -162,8 +172,27 @@ it('renders plural item count and address without empty line2', async () => {
           country: 'US',
         },
         items: [
-          { itemId: 'item-2', quantity: 1, sellerId: 'seller-1', priceAtPurchase: 10 },
-          { itemId: 'item-3', quantity: 2, sellerId: 'seller-2', priceAtPurchase: 20 },
+          { itemId: 'item-2', sellerId: 'seller-1' },
+          { itemId: 'item-2', sellerId: 'seller-1' },
+          { itemId: 'item-3', sellerId: 'seller-2' },
+        ],
+        lineItems: [
+          {
+            itemId: 'item-2',
+            sellerId: 'seller-1',
+            quantity: 2,
+            name: 'Desk Chair',
+            image: 'https://example.com/chair.jpg',
+            price: 10,
+          },
+          {
+            itemId: 'item-3',
+            sellerId: 'seller-2',
+            quantity: 1,
+            name: 'Monitor Stand',
+            image: 'https://example.com/stand.jpg',
+            price: 20,
+          },
         ],
       },
     ],
@@ -172,10 +201,17 @@ it('renders plural item count and address without empty line2', async () => {
   const tree = await AccountOrdersPage();
   render(tree);
 
-  expect(screen.getByText('2 items')).toBeInTheDocument();
+  expect(screen.getByText('3 items')).toBeInTheDocument();
   expect(
     screen.getByText('Shipping to: 55 Market St, San Jose, CA, 95112, US'),
   ).toBeInTheDocument();
-  expect(screen.getByText('Items: item-2, item-3')).toBeInTheDocument();
-});
 
+  await user.click(screen.getByRole('button', { name: /view item breakdown/i }));
+
+  expect(screen.getByText('Desk Chair')).toBeInTheDocument();
+  expect(screen.getByText('Monitor Stand')).toBeInTheDocument();
+  expect(screen.getByText('Qty 2')).toBeInTheDocument();
+  expect(screen.getByText('Qty 1')).toBeInTheDocument();
+  expect(screen.getAllByText('$20.00').length).toBeGreaterThanOrEqual(2);
+  expect(screen.getByText('Order total')).toBeInTheDocument();
+});

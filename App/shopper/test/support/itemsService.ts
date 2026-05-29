@@ -145,6 +145,10 @@ export const testUser = {
   name: 'Test Seller',
 };
 
+export function restubLoginFetchForServiceTests() {
+  modules?.stubLoginFetch();
+}
+
 export function registerItemsServiceHooks() {
   beforeAll(async () => {
     modules ??= await loadModules();

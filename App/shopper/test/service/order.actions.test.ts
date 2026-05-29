@@ -4,6 +4,7 @@ import {
   createOrderAction,
   fetchCurrentUserOrdersAction,
 } from '../../src/app/order/actions';
+import { enrichOrdersWithDetails } from '../../src/order/enrich';
 import { createOrder, getBuyerOrders } from '../../src/order/service';
 import { check, getSessionToken } from '../../src/server/auth/service';
 import { testUser } from '../support/itemsService';
@@ -11,6 +12,10 @@ import { testUser } from '../support/itemsService';
 vi.mock('../../src/order/service', () => ({
   createOrder: vi.fn(),
   getBuyerOrders: vi.fn(),
+}));
+
+vi.mock('../../src/order/enrich', () => ({
+  enrichOrdersWithDetails: vi.fn(),
 }));
 
 vi.mock('../../src/server/auth/service', async (importOriginal) => {
@@ -49,8 +54,28 @@ const orderInput = {
   address: order.address,
 };
 
+const orderWithDetails = {
+  ...order,
+  lineItems: [
+    {
+      itemId: order.items[0].itemId,
+      sellerId: order.items[0].sellerId,
+      quantity: 1,
+      name: 'Test item',
+      image: 'https://example.com/item.jpg',
+      price: 42,
+    },
+  ],
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(enrichOrdersWithDetails).mockImplementation(async (orders) =>
+    orders.map((entry) => ({
+      ...entry,
+      lineItems: orderWithDetails.lineItems,
+    })),
+  );
   vi.mocked(getSessionToken).mockResolvedValue('test-session-token');
   vi.mocked(check).mockResolvedValue(testUser);
 });
@@ -106,8 +131,9 @@ describe('order actions', () => {
 
     const result = await fetchCurrentUserOrdersAction();
 
-    expect(result).toEqual({ success: true, data: [order] });
+    expect(result).toEqual({ success: true, data: [orderWithDetails] });
     expect(getBuyerOrders).toHaveBeenCalledWith(testUser.id);
+    expect(enrichOrdersWithDetails).toHaveBeenCalledWith([order]);
   });
 
   it('fetchCurrentUserOrdersAction returns service errors', async () => {

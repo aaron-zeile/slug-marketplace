@@ -154,6 +154,22 @@
     "insufficientStock": "Un ou plusieurs articles sont en rupture de stock.",
     "cartExpired": "Panier expiré"
   },
+  "Orders": {
+    "title": "Commandes",
+    "subtitle": "Consultez l'historique de vos commandes.",
+    "loadError": "Impossible de charger les commandes.",
+    "empty": "Vous n'avez pas encore de commandes.",
+    "orderLabel": "Commande {id}",
+    "itemsInOrder_one": "{count} article",
+    "itemsInOrder_other": "{count} articles",
+    "shippingTo": "Livraison à : {address}",
+    "viewBreakdown": "Voir le détail des articles",
+    "hideBreakdown": "Masquer le détail des articles",
+    "orderTotal": "Total de la commande",
+    "noImage": "Pas d'image",
+    "itemUnavailable": "Cette annonce n'est plus disponible.",
+    "quantityLine": "Qté {count}"
+  },
   "LocaleSwitcher": {
     "label": "Langue",
     "selectLocale": "Choisir la langue",

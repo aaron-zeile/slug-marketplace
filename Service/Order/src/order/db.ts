@@ -128,6 +128,28 @@ export const getBuyerOrders = async (
   return rows.map(mapOrder);
 };
 
+export const buyerHasOrderedItem = async (
+  buyer: string,
+  itemId: string,
+): Promise<boolean> => {
+  const query = `
+    SELECT EXISTS (
+      SELECT 1
+      FROM buyer_order bo
+      INNER JOIN order_item oi ON oi.order_id = bo.id
+      WHERE bo.buyer = $1
+        AND oi.item = $2
+    ) AS has_ordered
+  `;
+
+  const { rows } = await pool.query<{ has_ordered: boolean }>(query, [
+    buyer,
+    itemId,
+  ]);
+
+  return rows[0]?.has_ordered ?? false;
+};
+
 export const getSellerOrders = async (
   input: SellerOrdersInput,
 ): Promise<Order[]> => {

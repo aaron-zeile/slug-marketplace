@@ -11,6 +11,12 @@ import {
 } from './helpers';
 import supertest from 'supertest';
 
+vi.mock('../src/order/client', () => ({
+  buyerHasOrderedItem: vi.fn().mockResolvedValue(true),
+}));
+
+import { buyerHasOrderedItem } from '../src/order/client';
+
 const reviewComment = 'Great item, would buy again.';
 const reviewRating = 4.5;
 
@@ -116,6 +122,41 @@ test('creates a review and returns it when fetching reviews', async () => {
       }),
     ]),
   );
+});
+
+test('createReview rejects users who have not purchased the item', async () => {
+  vi.mocked(buyerHasOrderedItem).mockResolvedValueOnce(false);
+
+  const otherItem = await createItemViaGraphql(server, {
+    name: 'Unpurchased Juice',
+    description: 'No order for this item.',
+    images: [],
+    price: 2.5,
+  });
+
+  const response = await supertest(server)
+    .post('/graphql')
+    .set('Authorization', 'Bearer test-session-token')
+    .send({
+      query: `mutation CreateReview($input: NewReview!) {
+        createReview(input: $input) {
+          id
+        }
+      }`,
+      variables: {
+        input: {
+          itemId: otherItem.id,
+          rating: 4,
+          comment: 'Not purchased.',
+        },
+      },
+    });
+
+  expect(response.body.errors).toBeDefined();
+  expect(response.body.errors[0].message).toContain(
+    'You can only review items you have purchased',
+  );
+  expect(response.body.data?.createReview).toBeUndefined();
 });
 
 test('createReview rejects unauthenticated requests', async () => {

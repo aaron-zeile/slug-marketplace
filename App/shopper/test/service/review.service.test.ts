@@ -5,9 +5,15 @@ import { getSessionToken } from '../../src/server/auth/service';
 import {
   registerItemsServiceHooks,
   releaseFetchStubForServiceTests,
+  restubLoginFetchForServiceTests,
   seedItemsServiceItem,
   testUser,
 } from '../support/itemsService';
+import {
+  registerOrderServiceHooks,
+  resetOrderDatabase,
+  seedBuyerOrderForItem,
+} from '../support/orderService';
 
 vi.mock('../../src/server/auth/service', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../src/server/auth/service')>();
@@ -17,12 +23,16 @@ vi.mock('../../src/server/auth/service', async (importOriginal) => {
   };
 });
 
+registerOrderServiceHooks();
 registerItemsServiceHooks();
 
 describe('review service', () => {
   let itemId: string;
 
   beforeAll(async () => {
+    await resetOrderDatabase();
+    restubLoginFetchForServiceTests();
+
     const item = await seedItemsServiceItem({
       name: 'Review Service Item',
       description: 'For shopper review service tests.',
@@ -30,6 +40,9 @@ describe('review service', () => {
       price: 9,
     });
     itemId = item.id;
+
+    await seedBuyerOrderForItem(testUser.id, itemId, testUser.id);
+
     vi.mocked(getSessionToken).mockResolvedValue('test-session-token');
     releaseFetchStubForServiceTests();
   });

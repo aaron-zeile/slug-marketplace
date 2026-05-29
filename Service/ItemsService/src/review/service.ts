@@ -1,4 +1,5 @@
 import type { SessionUser } from '../auth/service';
+import { buyerHasOrderedItem } from '../order/client';
 import { ItemId } from '../item/schema';
 import { deleteReviewById, getReviews, insertReview } from './db';
 import { NewReview, Review, ReviewId } from './schema';
@@ -12,6 +13,11 @@ export class ReviewService {
     sessionUser: SessionUser,
     input: NewReview,
   ): Promise<Review> {
+    const hasOrdered = await buyerHasOrderedItem(sessionUser.id, input.itemId);
+    if (!hasOrdered) {
+      throw new Error('You can only review items you have purchased');
+    }
+
     return insertReview({
       itemId: input.itemId,
       content: input.comment,

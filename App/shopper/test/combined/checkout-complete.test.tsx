@@ -159,17 +159,63 @@ it('redirects guests away from checkout complete', async () => {
   );
 });
 
-it('completes the order, clears cart, and redirects to payment success', async () => {
+it('completes the order, clears cart, and redirects to orders', async () => {
   await expectRedirect(
     () =>
       CheckoutCompletePage({
         searchParams: Promise.resolve({ payment_intent: 'pi_123' }),
       }),
-    '/payment-success',
+    '/account/orders',
   );
 
-  expect(createOrderAction).toHaveBeenCalled();
+  expect(createOrderAction).toHaveBeenCalledWith(
+    expect.objectContaining({
+      items: [{ itemId: 'item-1', sellerId: 'seller-1' }],
+    }),
+  );
   expect(clearCartAction).toHaveBeenCalled();
+});
+
+it('passes repeated line items for cart quantities greater than one', async () => {
+  vi.mocked(fetchCartItemsAction).mockResolvedValueOnce({
+    success: true,
+    data: [
+      {
+        id: 'cart-1',
+        member: sessionUser.id,
+        quantity: 3,
+        item: {
+          id: 'item-1',
+          seller: { id: 'seller-1', name: 'Seller' },
+          name: 'Item',
+          description: 'Item description',
+          images: [],
+          price: 10,
+          quantity: 10,
+          created_at: '2026-05-11T12:00:00.000Z',
+          status: 'active',
+        },
+      },
+    ],
+  });
+
+  await expectRedirect(
+    () =>
+      CheckoutCompletePage({
+        searchParams: Promise.resolve({ payment_intent: 'pi_123' }),
+      }),
+    '/account/orders',
+  );
+
+  expect(createOrderAction).toHaveBeenCalledWith(
+    expect.objectContaining({
+      items: [
+        { itemId: 'item-1', sellerId: 'seller-1' },
+        { itemId: 'item-1', sellerId: 'seller-1' },
+        { itemId: 'item-1', sellerId: 'seller-1' },
+      ],
+    }),
+  );
 });
 
 it('confirms reservation when cookie id is present', async () => {
@@ -180,7 +226,7 @@ it('confirms reservation when cookie id is present', async () => {
       CheckoutCompletePage({
         searchParams: Promise.resolve({ payment_intent: 'pi_123' }),
       }),
-    '/payment-success',
+      '/account/orders',
   );
 
   expect(confirmCheckoutReservationAction).toHaveBeenCalledWith('res-1');
@@ -257,7 +303,7 @@ it('renders an error when payment metadata has no address id', async () => {
   ).toBeInTheDocument();
 });
 
-it('redirects to payment success when cart is empty', async () => {
+it('redirects to orders when cart is empty', async () => {
   vi.mocked(fetchCartItemsAction).mockResolvedValueOnce({
     success: true,
     data: [],
@@ -268,7 +314,7 @@ it('redirects to payment success when cart is empty', async () => {
       CheckoutCompletePage({
         searchParams: Promise.resolve({ payment_intent: 'pi_123' }),
       }),
-    '/payment-success',
+      '/account/orders',
   );
 });
 
@@ -283,7 +329,7 @@ it('treats cart as empty when cart fetch is unsuccessful', async () => {
       CheckoutCompletePage({
         searchParams: Promise.resolve({ payment_intent: 'pi_123' }),
       }),
-    '/payment-success',
+      '/account/orders',
   );
 });
 

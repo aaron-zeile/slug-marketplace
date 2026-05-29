@@ -156,3 +156,14 @@ export class SellerOrdersInput {
   @IsUUID()
   seller!: string;
 }
+
+@InputType('BuyerHasOrderedItemInput')
+export class BuyerHasOrderedItemInput {
+  @Field(() => String)
+  @IsUUID()
+  buyer!: string;
+
+  @Field(() => String)
+  @IsUUID()
+  itemId!: string;
+}

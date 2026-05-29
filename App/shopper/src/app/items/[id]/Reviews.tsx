@@ -26,6 +26,7 @@ interface Props {
 interface State {
   reviews: Review[] | null;
   loggedIn: boolean;
+  canReview: boolean;
   currentUserId: string | undefined;
   loading: boolean;
   err: string;
@@ -34,6 +35,7 @@ interface State {
 const initialState: State = {
   reviews: null,
   loggedIn: false,
+  canReview: false,
   currentUserId: undefined,
   loading: true,
   err: '',
@@ -48,7 +50,7 @@ const Reviews = ({ id }: Props) => {
 
     Promise.all([
       fetchItemReviewsAction(id),
-      fetchItemReviewSessionAction(),
+      fetchItemReviewSessionAction(id),
     ]).then(([revRes, sessRes]) => {
       if (cancelled) return;
 
@@ -57,6 +59,7 @@ const Reviews = ({ id }: Props) => {
         setState({
           reviews: null,
           loggedIn: false,
+          canReview: false,
           currentUserId: undefined,
           loading: false,
           err: 'Failed to fetch reviews',
@@ -65,7 +68,8 @@ const Reviews = ({ id }: Props) => {
         setState({
           reviews: revRes.data ?? null,
           loggedIn: sessRes.loggedIn,
-          currentUserId: sessRes.userId,
+          canReview: sessRes.loggedIn ? sessRes.canReview : false,
+          currentUserId: sessRes.loggedIn ? sessRes.userId : undefined,
           loading: false,
           err: '',
         });
@@ -115,7 +119,7 @@ const Reviews = ({ id }: Props) => {
         Reviews
       </Typography>
 
-      {state.loggedIn ? (
+      {state.loggedIn && state.canReview ? (
         <ReviewWriteForm
           itemId={id}
           onReviewCreated={(review) => {
@@ -128,7 +132,9 @@ const Reviews = ({ id }: Props) => {
       ) : (
         <Box sx={{ mb: 2 }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Sign in with the account button in the top bar to write a review.
+            {state.loggedIn
+              ? 'Only customers who have purchased this item can write a review.'
+              : 'Sign in with the account button in the top bar to write a review.'}
           </Typography>
         </Box>
       )}

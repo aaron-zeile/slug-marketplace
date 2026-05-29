@@ -6,6 +6,12 @@ import { ReviewService } from '../src/review/service';
 import { testUser } from './helpers';
 import { resetServiceDatabase, shutdownServiceDatabase } from './service.setup';
 
+vi.mock('../src/order/client', () => ({
+  buyerHasOrderedItem: vi.fn().mockResolvedValue(true),
+}));
+
+import { buyerHasOrderedItem } from '../src/order/client';
+
 describe('ReviewService', () => {
   let itemId: string;
 
@@ -27,6 +33,25 @@ describe('ReviewService', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('throws when the user has not purchased the item', async () => {
+    vi.mocked(buyerHasOrderedItem).mockResolvedValueOnce(false);
+
+    const otherItem = await new ItemService().createItem(testUser, {
+      name: 'Unpurchased Item',
+      description: 'No order seeded for this item.',
+      images: [],
+      price: 8,
+    });
+
+    await expect(
+      new ReviewService().createReview(testUser, {
+        itemId: otherItem.id,
+        rating: 5,
+        comment: 'Should not be allowed.',
+      }),
+    ).rejects.toThrow('You can only review items you have purchased');
   });
 
   it('creates a review for the session user', async () => {

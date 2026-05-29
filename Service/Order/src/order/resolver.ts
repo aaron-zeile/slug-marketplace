@@ -1,5 +1,6 @@
 import { Arg, Mutation, Query, Resolver } from 'type-graphql';
 import {
+  BuyerHasOrderedItemInput,
   BuyerOrdersInput,
   CreateOrderInput,
   Order,
@@ -27,6 +28,13 @@ export class OrderResolver {
     @Arg('input', () => SellerOrdersInput) input: SellerOrdersInput,
   ): Promise<Order[]> {
     return new OrderService().getSellerOrders(input);
+  }
+
+  @Query(() => Boolean)
+  async buyerHasOrderedItem(
+    @Arg('input', () => BuyerHasOrderedItemInput) input: BuyerHasOrderedItemInput,
+  ): Promise<boolean> {
+    return new OrderService().buyerHasOrderedItem(input);
   }
 
   @Mutation(() => Order)

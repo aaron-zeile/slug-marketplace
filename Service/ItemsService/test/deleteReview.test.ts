@@ -11,6 +11,10 @@ import {
 } from './helpers';
 import supertest from 'supertest';
 
+vi.mock('../src/order/client', () => ({
+  buyerHasOrderedItem: vi.fn().mockResolvedValue(true),
+}));
+
 const reviewComment = 'Will be deleted.';
 const reviewRating = 4;
 

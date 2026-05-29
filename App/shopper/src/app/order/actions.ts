@@ -1,5 +1,6 @@
 'use server';
 
+import { enrichOrdersWithDetails } from '../../order/enrich';
 import { createOrder, getBuyerOrders } from '../../order/service';
 import { check, getSessionToken } from '../../server/auth/service';
 
@@ -62,7 +63,8 @@ export async function fetchCurrentUserOrdersAction() {
     }
 
     const orders = await getBuyerOrders(user.id);
-    return { success: true, data: orders };
+    const ordersWithDetails = await enrichOrdersWithDetails(orders);
+    return { success: true, data: ordersWithDetails };
   } catch (error) {
     console.error('fetchCurrentUserOrdersAction error:', error);
     const message = error instanceof Error && error.message;

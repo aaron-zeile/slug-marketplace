@@ -14,7 +14,12 @@ vi.mock('../../src/app/buyer/login/actions', () => ({
   checkLogin: vi.fn(),
 }));
 
+vi.mock('../../src/order/service', () => ({
+  buyerHasOrderedItem: vi.fn(),
+}));
+
 import { checkLogin } from '../../src/app/buyer/login/actions';
+import { buyerHasOrderedItem } from '../../src/order/service';
 import {
   createReview,
   deleteReview,
@@ -61,6 +66,7 @@ const reviewTwoWordName: Review = {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(checkLogin).mockResolvedValue({});
+  vi.mocked(buyerHasOrderedItem).mockResolvedValue(false);
   vi.mocked(getReviews).mockResolvedValue([]);
 });
 
@@ -196,7 +202,7 @@ describe('Reviews', () => {
     expect(screen.queryByText('Write a review')).toBeNull();
   });
 
-  it('shows the write form when logged in', async () => {
+  it('shows the write form when logged in and the user purchased the item', async () => {
     vi.mocked(checkLogin).mockResolvedValue({
       user: {
         id: '6a74cd3c-0c10-4507-ab92-a700174f4b15',
@@ -204,6 +210,7 @@ describe('Reviews', () => {
         name: 'Riley',
       },
     });
+    vi.mocked(buyerHasOrderedItem).mockResolvedValue(true);
     vi.mocked(getReviews).mockResolvedValue([]);
 
     render(<Reviews id={itemId} />);
@@ -217,6 +224,33 @@ describe('Reviews', () => {
         'Sign in with the account button in the top bar to write a review.',
       ),
     ).toBeNull();
+    expect(
+      screen.queryByText(
+        'Only customers who have purchased this item can write a review.',
+      ),
+    ).toBeNull();
+  });
+
+  it('shows a purchase message when logged in but the user has not ordered the item', async () => {
+    vi.mocked(checkLogin).mockResolvedValue({
+      user: {
+        id: '6a74cd3c-0c10-4507-ab92-a700174f4b15',
+        email: 'riley@example.com',
+        name: 'Riley',
+      },
+    });
+    vi.mocked(getReviews).mockResolvedValue([]);
+
+    render(<Reviews id={itemId} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Only customers who have purchased this item can write a review.',
+        ),
+      ).toBeDefined();
+    });
+    expect(screen.queryByText('Write a review')).toBeNull();
   });
 
   it('submits a review and prepends it to the list', async () => {
@@ -228,6 +262,7 @@ describe('Reviews', () => {
         name: 'Riley',
       },
     });
+    vi.mocked(buyerHasOrderedItem).mockResolvedValue(true);
     vi.mocked(getReviews).mockResolvedValue([reviewA]);
     vi.mocked(createReview).mockResolvedValue(newReview);
 
@@ -266,6 +301,7 @@ describe('Reviews', () => {
         name: 'Riley',
       },
     });
+    vi.mocked(buyerHasOrderedItem).mockResolvedValue(true);
     vi.mocked(getReviews).mockResolvedValue(null as unknown as Review[]);
     vi.mocked(createReview).mockResolvedValue(newReview);
 
@@ -298,6 +334,7 @@ describe('Reviews', () => {
         name: 'Riley',
       },
     });
+    vi.mocked(buyerHasOrderedItem).mockResolvedValue(true);
     vi.mocked(getReviews).mockResolvedValue([]);
     vi.mocked(createReview).mockResolvedValue(newReview);
 

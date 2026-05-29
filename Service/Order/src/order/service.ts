@@ -1,5 +1,12 @@
-import { createOrder, getBuyerOrders, getOrder, getSellerOrders } from './db';
 import {
+  buyerHasOrderedItem as buyerHasOrderedItemDb,
+  createOrder,
+  getBuyerOrders,
+  getOrder,
+  getSellerOrders,
+} from './db';
+import {
+  BuyerHasOrderedItemInput,
   BuyerOrdersInput,
   CreateOrderInput,
   Order,
@@ -22,5 +29,11 @@ export class OrderService {
 
   public async getSellerOrders(input: SellerOrdersInput): Promise<Order[]> {
     return getSellerOrders(input);
+  }
+
+  public async buyerHasOrderedItem(
+    input: BuyerHasOrderedItemInput,
+  ): Promise<boolean> {
+    return buyerHasOrderedItemDb(input.buyer, input.itemId);
   }
 }

@@ -88,7 +88,7 @@ export default async function CheckoutCompletePage({
     : [];
 
   if (cartItems.length === 0) {
-    redirect("/payment-success");
+    redirect("/account/orders");
   }
 
   const shippingAddress = addressResult.success && addressResult.data
@@ -100,10 +100,12 @@ export default async function CheckoutCompletePage({
   }
 
   const orderResult = await createOrderAction({
-    items: cartItems.map((cartItem) => ({
-      itemId: cartItem.item.id,
-      sellerId: cartItem.item.seller.id,
-    })),
+    items: cartItems.flatMap((cartItem) =>
+      Array.from({ length: cartItem.quantity }, () => ({
+        itemId: cartItem.item.id,
+        sellerId: cartItem.item.seller.id,
+      })),
+    ),
     purchaseAmount: paymentIntent.amount_received / 100,
     address: {
       label: shippingAddress.label,
@@ -126,5 +128,5 @@ export default async function CheckoutCompletePage({
   }
 
   await clearCartAction();
-  redirect("/payment-success");
+  redirect("/account/orders");
 }

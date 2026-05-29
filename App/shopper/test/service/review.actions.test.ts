@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   createItemReviewAction,
@@ -9,9 +9,15 @@ import { getSessionToken } from '../../src/server/auth/service';
 import {
   registerItemsServiceHooks,
   releaseFetchStubForServiceTests,
+  restubLoginFetchForServiceTests,
   seedItemsServiceItem,
   testUser,
 } from '../support/itemsService';
+import {
+  registerOrderServiceHooks,
+  resetOrderDatabase,
+  seedBuyerOrderForItem,
+} from '../support/orderService';
 
 vi.mock('../../src/server/auth/service', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../src/server/auth/service')>();
@@ -21,13 +27,20 @@ vi.mock('../../src/server/auth/service', async (importOriginal) => {
   };
 });
 
+registerOrderServiceHooks();
 registerItemsServiceHooks();
 
 describe('review actions', () => {
   let itemId: string;
 
-  beforeAll(async () => {
+  beforeEach(() => {
     vi.mocked(getSessionToken).mockResolvedValue('test-session-token');
+  });
+
+  beforeAll(async () => {
+    await resetOrderDatabase();
+    restubLoginFetchForServiceTests();
+
     const item = await seedItemsServiceItem({
       name: 'Review Action Item',
       description: 'For action-layer review tests.',
@@ -35,13 +48,16 @@ describe('review actions', () => {
       price: 11,
     });
     itemId = item.id;
+
+    await seedBuyerOrderForItem(testUser.id, itemId, testUser.id);
+
     releaseFetchStubForServiceTests();
   });
 
   it('fetchItemReviewSessionAction reports logged out without a session', async () => {
     vi.mocked(getSessionToken).mockResolvedValueOnce(undefined);
 
-    const result = await fetchItemReviewSessionAction();
+    const result = await fetchItemReviewSessionAction(itemId);
 
     expect(result.loggedIn).toBe(false);
   });
@@ -49,9 +65,19 @@ describe('review actions', () => {
   it('fetchItemReviewSessionAction reports logged out when session lookup fails', async () => {
     vi.mocked(getSessionToken).mockRejectedValueOnce(new Error('cookie failure'));
 
-    const result = await fetchItemReviewSessionAction();
+    const result = await fetchItemReviewSessionAction(itemId);
 
     expect(result.loggedIn).toBe(false);
+  });
+
+  it('fetchItemReviewSessionAction reports canReview when the user purchased the item', async () => {
+    const result = await fetchItemReviewSessionAction(itemId);
+
+    expect(result).toEqual({
+      loggedIn: true,
+      userId: testUser.id,
+      canReview: true,
+    });
   });
 
   it('createItemReviewAction returns an error when not signed in', async () => {
