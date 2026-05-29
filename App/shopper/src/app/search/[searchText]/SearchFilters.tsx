@@ -115,7 +115,6 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
     return (
       <Box
         component="span"
-        aria-label={t(option.label)}
         sx={{
           alignItems: 'center',
           display: 'inline-flex',
@@ -155,7 +154,7 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
   return (
     <Box
       component="aside"
-      aria-label={t('filters')}
+      aria-labelledby="search-filters-heading"
       sx={{
         pr: { md: 3 },
       }}
@@ -170,9 +169,14 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
           }}
         >
           <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.5 }}>
-            <Typography component="h2" sx={{ fontSize: '1.1rem', fontWeight: 700 }}>
+            <Typography
+              component="h2"
+              id="search-filters-heading"
+              sx={{ fontSize: '1.1rem', fontWeight: 700 }}
+            >
               <Box
                 component="button"
+                aria-label={t('filters')}
                 aria-expanded={filtersOpen}
                 onClick={() => setFiltersOpen((open) => !open)}
                 sx={{
@@ -282,6 +286,7 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
               </Typography>
               {ratingOptions.map((option) => (
                 <FormControlLabel
+                  aria-label={t(option.label)}
                   key={option.label}
                   control={
                     <Checkbox
