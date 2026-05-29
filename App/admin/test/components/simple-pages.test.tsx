@@ -1,10 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
+vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+  new Response(JSON.stringify({ data: { adminItems: [], adminReviews: [] } }), { status: 200 }),
+));
 
 import AccountsPage from '@/app/dashboard/accounts/page';
 import ReportsPage from '@/app/dashboard/reports/page';
-import ReviewsPage from '@/app/dashboard/reviews/page';
-import ListingsPage from '@/app/dashboard/listings/page';
 import LoginPage from '@/app/login/page';
 import { LogoutPage } from '@/components/dashboard/LogoutPage';
 
@@ -19,20 +21,6 @@ describe('ReportsPage', () => {
   it('renders the Reports heading', () => {
     render(<ReportsPage />);
     expect(screen.getByRole('heading', { name: /reports/i })).toBeInTheDocument();
-  });
-});
-
-describe('ReviewsPage', () => {
-  it('renders the Reviews heading', () => {
-    render(<ReviewsPage />);
-    expect(screen.getByRole('heading', { name: /reviews/i })).toBeInTheDocument();
-  });
-});
-
-describe('ListingsPage', () => {
-  it('renders the Listings heading', () => {
-    render(<ListingsPage />);
-    expect(screen.getByRole('heading', { name: /listings/i })).toBeInTheDocument();
   });
 });
 

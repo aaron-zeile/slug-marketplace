@@ -1,4 +1,4 @@
-import { ObjectType, Field } from 'type-graphql';
+import { ObjectType, Field, Float } from 'type-graphql';
 
 @ObjectType()
 export class AuthPayload {
@@ -16,6 +16,69 @@ export class MonthlyProfit {
 
   @Field(() => Number)
   profit!: number;
+}
+
+@ObjectType()
+export class AdminItemSeller {
+  @Field(() => String)
+  id!: string;
+
+  @Field(() => String)
+  name!: string;
+}
+
+@ObjectType()
+export class AdminItem {
+  @Field(() => String)
+  id!: string;
+
+  @Field(() => String)
+  name!: string;
+
+  @Field(() => AdminItemSeller)
+  seller!: AdminItemSeller;
+
+  @Field(() => Float)
+  price!: number;
+
+  @Field(() => String)
+  status!: string;
+
+  @Field(() => String)
+  createdAt!: string;
+}
+
+@ObjectType()
+export class AdminReviewUser {
+  @Field(() => String)
+  id!: string;
+
+  @Field(() => String)
+  name!: string;
+}
+
+@ObjectType()
+export class AdminReview {
+  @Field(() => String)
+  id!: string;
+
+  @Field(() => String)
+  itemId!: string;
+
+  @Field(() => String)
+  itemName!: string;
+
+  @Field(() => AdminReviewUser)
+  user!: AdminReviewUser;
+
+  @Field(() => String)
+  content!: string;
+
+  @Field(() => Float)
+  rating!: number;
+
+  @Field(() => String)
+  createdAt!: string;
 }
 
 @ObjectType()

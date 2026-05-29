@@ -10,6 +10,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import EmailIcon from '@mui/icons-material/Email';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import RateReviewIcon from '@mui/icons-material/RateReview';
 import Link from 'next/link';
 import LogoutButton from './LogoutButton';
 import SimpleCharts from './charts/chart';
@@ -49,6 +51,24 @@ export default function DashboardShell({
           >
             {t('title')}
           </Typography>
+          <Button
+            component={Link}
+            href="/dashboard/listings"
+            color="inherit"
+            startIcon={<ListAltIcon />}
+            sx={{ mr: 1 }}
+          >
+            Listings
+          </Button>
+          <Button
+            component={Link}
+            href="/dashboard/reviews"
+            color="inherit"
+            startIcon={<RateReviewIcon />}
+            sx={{ mr: 1 }}
+          >
+            Reviews
+          </Button>
           <Button
             component={Link}
             href="/dashboard/seller-messages"

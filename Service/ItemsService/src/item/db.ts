@@ -59,6 +59,16 @@ export const deleteItembyID = async (
   return (result.rowCount ?? 0) > 0;
 }
 
+export const deleteItemAsAdmin = async (itemId: string): Promise<boolean> => {
+  const select = `
+    DELETE FROM item
+    WHERE id = $1;
+  `;
+  const values = [itemId];
+  const result = await pool.query(select, values);
+  return (result.rowCount ?? 0) > 0;
+};
+
 export const createItem = async (params: {
   input: NewItem;
   seller: { id: string; name: string };
