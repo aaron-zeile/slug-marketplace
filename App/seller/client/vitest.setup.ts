@@ -55,7 +55,7 @@ const intlMessages: Record<string, Record<string, string>> = {
   LocaleSwitcher: { label: 'Locale', en: 'English', fr: 'Français' },
   Placeholders: {
     sales: 'Sales — coming soon',
-    analytics: 'analytics — coming soon',
+    analytics: 'Analytics — coming soon',
   },
 };
 

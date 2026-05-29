@@ -106,7 +106,7 @@ describe('App', () => {
       afterCreateListingClick: {
         createHeadingVisible:
           screen.queryByRole('heading', {name: 'Create Listing'}) !== null,
-        analyticsVisible: screen.queryByText('analytics — coming soon') !== null,
+        analyticsVisible: screen.queryByText('Analytics — coming soon') !== null,
       },
     }).toEqual({
       afterSalesClick: {
