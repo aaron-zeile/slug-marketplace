@@ -1,13 +1,13 @@
 import React from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { enUS, frFR } from '@mui/x-data-grid/locales'
-import { Box, Typography } from '@mui/material'
+import { Box, Button, Chip, Typography } from '@mui/material'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import type { Order } from '../../../shared'
 import { ErrorContext } from '../error/Context'
-import { listOrders } from './model'
+import { listOrders, updateOrderStatus } from './model'
 
 function formatAddress(order: Order): string {
   return [
@@ -22,6 +22,22 @@ function formatAddress(order: Order): string {
     .join(', ')
 }
 
+function statusLabel(
+  status: Order['status'],
+  t: ReturnType<typeof useTranslations<'Sales'>>,
+): string {
+  switch (status) {
+    case 'ordered':
+      return t('statusOrdered')
+    case 'shipping':
+      return t('statusShipping')
+    case 'delivered':
+      return t('statusDelivered')
+    default:
+      return status
+  }
+}
+
 export default function Sales() {
   const locale = useLocale()
   const t = useTranslations('Sales')
@@ -29,32 +45,70 @@ export default function Sales() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | undefined>()
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null)
 
   const setError = useCallback((error: string | undefined) => {
     setLoadError(error)
     errorCtx?.setError(error)
   }, [errorCtx])
 
+  const handleStatusUpdate = useCallback(async (
+    orderId: string,
+    status: 'shipping' | 'delivered',
+  ) => {
+    setUpdatingOrderId(orderId)
+    await updateOrderStatus(
+      orderId,
+      status,
+      setError,
+      (updated) => {
+        setOrders((current) =>
+          current.map((entry) => (entry.id === updated.id ? updated : entry)),
+        )
+      },
+    )
+    setUpdatingOrderId(null)
+  }, [setError])
+
   const columns = useMemo<GridColDef<Order>[]>(() => [
     {
       field: 'id',
       headerName: t('order'),
       flex: 1,
-      minWidth: 220,
+      minWidth: 200,
       sortable: false,
       renderCell: (params) => (
-        <Typography sx={{ overflowWrap: 'anywhere' }}>
+        <Typography sx={{ overflowWrap: 'anywhere', fontSize: 13 }}>
           {params.row.id}
         </Typography>
       ),
     },
     {
-      field: 'orderedAt',
-      headerName: t('date'),
-      width: 180,
+      field: 'status',
+      headerName: t('status'),
+      width: 120,
       sortable: false,
       renderCell: (params) => (
-        <Typography>
+        <Chip
+          size="small"
+          label={statusLabel(params.row.status, t)}
+          color={
+            params.row.status === 'delivered'
+              ? 'success'
+              : params.row.status === 'shipping'
+                ? 'info'
+                : 'default'
+          }
+        />
+      ),
+    },
+    {
+      field: 'orderedAt',
+      headerName: t('date'),
+      width: 170,
+      sortable: false,
+      renderCell: (params) => (
+        <Typography variant="body2">
           {new Intl.DateTimeFormat(locale, {
             dateStyle: 'medium',
             timeStyle: 'short',
@@ -65,7 +119,7 @@ export default function Sales() {
     {
       field: 'items',
       headerName: t('items'),
-      width: 120,
+      width: 80,
       sortable: false,
       renderCell: (params) => (
         <Typography>{params.row.items.length}</Typography>
@@ -74,7 +128,7 @@ export default function Sales() {
     {
       field: 'purchaseAmount',
       headerName: t('amount'),
-      width: 140,
+      width: 110,
       sortable: false,
       renderCell: (params) => (
         <Typography>
@@ -89,7 +143,7 @@ export default function Sales() {
       field: 'address',
       headerName: t('shipTo'),
       flex: 1,
-      minWidth: 260,
+      minWidth: 200,
       sortable: false,
       renderCell: (params) => (
         <Typography variant="body2" color="text.secondary">
@@ -97,7 +151,49 @@ export default function Sales() {
         </Typography>
       ),
     },
-  ], [locale, t])
+    {
+      field: 'actions',
+      headerName: t('actions'),
+      width: 160,
+      sortable: false,
+      renderCell: (params) => {
+        const busy = updatingOrderId === params.row.id
+
+        if (params.row.status === 'ordered') {
+          return (
+            <Button
+              size="small"
+              variant="contained"
+              disabled={busy}
+              onClick={() => void handleStatusUpdate(params.row.id, 'shipping')}
+            >
+              {busy ? t('updating') : t('markShipped')}
+            </Button>
+          )
+        }
+
+        if (params.row.status === 'shipping') {
+          return (
+            <Button
+              size="small"
+              variant="contained"
+              color="success"
+              disabled={busy}
+              onClick={() => void handleStatusUpdate(params.row.id, 'delivered')}
+            >
+              {busy ? t('updating') : t('markDelivered')}
+            </Button>
+          )
+        }
+
+        return (
+          <Typography variant="body2" color="text.secondary">
+            {t('statusDelivered')}
+          </Typography>
+        )
+      },
+    },
+  ], [handleStatusUpdate, locale, t, updatingOrderId])
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -111,25 +207,25 @@ export default function Sales() {
 
   return (
     <Box sx={{ height: 520, width: '100%' }}>
-      <DataGrid
-        rows={orders}
-        columns={columns}
-        disableVirtualization
-        getRowId={(row) => row.id}
-        getRowHeight={() => 72}
-        loading={loading}
-        localeText={{
-          ...(locale === 'fr' ? frFR : enUS).components.MuiDataGrid.defaultProps
-            .localeText,
-          noRowsLabel: loadError ? t('gridLoadError') : t('gridNoRows'),
-        }}
-        pageSizeOptions={[5, 10, 25]}
-        initialState={{
-          pagination: {
-            paginationModel: { pageSize: 10, page: 0 },
-          },
-        }}
-      />
+        <DataGrid
+          rows={orders}
+          columns={columns}
+          disableVirtualization
+          getRowId={(row) => row.id}
+          getRowHeight={() => 80}
+          loading={loading}
+          localeText={{
+            ...(locale === 'fr' ? frFR : enUS).components.MuiDataGrid.defaultProps
+              .localeText,
+            noRowsLabel: loadError ? t('gridLoadError') : t('gridNoRows'),
+          }}
+          pageSizeOptions={[5, 10, 25]}
+          initialState={{
+            pagination: {
+              paginationModel: { pageSize: 10, page: 0 },
+            },
+          }}
+        />
     </Box>
   )
 }

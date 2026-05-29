@@ -110,6 +110,37 @@ export const getReviews = async (
   }
 }
 
+export const updateOrderStatus = async (
+  orderId: string,
+  status: 'shipping' | 'delivered',
+  setError: (error: string | undefined) => void,
+  onUpdated: (order: Order) => void,
+): Promise<void> => {
+  try {
+    const response = await fetch(`/seller/api/orders/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    })
+
+    const body = await response.json() as { order?: Order; error?: string }
+    if (!response.ok) {
+      throw new Error(body.error ?? response.statusText)
+    }
+
+    if (!body.order) {
+      throw new Error('Order update response was missing order data')
+    }
+
+    onUpdated(body.order)
+    setError(undefined)
+  } catch (error: unknown) {
+    setError(String(error))
+  }
+}
+
 export const listOrders = async (
   setError: (error: string | undefined) => void,
   setOrders: (orders: Order[]) => void

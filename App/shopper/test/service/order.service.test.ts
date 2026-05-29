@@ -12,6 +12,7 @@ const order = {
   items: [{ itemId, sellerId }],
   orderedAt: '2026-05-11T12:00:00.000Z',
   purchaseAmount: 99.5,
+  status: 'ordered',
   address: {
     label: 'Home',
     line1: '123 Main St',
@@ -25,6 +26,7 @@ const order = {
 
 const createInput = {
   buyer,
+  buyerEmail: 'buyer@example.com',
   items: [{ itemId, sellerId }],
   purchaseAmount: order.purchaseAmount,
   address: order.address,

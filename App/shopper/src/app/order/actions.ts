@@ -40,6 +40,7 @@ export async function createOrderAction(order: CreateOrderActionInput) {
 
     const createOrderInput = {
       buyer: user.id,
+      buyerEmail: user.email,
       items: order.items,
       purchaseAmount: order.purchaseAmount,
       address: order.address,

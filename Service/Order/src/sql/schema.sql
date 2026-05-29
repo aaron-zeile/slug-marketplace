@@ -6,6 +6,9 @@ DROP TABLE IF EXISTS buyer_order;
 CREATE TABLE buyer_order(
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   buyer UUID NOT NULL,
+  buyer_email TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'ordered'
+    CHECK (status IN ('ordered', 'shipping', 'delivered')),
   ordered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   purchase_amount NUMERIC(12, 2) NOT NULL CHECK (purchase_amount >= 0),
   address jsonb NOT NULL

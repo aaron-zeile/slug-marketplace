@@ -6,6 +6,7 @@ import {
   Order,
   OrderIdInput,
   SellerOrdersInput,
+  UpdateOrderStatusInput,
 } from './schema';
 import { OrderService } from './service';
 
@@ -42,5 +43,12 @@ export class OrderResolver {
     @Arg('input', () => CreateOrderInput) input: CreateOrderInput,
   ): Promise<Order> {
     return new OrderService().createOrder(input);
+  }
+
+  @Mutation(() => Order)
+  async updateOrderStatus(
+    @Arg('input', () => UpdateOrderStatusInput) input: UpdateOrderStatusInput,
+  ): Promise<Order> {
+    return new OrderService().updateOrderStatus(input);
   }
 }

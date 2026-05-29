@@ -61,6 +61,7 @@ describe('OrderService', () => {
       expect.objectContaining({
         id: seeded.id,
         buyer: seeded.buyer,
+        status: 'ordered',
         items: [
           {
             itemId: seeded.items[0].itemId,
@@ -71,6 +72,37 @@ describe('OrderService', () => {
         address: expect.objectContaining(seeded.address),
       }),
     ])
+  })
+
+  it('accepts GraphQL uppercase status enum values', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          sellerOrders: [
+            {
+              id: '44444444-4444-4444-8444-444444444444',
+              buyer: '33333333-3333-4333-8333-333333333333',
+              items: [{ itemId: 'item-1', sellerId }],
+              orderedAt: '2026-05-11T12:00:00.000Z',
+              purchaseAmount: 24.99,
+              status: 'ORDERED',
+              address: {
+                line1: '1156 High Street',
+                city: 'Santa Cruz',
+                state: 'CA',
+                postalCode: '95064',
+                country: 'US',
+              },
+            },
+          ],
+        },
+      }),
+    }))
+
+    const orders = await new OrderService().getOrders(sellerId)
+
+    expect(orders[0]?.status).toBe('ordered')
   })
 
   it('uses the default order service URL when no environment override is set', async () => {

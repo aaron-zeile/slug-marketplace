@@ -6,6 +6,7 @@ function orderServiceUrl() {
 
 export interface CreateOrderInput {
   buyer: string;
+  buyerEmail: string;
   items: {
     itemId: string;
     sellerId: string;
@@ -31,6 +32,7 @@ export interface Order {
   }[];
   orderedAt: string;
   purchaseAmount: number;
+  status: 'ordered' | 'shipping' | 'delivered';
   address: {
     label?: string;
     line1: string;
@@ -51,6 +53,7 @@ const orderFields = `
   }
   orderedAt
   purchaseAmount
+  status
   address {
     label
     line1

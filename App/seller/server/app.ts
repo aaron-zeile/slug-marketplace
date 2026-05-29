@@ -18,6 +18,7 @@ const apiRouter = express.Router();
 apiRouter.get('/listings', doCheck, listings.get);
 apiRouter.get('/listings/:id/reviews', doCheck, listings.getReviews);
 apiRouter.get('/orders', doCheck, orders.get);
+apiRouter.patch('/orders/:orderId/status', doCheck, orders.patchStatus);
 apiRouter.post('/listings', doCheck, listings.post);
 apiRouter.put('/listings/:id', doCheck, listings.put);
 apiRouter.delete('/listings/:id', doCheck, listings.remove);

@@ -39,6 +39,7 @@ const order = {
   ],
   orderedAt: '2026-05-11T12:00:00.000Z',
   purchaseAmount: 42,
+  status: 'ordered',
   address: {
     line1: '123 Main St',
     city: 'Springfield',
@@ -98,6 +99,7 @@ describe('order actions', () => {
     expect(result).toEqual({ success: true, data: order });
     expect(createOrder).toHaveBeenCalledWith({
       buyer: testUser.id,
+      buyerEmail: testUser.email,
       items: orderInput.items,
       purchaseAmount: orderInput.purchaseAmount,
       address: orderInput.address,

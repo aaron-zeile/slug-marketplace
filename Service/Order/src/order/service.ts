@@ -1,9 +1,13 @@
+import { sendOrderDeliveredEmail } from '../email/orderDelivered';
+import { sendOrderPurchasedEmail } from '../email/orderPurchased';
+import { sendOrderShippedEmail } from '../email/orderShipped';
 import {
   buyerHasOrderedItem as buyerHasOrderedItemDb,
-  createOrder,
+  createOrder as createOrderDb,
   getBuyerOrders,
   getOrder,
   getSellerOrders,
+  updateOrderStatusForSeller,
 } from './db';
 import {
   BuyerHasOrderedItemInput,
@@ -11,12 +15,23 @@ import {
   CreateOrderInput,
   Order,
   OrderIdInput,
+  OrderStatus,
   SellerOrdersInput,
+  UpdateOrderStatusInput,
 } from './schema';
+import { assertValidStatusTransition } from './statusTransitions';
 
 export class OrderService {
   public async createOrder(input: CreateOrderInput): Promise<Order> {
-    return createOrder(input);
+    const order = await createOrderDb(input);
+
+    try {
+      await sendOrderPurchasedEmail(order, input.buyerEmail);
+    } catch (error) {
+      console.error('[order-email] Failed to send purchase confirmation', error);
+    }
+
+    return order;
   }
 
   public async getOrder(input: OrderIdInput): Promise<Order> {
@@ -35,5 +50,29 @@ export class OrderService {
     input: BuyerHasOrderedItemInput,
   ): Promise<boolean> {
     return buyerHasOrderedItemDb(input.buyer, input.itemId);
+  }
+
+  public async updateOrderStatus(input: UpdateOrderStatusInput): Promise<Order> {
+    const currentOrder = await getOrder({ id: input.orderId });
+
+    assertValidStatusTransition(currentOrder.status, input.status);
+
+    const { order, buyerEmail } = await updateOrderStatusForSeller(
+      input.orderId,
+      input.seller,
+      input.status,
+    );
+
+    try {
+      if (input.status === OrderStatus.SHIPPING) {
+        await sendOrderShippedEmail(order, buyerEmail);
+      } else if (input.status === OrderStatus.DELIVERED) {
+        await sendOrderDeliveredEmail(order, buyerEmail);
+      }
+    } catch (error) {
+      console.error('[order-email] Failed to send status notification', error);
+    }
+
+    return order;
   }
 }

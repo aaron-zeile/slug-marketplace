@@ -67,6 +67,7 @@ export async function seedBuyerOrderForItem(
 
   return new serviceModule.OrderService().createOrder({
     buyer,
+    buyerEmail: 'buyer@example.com',
     purchaseAmount: 9.99,
     address: {
       line1: '1 Test Street',

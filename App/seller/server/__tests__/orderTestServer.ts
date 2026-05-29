@@ -60,6 +60,7 @@ export async function seedSellerOrders() {
   const service = new serviceModule.OrderService()
   const sellerOrder = await service.createOrder({
     buyer: buyerId,
+    buyerEmail: 'buyer@example.com',
     purchaseAmount: 24.99,
     address: {
       label: 'Home',
@@ -79,6 +80,7 @@ export async function seedSellerOrders() {
 
   await service.createOrder({
     buyer: buyerId,
+    buyerEmail: 'buyer@example.com',
     purchaseAmount: 15.5,
     address: {
       line1: '500 Other Street',

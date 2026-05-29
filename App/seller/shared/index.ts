@@ -46,12 +46,22 @@ export const OrderAddressSchema = z.object({
   country: z.string(),
 })
 
+const orderStatusSchema = z.preprocess((value) => {
+  if (typeof value !== 'string') {
+    return value
+  }
+
+  return value.toLowerCase()
+}, z.enum(['ordered', 'shipping', 'delivered']))
+
+/** Parses order JSON from the Order GraphQL service (enum names are uppercase). */
 export const OrderSchema = z.object({
   id: z.string(),
   buyer: z.string(),
   items: z.array(OrderItemSchema),
-  orderedAt: z.string(),
+  orderedAt: z.coerce.string(),
   purchaseAmount: z.number(),
+  status: orderStatusSchema,
   address: OrderAddressSchema,
 })
 

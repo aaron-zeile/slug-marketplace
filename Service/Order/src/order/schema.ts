@@ -1,6 +1,8 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsEmail,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -14,7 +16,19 @@ import {
   GraphQLISODateTime,
   InputType,
   ObjectType,
+  registerEnumType,
 } from 'type-graphql';
+
+export enum OrderStatus {
+  ORDERED = 'ordered',
+  SHIPPING = 'shipping',
+  DELIVERED = 'delivered',
+}
+
+registerEnumType(OrderStatus, {
+  name: 'OrderStatus',
+  description: 'Fulfillment status of a buyer order',
+});
 
 @ObjectType()
 export class OrderItem {
@@ -110,6 +124,9 @@ export class Order {
   @Field(() => Float)
   purchaseAmount!: number;
 
+  @Field(() => OrderStatus)
+  status!: OrderStatus;
+
   @Field(() => OrderAddress)
   address!: OrderAddress;
 }
@@ -119,6 +136,10 @@ export class CreateOrderInput {
   @Field(() => String)
   @IsUUID()
   buyer!: string;
+
+  @Field(() => String)
+  @IsEmail()
+  buyerEmail!: string;
 
   @Field(() => [OrderItemInput])
   @IsArray()
@@ -166,4 +187,19 @@ export class BuyerHasOrderedItemInput {
   @Field(() => String)
   @IsUUID()
   itemId!: string;
+}
+
+@InputType('UpdateOrderStatusInput')
+export class UpdateOrderStatusInput {
+  @Field(() => String)
+  @IsUUID()
+  orderId!: string;
+
+  @Field(() => String)
+  @IsUUID()
+  seller!: string;
+
+  @Field(() => OrderStatus)
+  @IsEnum(OrderStatus)
+  status!: OrderStatus;
 }

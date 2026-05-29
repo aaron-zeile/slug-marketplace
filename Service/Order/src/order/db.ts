@@ -7,12 +7,14 @@ import {
   OrderAddress,
   OrderIdInput,
   OrderItem,
+  OrderStatus,
   SellerOrdersInput,
 } from './schema';
 
 interface OrderRow {
   id: string;
   buyer: string;
+  status: OrderStatus;
   ordered_at: Date;
   purchase_amount: string;
   address: OrderAddress;
@@ -26,6 +28,7 @@ function mapOrder(row: OrderRow): Order {
     items: row.items ?? [],
     orderedAt: row.ordered_at,
     purchaseAmount: Number(row.purchase_amount),
+    status: row.status,
     address: row.address,
   };
 }
@@ -34,6 +37,7 @@ const orderSelect = `
   SELECT
     buyer_order.id,
     buyer_order.buyer,
+    buyer_order.status,
     buyer_order.ordered_at,
     buyer_order.purchase_amount,
     buyer_order.address,
@@ -74,11 +78,16 @@ export const createOrder = async (input: CreateOrderInput): Promise<Order> => {
 
     const orderResult = await client.query<{ id: string }>(
       `
-        INSERT INTO buyer_order (buyer, purchase_amount, address)
-        VALUES ($1, $2, $3)
+        INSERT INTO buyer_order (buyer, buyer_email, purchase_amount, address)
+        VALUES ($1, $2, $3, $4)
         RETURNING id
       `,
-      [input.buyer, input.purchaseAmount, input.address],
+      [
+        input.buyer,
+        input.buyerEmail,
+        input.purchaseAmount,
+        input.address,
+      ],
     );
 
     const orderId = orderResult.rows[0].id;
@@ -157,6 +166,7 @@ export const getSellerOrders = async (
     SELECT
       buyer_order.id,
       buyer_order.buyer,
+      buyer_order.status,
       buyer_order.ordered_at,
       buyer_order.purchase_amount,
       buyer_order.address,
@@ -180,3 +190,75 @@ export const getSellerOrders = async (
   const { rows } = await pool.query<OrderRow>(query, [input.seller]);
   return rows.map(mapOrder);
 };
+
+export interface OrderWithBuyerEmail {
+  order: Order;
+  buyerEmail: string;
+}
+
+export const updateOrderStatusForSeller = async (
+  orderId: string,
+  sellerId: string,
+  status: OrderStatus,
+): Promise<OrderWithBuyerEmail> => {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const sellerOnOrder = await client.query(
+      `
+        SELECT 1
+        FROM order_item
+        WHERE order_id = $1
+          AND seller = $2
+        LIMIT 1
+      `,
+      [orderId, sellerId],
+    );
+
+    if (!sellerOnOrder.rows[0]) {
+      throw new Error('Seller is not part of this order');
+    }
+
+    const currentResult = await client.query<{
+      status: OrderStatus;
+      buyer_email: string;
+    }>(
+      `
+        SELECT status, buyer_email
+        FROM buyer_order
+        WHERE id = $1
+        FOR UPDATE
+      `,
+      [orderId],
+    );
+
+    if (!currentResult.rows[0]) {
+      throw new Error('Order not found');
+    }
+
+    await client.query(
+      `
+        UPDATE buyer_order
+        SET status = $2
+        WHERE id = $1
+      `,
+      [orderId, status],
+    );
+
+    const order = await getOrderById(client, orderId);
+    await client.query('COMMIT');
+
+    return {
+      order,
+      buyerEmail: currentResult.rows[0].buyer_email,
+    };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
