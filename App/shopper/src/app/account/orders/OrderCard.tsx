@@ -4,6 +4,7 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import {
   Box,
   CardMedia,
+  Chip,
   Collapse,
   Divider,
   Paper,
@@ -14,10 +15,38 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
+import type { Order } from '../../../order/service';
 import type { OrderWithDetails } from '../../../order/enrich';
 
 interface OrderCardProps {
   order: OrderWithDetails;
+}
+
+type OrderStatus = Order['status'];
+
+function normalizeOrderStatus(status: string): OrderStatus {
+  const normalized = status.toLowerCase();
+  if (
+    normalized === 'ordered' ||
+    normalized === 'shipping' ||
+    normalized === 'delivered'
+  ) {
+    return normalized;
+  }
+
+  return 'ordered';
+}
+
+function statusChipColor(
+  status: OrderStatus,
+): 'default' | 'info' | 'success' {
+  if (status === 'delivered') {
+    return 'success';
+  }
+  if (status === 'shipping') {
+    return 'info';
+  }
+  return 'default';
 }
 
 function localeTagForNumbers(locale: string): string {
@@ -69,6 +98,13 @@ export default function OrderCard({ order }: OrderCardProps) {
     itemCount === 1
       ? t('itemsInOrder_one', { count: itemCount })
       : t('itemsInOrder_other', { count: itemCount });
+  const status = normalizeOrderStatus(order.status);
+  const statusLabel =
+    status === 'ordered'
+      ? t('statusOrdered')
+      : status === 'shipping'
+        ? t('statusShipping')
+        : t('statusDelivered');
 
   return (
     <Paper
@@ -88,10 +124,24 @@ export default function OrderCard({ order }: OrderCardProps) {
         }}
       >
         <Box sx={{ minWidth: 0 }}>
-          <Typography sx={{ fontWeight: 700 }}>
-            {t('orderLabel', { id: order.id })}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 1,
+            }}
+          >
+            <Typography sx={{ fontWeight: 700 }}>
+              {t('orderLabel', { id: order.id })}
+            </Typography>
+            <Chip
+              size="small"
+              label={statusLabel}
+              color={statusChipColor(status)}
+            />
+          </Stack>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
             {formatDate(order.orderedAt, locale)}
           </Typography>
         </Box>
@@ -102,7 +152,7 @@ export default function OrderCard({ order }: OrderCardProps) {
 
       <Divider sx={{ my: 1.5 }} />
 
-      <Stack spacing={0.75}>
+      <Stack sx={{ gap: 0.75 }}>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {itemCountLabel}
         </Typography>
@@ -169,7 +219,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               bgcolor: 'grey.50',
             }}
           >
-            <Stack spacing={1.25}>
+            <Stack sx={{ gap: 1.25 }}>
               {order.lineItems.map((line, index) => (
                 <Box
                   key={`${order.id}-${line.itemId}-${index}`}
