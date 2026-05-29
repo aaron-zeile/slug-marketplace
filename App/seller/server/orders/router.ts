@@ -25,7 +25,7 @@ export const patchStatus = async (req: Request, res: Response) => {
   }
 
   const orderId = req.params.orderId;
-  if (!orderId) {
+  if (typeof orderId !== 'string') {
     res.status(400).json({ error: 'Order id is required' });
     return;
   }
