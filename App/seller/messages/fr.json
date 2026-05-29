@@ -6,7 +6,7 @@
   "Tabs": {
     "listings": "Annonces",
     "sales": "Ventes",
-    "feedback": "Commentaires",
+    "analytics": "Commentaires",
     "createListing": "Créer une annonce",
     "contactAdmin": "Contacter l'admin",
     "ariaLabel": "Onglets du tableau de bord vendeur"
@@ -54,6 +54,8 @@
     "descriptionLabel": "Description",
     "priceLabel": "Prix",
     "priceError": "Le prix doit être d'au moins 0,01 $.",
+    "quantityLabel": "Quantité",
+    "quantityError": "La quantité doit être un nombre entier d'au moins 1.",
     "imagesLabel": "URL des images",
     "imagesHelper": "Saisissez une URL d'image par ligne.",
     "submit": "Créer l'annonce",
@@ -69,7 +71,7 @@
   },
   "Placeholders": {
     "sales": "Ventes — bientôt disponible",
-    "feedback": "Commentaires — bientôt disponible"
+    "analytics": "Commentaires — bientôt disponible"
   },
   "ContactAdmin": {
     "title": "Contacter l'admin",

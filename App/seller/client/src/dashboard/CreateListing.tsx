@@ -17,6 +17,7 @@ const emptyForm = {
   name: '',
   description: '',
   price: '',
+  quantity: '',
   images: '',
 }
 
@@ -28,8 +29,12 @@ export default function CreateListing() {
   const [saving, setSaving] = useState(false)
   const [createdName, setCreatedName] = useState<string | undefined>()
   const price = Number(form.price)
+  const quantity = Number(form.quantity)
   const priceError =
     form.price !== '' && (!Number.isFinite(price) || price < 0.01)
+  const quantityError =
+    form.quantity !== '' &&
+    (!Number.isInteger(quantity) || quantity < 1)
 
   const setError = errorCtx?.setError ?? (() => { /* no error provider */ })
 
@@ -45,7 +50,7 @@ export default function CreateListing() {
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    if (priceError) {
+    if (priceError || quantityError) {
       return
     }
 
@@ -57,6 +62,7 @@ export default function CreateListing() {
         name: form.name.trim(),
         description: form.description.trim(),
         price: Number(form.price),
+        quantity: form.quantity === '' ? undefined : quantity,
         images: form.images
           .split(/\r?\n/)
           .map((image) => image.trim())
@@ -127,6 +133,16 @@ export default function CreateListing() {
         />
 
         <TextField
+          label={t('quantityLabel')}
+          value={form.quantity}
+          onChange={updateField('quantity')}
+          type="number"
+          error={quantityError}
+          helperText={quantityError ? t('quantityError') : undefined}
+          inputProps={{ min: 1, step: 1 }}
+        />
+
+        <TextField
           label={t('imagesLabel')}
           value={form.images}
           onChange={updateField('images')}
@@ -140,7 +156,7 @@ export default function CreateListing() {
             type="submit"
             aria-label={t('submit')}
             variant="contained"
-            disabled={saving || priceError}
+            disabled={saving || priceError || quantityError}
           >
             {saving ? t('submitting') : t('submit')}
           </Button>

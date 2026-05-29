@@ -6,7 +6,7 @@ const intlMessages: Record<string, Record<string, string>> = {
   Tabs: {
     listings: 'Listings',
     sales: 'Sales',
-    feedback: 'Feedback',
+    analytics: 'Analytics',
     createListing: 'Create Listing',
     ariaLabel: 'Seller dashboard tabs',
   },
@@ -44,6 +44,8 @@ const intlMessages: Record<string, Record<string, string>> = {
     descriptionLabel: 'Description',
     priceLabel: 'Price',
     priceError: 'Price must be at least $0.01.',
+    quantityLabel: 'Quantity',
+    quantityError: 'Quantity must be a whole number of at least 1.',
     imagesLabel: 'Image URLs',
     imagesHelper: 'Enter one image URL per line.',
     submit: 'Create Listing',
@@ -53,7 +55,7 @@ const intlMessages: Record<string, Record<string, string>> = {
   LocaleSwitcher: { label: 'Locale', en: 'English', fr: 'Français' },
   Placeholders: {
     sales: 'Sales — coming soon',
-    feedback: 'Feedback — coming soon',
+    analytics: 'Analytics — coming soon',
   },
 };
 
