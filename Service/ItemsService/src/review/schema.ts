@@ -57,3 +57,9 @@ export class NewReview {
   @Length(1, 1024)
   comment!: string;
 }
+
+@InputType()
+export class SellerId {
+  @Field()
+  id!: string;
+}

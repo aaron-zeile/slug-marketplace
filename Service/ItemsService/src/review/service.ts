@@ -1,8 +1,8 @@
 import type { SessionUser } from '../auth/service';
 import { buyerHasOrderedItem } from '../order/client';
 import { ItemId } from '../item/schema';
-import { deleteReviewById, getReviews, insertReview } from './db';
-import { NewReview, Review, ReviewId } from './schema';
+import { deleteReviewById, getReviews, insertReview, getAvgRating } from './db';
+import { NewReview, Review, ReviewId, SellerId } from './schema';
 
 export class ReviewService {
   public async getReviews(item: ItemId): Promise<Review[]> {
@@ -35,5 +35,11 @@ export class ReviewService {
     if (!deleted) {
       throw new Error('Review not found or user does not own review');
     }
+  }
+
+  public async getAvgRating(input: SellerId):
+    Promise<GLfloat> {
+      const rating = await getAvgRating(input)
+      return rating
   }
 }
