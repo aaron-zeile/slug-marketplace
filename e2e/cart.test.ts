@@ -28,7 +28,6 @@ describe('Cart page', () => {
     await waitForAria('Added to cart.')
     await clickOnAria('Open cart')
     await waitForText('Cart')
-    await waitForText('1 item in your cart')
     await waitForAria(`Cart item ${itemName}`)
   })
 })

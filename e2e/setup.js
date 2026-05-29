@@ -63,7 +63,7 @@ export const clickOn = async (selector) => {
 }
 
 export const clickOnAria = async (label) => {
-  await clickOn(`[aria-label="${label}"]`)
+  await clickOn(`[aria-label="${label}"], [aria-label^="${label},"]`)
 }
 
 export const waitForText = async (text) => {
@@ -88,7 +88,7 @@ export const waitForHomeListings = async () => {
 }
 
 export const openItemByName = async (name) => {
-  await waitForText('Hello Guest')
+  await page.waitForSelector('[aria-label="Search"]', { timeout })
 
   const homeTitle = await page.$(
     `[aria-label^="Item Card "] h3[aria-label="${name}"]`,
