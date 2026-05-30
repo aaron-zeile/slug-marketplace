@@ -8,6 +8,7 @@ import type { OrderWithDetails } from '../../src/order/enrich';
 const order: OrderWithDetails = {
   id: 'order-1',
   buyer: 'buyer-1',
+  status: 'ordered',
   purchaseAmount: 25,
   orderedAt: '2026-05-17T19:23:00.000Z',
   address: {
@@ -29,6 +30,12 @@ const order: OrderWithDetails = {
     },
   ],
 };
+
+it('shows the order status', () => {
+  render(<OrderCard order={order} />);
+
+  expect(screen.getByText('Ordered')).toBeInTheDocument();
+});
 
 it('expands the item breakdown when the user clicks view breakdown', async () => {
   const user = userEvent.setup();

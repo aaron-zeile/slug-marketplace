@@ -6,12 +6,12 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock('@/components/dashboard/LogoutButton', () => ({
-  default: () => <button>Logout</button>,
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/dashboard',
 }));
 
-vi.mock('@/components/dashboard/charts/chart', () => ({
-  default: () => <div data-testid="simple-charts" />,
+vi.mock('@/components/dashboard/LogoutButton', () => ({
+  default: () => <button>Logout</button>,
 }));
 
 vi.mock('@/components/dashboard/localeSwitcher/localeSwitcher', () => ({
@@ -52,27 +52,42 @@ describe('DashboardShell', () => {
     });
   });
 
-  it('renders the charts component', async () => {
+  it('renders the sidebar nav links', async () => {
     render(<DashboardShell currentLocale="en">content</DashboardShell>);
     await waitFor(() => {
-      expect(screen.getByTestId('simple-charts')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /overview/i })).toBeInTheDocument();
     });
+    expect(screen.getByRole('link', { name: /profits/i })).toHaveAttribute(
+      'href',
+      '/dashboard/profits',
+    );
+    expect(screen.getByRole('link', { name: /listings/i })).toHaveAttribute(
+      'href',
+      '/dashboard/listings',
+    );
+    expect(screen.getByRole('link', { name: /reviews/i })).toHaveAttribute(
+      'href',
+      '/dashboard/reviews',
+    );
+    expect(screen.getByRole('link', { name: /messages/i })).toHaveAttribute(
+      'href',
+      '/dashboard/seller-messages',
+    );
+    expect(screen.getByRole('link', { name: /accounts/i })).toHaveAttribute(
+      'href',
+      '/dashboard/accounts',
+    );
+    expect(screen.getByRole('link', { name: /reports/i })).toHaveAttribute(
+      'href',
+      '/dashboard/reports',
+    );
   });
 
-  it('renders the Monthly Profit label', async () => {
-    render(<DashboardShell currentLocale="en">content</DashboardShell>);
+  it('passes the current locale to the LocaleSwitcher', async () => {
+    render(<DashboardShell currentLocale="fr">content</DashboardShell>);
     await waitFor(() => {
-      expect(screen.getByText(/monthly profit/i)).toBeInTheDocument();
+      expect(screen.getByTestId('locale-switcher')).toHaveAttribute('data-locale', 'fr');
     });
-  });
-
-  it('returns null before mounting (no content in initial render)', () => {
-    // useEffect hasn't run yet in the very first synchronous pass
-    // After effects fire the content appears — we verify the component
-    // eventually renders something (not null indefinitely)
-    render(<DashboardShell currentLocale="en">test</DashboardShell>);
-    // waitFor below confirms it does render after mount
-    return waitFor(() => expect(screen.getByText('test')).toBeInTheDocument());
   });
 
   it('returns null on the server snapshot before hydration', () => {

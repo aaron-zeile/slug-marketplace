@@ -87,3 +87,34 @@ export async function getAvgRating(sellerId: SellerId):
     const {rows} = await pool.query(query)
     return rows[0]?.rating ?? 0
 }
+
+export const getAllReviewsAdmin = async (): Promise<Array<{
+  id: string;
+  itemId: string;
+  itemName: string;
+  user: { id: string; name: string };
+  content: string;
+  rating: number;
+  created_at: Date;
+}>> => {
+  const select = `
+    SELECT
+      r.id,
+      r.item AS "itemId",
+      i.data->>'name' AS "itemName",
+      r.data->'user' AS user,
+      r.data->>'content' AS content,
+      (r.data->>'rating')::float AS rating,
+      (r.data->>'created_at')::timestamptz AS created_at
+    FROM review r
+    JOIN item i ON r.item = i.id
+    ORDER BY (r.data->>'created_at')::timestamptz DESC NULLS LAST
+  `;
+  const { rows } = await pool.query(select);
+  return rows;
+};
+
+export const deleteReviewAsAdmin = async (reviewId: string): Promise<boolean> => {
+  const result = await pool.query(`DELETE FROM review WHERE id = $1`, [reviewId]);
+  return (result.rowCount ?? 0) > 0;
+};

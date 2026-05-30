@@ -10,6 +10,13 @@ import { AdminResolver } from '@/graphql/resolvers/admin.resolver';
 import bcrypt from 'bcryptjs';
 import { getIronSession } from 'iron-session';
 
+function makeAuthenticatedCtx(): GraphQLContext {
+  return {
+    request: new Request('http://localhost/admin/api/graphql'),
+    responseHeaders: new Headers(),
+  };
+}
+
 function makeCtx(): GraphQLContext {
   return {
     request: new Request('http://localhost/admin/api/graphql'),
@@ -218,5 +225,210 @@ describe('AdminResolver.sellerMessages', () => {
       },
     ]);
     expect(mockSql).toHaveBeenCalledOnce();
+  });
+});
+
+describe('AdminResolver.adminItems', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  it('throws when not authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(resolver.adminItems(makeAuthenticatedCtx())).rejects.toThrow('Not authenticated');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('returns mapped items from the items service', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          {
+            id: 'item-1',
+            name: 'Test Listing',
+            seller: { id: 'seller-1', name: 'Alice' },
+            price: '19.99',
+            status: 'active',
+            created_at: '2024-01-01T00:00:00.000Z',
+          },
+        ]),
+        { status: 200 },
+      ) as never,
+    );
+
+    const result = await resolver.adminItems(makeAuthenticatedCtx());
+
+    expect(result).toEqual([
+      {
+        id: 'item-1',
+        name: 'Test Listing',
+        seller: { id: 'seller-1', name: 'Alice' },
+        price: 19.99,
+        status: 'active',
+        createdAt: '2024-01-01T00:00:00.000Z',
+      },
+    ]);
+  });
+
+  it('throws when the items service returns an error', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 500 }) as never);
+
+    await expect(resolver.adminItems(makeAuthenticatedCtx())).rejects.toThrow(
+      'Failed to fetch items from items service',
+    );
+  });
+});
+
+describe('AdminResolver.adminDeleteItem', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  it('throws when not authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(resolver.adminDeleteItem('item-1', makeAuthenticatedCtx())).rejects.toThrow(
+      'Not authenticated',
+    );
+  });
+
+  it('returns true on successful delete', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), { status: 200 }) as never,
+    );
+
+    const result = await resolver.adminDeleteItem('item-1', makeAuthenticatedCtx());
+    expect(result).toBe(true);
+  });
+
+  it('throws when item is not found', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 404 }) as never);
+
+    await expect(resolver.adminDeleteItem('missing', makeAuthenticatedCtx())).rejects.toThrow(
+      'Item not found',
+    );
+  });
+
+  it('throws a generic error for non-404 failures', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 500 }) as never);
+
+    await expect(resolver.adminDeleteItem('item-1', makeAuthenticatedCtx())).rejects.toThrow(
+      'Failed to delete item',
+    );
+  });
+});
+
+describe('AdminResolver.adminReviews', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  it('throws when not authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(resolver.adminReviews(makeAuthenticatedCtx())).rejects.toThrow('Not authenticated');
+  });
+
+  it('returns mapped reviews from the items service', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          {
+            id: 'review-1',
+            itemId: 'item-1',
+            itemName: 'Test Listing',
+            user: { id: 'user-1', name: 'Bob' },
+            content: 'Great item!',
+            rating: 5,
+            created_at: '2024-03-01T00:00:00.000Z',
+          },
+        ]),
+        { status: 200 },
+      ) as never,
+    );
+
+    const result = await resolver.adminReviews(makeAuthenticatedCtx());
+
+    expect(result).toEqual([
+      {
+        id: 'review-1',
+        itemId: 'item-1',
+        itemName: 'Test Listing',
+        user: { id: 'user-1', name: 'Bob' },
+        content: 'Great item!',
+        rating: 5,
+        createdAt: '2024-03-01T00:00:00.000Z',
+      },
+    ]);
+  });
+
+  it('throws when the items service returns an error', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 500 }) as never);
+
+    await expect(resolver.adminReviews(makeAuthenticatedCtx())).rejects.toThrow(
+      'Failed to fetch reviews from items service',
+    );
+  });
+});
+
+describe('AdminResolver.adminDeleteReview', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  it('throws when not authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(
+      resolver.adminDeleteReview('review-1', makeAuthenticatedCtx()),
+    ).rejects.toThrow('Not authenticated');
+  });
+
+  it('returns true on successful delete', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), { status: 200 }) as never,
+    );
+
+    const result = await resolver.adminDeleteReview('review-1', makeAuthenticatedCtx());
+    expect(result).toBe(true);
+  });
+
+  it('throws when review is not found', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 404 }) as never);
+
+    await expect(
+      resolver.adminDeleteReview('missing', makeAuthenticatedCtx()),
+    ).rejects.toThrow('Review not found');
+  });
+
+  it('throws a generic error for non-404 failures', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 500 }) as never);
+
+    await expect(
+      resolver.adminDeleteReview('review-1', makeAuthenticatedCtx()),
+    ).rejects.toThrow('Failed to delete review');
   });
 });

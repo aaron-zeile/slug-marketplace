@@ -1,0 +1,23 @@
+---
+description: MUI layout and visual styles must use sx, not DOM/system props
+globs: App/**/*.{tsx,jsx}
+alwaysApply: false
+---
+
+# MUI styling: use `sx` only
+
+For `@mui/material` components (`Box`, `Stack`, `Typography`, etc.):
+
+- Put **layout and visual styles** in `sx={{ ... }}` (e.g. `display`, `flexDirection`, `alignItems`, `flexWrap`, `gap`, `justifyContent`, padding, colors).
+- Do **not** pass those as top-level props (`alignItems`, `flexWrap`, `justifyContent`, `spacing`, etc.) — they can leak to the DOM and trigger React warnings.
+- `sx` on the MUI component is fine; avoid duplicating the same styles on `component` wrappers.
+
+```tsx
+// Bad
+<Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+
+// Good
+<Stack sx={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+```
+
+Semantic MUI props that are not CSS (e.g. `component`, `href`, `onClick`, `size` on `Button`/`Chip`) are still OK.
