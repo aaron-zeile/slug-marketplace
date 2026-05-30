@@ -121,6 +121,7 @@ describe('listings router', () => {
       description: listing.description,
       price: listing.price,
       images: [],
+      quantity: listing.quantity,
     }
     const req = {
       user: {
@@ -171,6 +172,7 @@ describe('listings router', () => {
       description: listing.description,
       price: listing.price,
       images: [],
+      quantity: listing.quantity,
     }
     const req = {
       user: {

@@ -5,6 +5,7 @@ import * as listings from './listings/router.js';
 import * as messages from './messages/router.js';
 import * as orders from './orders/router.js';
 import * as auth from './auth/router.js';
+import * as analytics from './analytics/router.js'
 import {doCheck} from './auth/middleware.js'
 
 const app = express();
@@ -25,6 +26,7 @@ apiRouter.delete('/listings/:id', doCheck, listings.remove);
 apiRouter.post('/keys', doCheck, apiKeys.post);
 apiRouter.post('/messages', doCheck, messages.post);
 apiRouter.get('/sessions', doCheck, auth.getSession);
+apiRouter.get('/analytics/average-rating', doCheck, analytics.getAvgRating)
 
 app.use('/seller/api', apiRouter);
 app.use('/api', apiRouter);

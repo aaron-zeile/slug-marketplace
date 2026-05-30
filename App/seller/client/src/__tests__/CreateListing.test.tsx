@@ -195,6 +195,9 @@ describe('CreateListing', () => {
     fireEvent.change(priceField(), {
       target: {value: '24.99'},
     })
+    fireEvent.change(quantityField(), {
+      target: {value: '3'},
+    })
     fireEvent.click(screen.getByRole('button', {name: 'Create Listing'}))
 
     await screen.findByText('Created USB Hub.')
@@ -228,6 +231,9 @@ describe('CreateListing', () => {
     })
     fireEvent.change(priceField(), {
       target: {value: '24.99'},
+    })
+    fireEvent.change(quantityField(), {
+      target: {value: '3'},
     })
     fireEvent.click(screen.getByRole('button', {name: 'Create Listing'}))
 
