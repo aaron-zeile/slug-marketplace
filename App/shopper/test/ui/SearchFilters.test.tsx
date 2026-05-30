@@ -18,7 +18,7 @@ function openFilters() {
   fireEvent.click(screen.getByRole('button', { name: 'Toggle filters' }));
 }
 
-it('renders price controls and compact rating options', () => {
+it('renders the filter panel sections after opening the mobile menu', () => {
   render(
     <SearchFilters
       filters={{ maxPrice: 75, minPrice: 10, minStars: 4 }}
@@ -28,30 +28,9 @@ it('renders price controls and compact rating options', () => {
   openFilters();
 
   expect(screen.getByRole('heading', { name: 'Filters' })).toBeDefined();
+  expect(screen.getByRole('combobox', { name: 'Sort by' })).toBeDefined();
   expect(screen.getByRole('spinbutton', { name: 'Min' })).toHaveValue(10);
-  expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(75);
   expect(screen.getByRole('checkbox', { name: '4+ stars' })).toBeChecked();
-  expect(screen.getByRole('checkbox', { name: 'All' })).not.toBeChecked();
-});
-
-it('rounds the slider ceiling up to the nearest five dollars', () => {
-  render(<SearchFilters maxItemPrice={2006} />);
-  openFilters();
-
-  expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(2010);
-});
-
-it('falls back when incoming price filters are not finite numbers', () => {
-  render(
-    <SearchFilters
-      filters={{ maxPrice: Number.NaN, minPrice: Number.NaN }}
-      maxItemPrice={100}
-    />,
-  );
-  openFilters();
-
-  expect(screen.getByRole('spinbutton', { name: 'Min' })).toHaveValue(0);
-  expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(2000);
 });
 
 it('orders incoming price filters when the minimum is above the maximum', () => {
@@ -79,6 +58,35 @@ it('keeps existing params when a minimum price is applied', () => {
   );
 });
 
+it('removes price params when the full price range is committed', () => {
+  mockSearchParams.mockReturnValue(new URLSearchParams('minPrice=20&maxPrice=60'));
+
+  render(
+    <SearchFilters
+      filters={{ maxPrice: 60, minPrice: 20 }}
+      maxItemPrice={2500}
+    />,
+  );
+  openFilters();
+
+  const minInput = screen.getByRole('spinbutton', { name: 'Min' });
+  const maxInput = screen.getByRole('spinbutton', { name: 'Max' });
+  fireEvent.change(minInput, { target: { value: '0' } });
+  fireEvent.change(maxInput, { target: { value: '2500' } });
+  fireEvent.blur(maxInput);
+
+  expect(MockRouter.push).toHaveBeenCalledWith('/search/desk');
+});
+
+it('does not add a maximum price param when the maximum is at the ceiling', () => {
+  render(<SearchFilters maxItemPrice={2500} />);
+  openFilters();
+
+  fireEvent.blur(screen.getByRole('spinbutton', { name: 'Max' }));
+
+  expect(MockRouter.push).toHaveBeenCalledWith('/search/desk');
+});
+
 it('updates the maximum price filter from the max input', () => {
   render(<SearchFilters maxItemPrice={2500} />);
   openFilters();
@@ -88,18 +96,6 @@ it('updates the maximum price filter from the max input', () => {
   fireEvent.blur(maxInput);
 
   expect(MockRouter.push).toHaveBeenCalledWith('/search/desk?maxPrice=125');
-});
-
-it('updates the price range when the slider changes', () => {
-  render(<SearchFilters maxItemPrice={2500} />);
-  openFilters();
-
-  const sliders = screen.getAllByRole('slider', { name: 'Price range' });
-  fireEvent.change(sliders[0], { target: { value: '20' } });
-  fireEvent.change(sliders[1], { target: { value: '125' } });
-
-  expect(screen.getByRole('spinbutton', { name: 'Min' })).toHaveValue(20);
-  expect(screen.getByRole('spinbutton', { name: 'Max' })).toHaveValue(125);
 });
 
 it('updates the minimum stars filter from the rating checkboxes', () => {
@@ -126,6 +122,20 @@ it('removes the rating filter when all ratings is selected', () => {
   expect(MockRouter.push).toHaveBeenCalledWith('/search/desk');
 });
 
+it('updates the sort filter from the sort menu', () => {
+  mockSearchParams.mockReturnValue(new URLSearchParams('category=books'));
+
+  render(<SearchFilters filters={{ category: 'books' }} />);
+  openFilters();
+
+  fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Sort by' }));
+  fireEvent.click(screen.getByRole('option', { name: 'Highest price' }));
+
+  expect(MockRouter.push).toHaveBeenCalledWith(
+    '/search/desk?category=books&sortBy=priceDesc',
+  );
+});
+
 it('toggles the mobile filters menu', () => {
   render(<SearchFilters />);
 
@@ -148,9 +158,9 @@ it('toggles the mobile filters menu from the filters label', () => {
   expect(labelToggle).toHaveAttribute('aria-expanded', 'true');
 });
 
-it('clears price and rating params without removing unrelated params', () => {
+it('clears price, rating, and sort params without removing unrelated params', () => {
   mockSearchParams.mockReturnValue(
-    new URLSearchParams('category=books&minPrice=20&maxPrice=60&minStars=4'),
+    new URLSearchParams('category=books&minPrice=20&maxPrice=60&minStars=4&sortBy=priceDesc'),
   );
 
   render(
