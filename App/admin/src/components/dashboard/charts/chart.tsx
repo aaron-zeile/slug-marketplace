@@ -19,11 +19,21 @@ interface MonthlyProfit {
   profit: number;
 }
 
+interface SimpleChartsProps {
+  width?: number;
+  height?: number;
+  onData?: (data: MonthlyProfit[]) => void;
+}
+
 function subscribe() {
   return () => {};
 }
 
-export default function SimpleCharts() {
+export default function SimpleCharts({
+  width = 500,
+  height = 300,
+  onData,
+}: SimpleChartsProps = {}) {
   const [data, setData] = useState<MonthlyProfit[]>([]);
 
   const mounted = useSyncExternalStore(
@@ -40,9 +50,12 @@ export default function SimpleCharts() {
     })
       .then((res) => res.json())
       .then(({ data }) => {
-        if (data?.monthlyProfit) setData(data.monthlyProfit);
+        if (data?.monthlyProfit) {
+          setData(data.monthlyProfit);
+          onData?.(data.monthlyProfit);
+        }
       });
-  }, []);
+  }, [onData]);
 
   if (!mounted) return null;
 
@@ -71,8 +84,8 @@ export default function SimpleCharts() {
             color: '#1976d2',
           },
         ]}
-        height={300}
-        width={500}
+        height={height}
+        width={width}
       />
     </Box>
   );

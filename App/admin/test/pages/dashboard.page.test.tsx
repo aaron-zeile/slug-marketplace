@@ -13,4 +13,32 @@ describe('DashboardPage', () => {
     render(<DashboardPage />);
     expect(screen.getByText(/slug marketplace admin panel/i)).toBeInTheDocument();
   });
+
+  it('renders quick-link cards for the main sections', () => {
+    render(<DashboardPage />);
+    expect(screen.getByRole('link', { name: /profits/i })).toHaveAttribute(
+      'href',
+      '/dashboard/profits',
+    );
+    expect(screen.getByRole('link', { name: /listings/i })).toHaveAttribute(
+      'href',
+      '/dashboard/listings',
+    );
+    expect(screen.getByRole('link', { name: /reviews/i })).toHaveAttribute(
+      'href',
+      '/dashboard/reviews',
+    );
+    expect(screen.getByRole('link', { name: /messages/i })).toHaveAttribute(
+      'href',
+      '/dashboard/seller-messages',
+    );
+    expect(screen.getByRole('link', { name: /accounts/i })).toHaveAttribute(
+      'href',
+      '/dashboard/accounts',
+    );
+    expect(screen.getByRole('link', { name: /reports/i })).toHaveAttribute(
+      'href',
+      '/dashboard/reports',
+    );
+  });
 });

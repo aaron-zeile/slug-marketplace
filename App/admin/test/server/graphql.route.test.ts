@@ -54,4 +54,27 @@ describe('GraphQL API route', () => {
     const [call1, call2] = mockHandleRequest.mock.calls;
     expect(call1[1].responseHeaders).not.toBe(call2[1].responseHeaders);
   });
+
+  it('strips the /admin basePath before forwarding to yoga', async () => {
+    mockHandleRequest.mockResolvedValue(new Response());
+
+    const req = new Request('http://localhost/admin/api/graphql', {
+      method: 'POST',
+      body: JSON.stringify({ query: '{ health }' }),
+    });
+    await POST(req);
+
+    const [forwardedReq] = mockHandleRequest.mock.calls[0];
+    expect(new URL((forwardedReq as Request).url).pathname).toBe('/api/graphql');
+  });
+
+  it('forwards requests without the basePath unchanged', async () => {
+    mockHandleRequest.mockResolvedValue(new Response());
+
+    const req = new Request('http://localhost/api/graphql');
+    await GET(req);
+
+    const [forwardedReq] = mockHandleRequest.mock.calls[0];
+    expect(forwardedReq).toBe(req);
+  });
 });

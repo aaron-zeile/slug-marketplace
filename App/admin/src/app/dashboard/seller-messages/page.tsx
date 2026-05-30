@@ -19,7 +19,10 @@ export default async function SellerMessagesPage() {
   `;
 
   return (
-    <Paper elevation={2} sx={{ borderRadius: 2, p: 4 }}>
+    <Paper
+      elevation={0}
+      sx={{ borderRadius: 2, p: 4, border: '1px solid #e5e7eb', bgcolor: '#fff' }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
         <EmailIcon color="primary" fontSize="large" />
         <Typography variant="h4" fontWeight={700}>

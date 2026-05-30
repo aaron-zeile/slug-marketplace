@@ -1,9 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-
-vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
-  new Response(JSON.stringify({ data: { adminItems: [], adminReviews: [] } }), { status: 200 }),
-));
 
 import AccountsPage from '@/app/dashboard/accounts/page';
 import ReportsPage from '@/app/dashboard/reports/page';
@@ -15,12 +11,22 @@ describe('AccountsPage', () => {
     render(<AccountsPage />);
     expect(screen.getByRole('heading', { name: /accounts/i })).toBeInTheDocument();
   });
+
+  it('renders a description hint about coming soon', () => {
+    render(<AccountsPage />);
+    expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
+  });
 });
 
 describe('ReportsPage', () => {
   it('renders the Reports heading', () => {
     render(<ReportsPage />);
     expect(screen.getByRole('heading', { name: /reports/i })).toBeInTheDocument();
+  });
+
+  it('renders a description hint about coming soon', () => {
+    render(<ReportsPage />);
+    expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
   });
 });
 
