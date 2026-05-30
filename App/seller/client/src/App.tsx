@@ -15,7 +15,7 @@ import { TabProvider } from './dashboard/Provider'
 import { useDashboard } from './dashboard/useDashboard'
 import AppProviders from './providers/AppProviders'
 
-import BasicCard from './dashboard/analytics/SellerRating'
+import Analytics from './dashboard/analytics/Analytics'
 
 function TabPlaceholder({ messageKey }: { messageKey: 'analytics' }) {
   const t = useTranslations('Placeholders')
@@ -37,7 +37,7 @@ export function AppContent() {
     content = <Sales />
   }
   if (tabValue === 2) {
-    content = <BasicCard/>
+    content = <Analytics/>
   }
   if (tabValue === 3) {
     content = <CreateListing />

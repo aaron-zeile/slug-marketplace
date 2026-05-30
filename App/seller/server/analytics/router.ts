@@ -7,5 +7,5 @@ export const getAvgRating = async (req: Request, res: Response) => {
     return;
   }
   const avg = await new AnalyticsService().getAvgRating(req.user.id);
-  res.json({avg})
+  res.json({averageRating: avg})
 }
