@@ -114,6 +114,7 @@ it('updates a listing only after edits are made', async () => {
           name: 'USB Hub Pro',
           description: listing.description,
           price: listing.price,
+          quantity: listing.quantity,
           images: listing.images,
         }),
       }),

@@ -42,7 +42,7 @@ export class ReviewResolver {
   @Query(() => Float)
   async getAvgRating(
     @Arg('input') input: SellerId
-  ): Promise<GLfloat> {
+  ): Promise<number> {
     return new ReviewService().getAvgRating(input)
   }
 }

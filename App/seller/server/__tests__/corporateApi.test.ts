@@ -131,6 +131,7 @@ describe('seller corporate REST API', () => {
       name: 'Corporate Listing',
       description: 'Created through the REST API',
       price: 19.99,
+      quantity: 1,
       images: ['https://example.com/image.jpg'],
     }
     const req = {

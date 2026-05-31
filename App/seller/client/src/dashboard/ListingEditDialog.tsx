@@ -25,6 +25,7 @@ type ListingDraft = {
   name: string
   description: string
   price: string
+  quantity: string
   images: string
 }
 
@@ -40,6 +41,7 @@ const draftFromListing = (listing: Listing): ListingDraft => ({
   name: listing.name,
   description: listing.description,
   price: String(listing.price),
+  quantity: String(listing.quantity),
   images: listing.images.join('\n'),
 })
 
@@ -68,12 +70,19 @@ export default function ListingEditDialog({
     draft?.price !== undefined &&
     draft.price !== '' &&
     (!Number.isFinite(price) || price < 0.01)
+  const quantity = Number(draft?.quantity ?? '')
+  const quantityError =
+    draft?.quantity !== undefined &&
+    draft.quantity !== '' &&
+    (!Number.isInteger(quantity) || quantity < 1)
   const canSave = Boolean(
     listing &&
     draft?.name.trim() &&
     draft.description.trim() &&
     Number.isFinite(price) &&
-    price >= 0.01,
+    price >= 0.01 &&
+    Number.isInteger(quantity) &&
+    quantity >= 1,
   )
 
   useEffect(() => {
@@ -120,6 +129,7 @@ export default function ListingEditDialog({
         name: draft.name.trim(),
         description: draft.description.trim(),
         price,
+        quantity,
         images: normalizeImages(draft.images),
       },
       setError,
@@ -204,6 +214,22 @@ export default function ListingEditDialog({
                 'aria-label': t('priceInput', {name: listing.name}),
                 min: 0.01,
                 step: '0.01',
+              }}
+              fullWidth
+            />
+
+            <TextField
+              label={t('quantity')}
+              value={draft.quantity}
+              onChange={updateDraft('quantity')}
+              required
+              error={quantityError}
+              helperText={quantityError ? t('quantityError') : undefined}
+              type="number"
+              inputProps={{
+                'aria-label': t('quantityInput', {name: listing.name}),
+                min: 1,
+                step: 1,
               }}
               fullWidth
             />

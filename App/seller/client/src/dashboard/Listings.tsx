@@ -105,6 +105,15 @@ export default function SellerListings() {
         </Typography>
       ),
     },
+    {
+      field: 'quantity',
+      headerName: t('quantity'),
+      width: 120,
+      sortable: false,
+      renderCell: (params) => (
+        <Typography>{params.row.quantity}</Typography>
+      ),
+    },
   ], [locale, t])
 
   useEffect(() => {

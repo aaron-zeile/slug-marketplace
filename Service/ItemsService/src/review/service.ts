@@ -38,7 +38,7 @@ export class ReviewService {
   }
 
   public async getAvgRating(input: SellerId):
-    Promise<GLfloat> {
+    Promise<number> {
       const rating = await getAvgRating(input)
       return rating
   }

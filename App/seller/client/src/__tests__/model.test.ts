@@ -71,6 +71,7 @@ describe('dashboard model', () => {
       description: 'A useful hub.',
       price: 24.99,
       images: [],
+      quantity: 1,
     }
     const fetchMock = vi.fn(async () => ({
       ok: true,
@@ -118,6 +119,7 @@ describe('dashboard model', () => {
         description: 'A useful hub.',
         price: 24.99,
         images: [],
+        quantity: 1,
       },
       setError,
     )

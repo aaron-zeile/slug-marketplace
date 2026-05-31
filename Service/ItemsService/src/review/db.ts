@@ -73,9 +73,9 @@ export const deleteReviewById = async (
 };
 
 export async function getAvgRating(sellerId: SellerId):
-  Promise<GLfloat> {
+  Promise<number> {
     const select = `
-    SELECT AVG((data->>'rating')::float) AS rating
+    SELECT AVG((r.data->>'rating')::float) AS rating
     FROM review r
     JOIN item i ON i.id = r.item
     WHERE i.data->>'sellerId' = $1;
@@ -85,7 +85,7 @@ export async function getAvgRating(sellerId: SellerId):
       values: [sellerId.id]
     }
     const {rows} = await pool.query(query)
-    return rows[0].rating
+    return rows[0]?.rating ?? 0
 }
 
 export const getAllReviewsAdmin = async (): Promise<Array<{

@@ -157,3 +157,19 @@ export const listOrders = async (
     setError(String(error))
   }
 }
+
+export async function avgRating(
+  setError: (error: string | undefined) => void,
+): Promise<number | undefined> {
+  try {
+    const response = await fetch('/seller/api/analytics/average-rating')
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+    const body = await response.json()
+    return body.averageRating
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Failed to load rating')
+    return undefined
+  }
+}

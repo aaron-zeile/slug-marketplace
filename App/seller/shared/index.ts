@@ -24,7 +24,7 @@ export const NewListingSchema = z.object({
   description: z.string().min(1).max(1024),
   price: z.number().min(0),
   images: z.array(z.string()).default([]),
-  quantity: z.number().int().min(1).optional(),
+  quantity: z.number().int().min(1),
 })
 
 export const CreateListingResponseSchema = z.object({
