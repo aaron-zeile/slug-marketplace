@@ -21,6 +21,9 @@ services:
       ORDER_SERVICE_URL: http://localhost:4700/graphql
       ORDER_POSTGRES_DB: orders
       POSTGRES_HOST: postgres
+      ADMIN_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/admindb
+      SESSION_SECRET: ${SESSION_SECRET}
+      ADMIN_INTERNAL_SECRET: ${ADMIN_INTERNAL_SECRET}
   postgres:
     container_name: postgres
     image: postgres:alpine
