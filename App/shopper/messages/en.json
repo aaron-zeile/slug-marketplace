@@ -7,6 +7,7 @@
     "guest": "Guest",
     "sellerDashboard": "Seller Dashboard",
     "orders": "Orders",
+    "openOrders": "Open orders",
     "logout": "Logout",
     "login": "Login",
     "navigation": "Main navigation",
@@ -98,6 +99,22 @@
     "checkout": "Checkout",
     "signInToCheckout": "Sign in to checkout.",
     "total": "Total"
+  },
+  "Wishlist": {
+    "tooltip": "Wishlist",
+    "openWishlist": "Open wishlist",
+    "openWishlistWithCount": "Open wishlist, {count} items",
+    "title": "Wishlist",
+    "itemsInWishlist_one": "{count} item in your wishlist",
+    "itemsInWishlist_other": "{count} items in your wishlist",
+    "loading": "Loading your wishlist...",
+    "loadError": "Unable to load your wishlist.",
+    "empty": "Your wishlist is empty.",
+    "signInToView": "Sign in to view your wishlist.",
+    "itemAriaLabel": "Wishlist item {name}",
+    "addToCart": "Add to cart",
+    "addToCartAria": "Add {name} to cart",
+    "removeAria": "Remove {name} from wishlist"
   },
   "Address": {
     "title": "Shipping addresses",

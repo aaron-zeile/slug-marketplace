@@ -21,7 +21,9 @@ import {
 import { Item } from '../../../item';
 import { fetchItemAction, fetchItemReviewsAction } from './actions';
 import { dispatchCartUpdated } from '../../../cart/events';
+import { dispatchWishlistUpdated } from '../../../wishlist/events';
 import { addCartItemAction } from '../../cart/actions';
+import { addWishlistItemAction } from '../../wishlist/actions';
 import Reviews from './Reviews';
 
 interface Props {
@@ -97,6 +99,7 @@ const ItemDisplay = ({ id }: Props) => {
   const [mainImage, setMainImage] = useState<string>('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
   const [reviewSummaryPayload, setReviewSummaryPayload] = useState<{
     itemId: string;
@@ -195,6 +198,20 @@ const ItemDisplay = ({ id }: Props) => {
     }
 
     setAddingToCart(false);
+  };
+
+  const handleAddToWishlist = async () => {
+    setAddingToWishlist(true);
+    const result = await addWishlistItemAction(item.id);
+
+    if (result.success) {
+      setCartMessage('Added to wishlist.');
+      dispatchWishlistUpdated();
+    } else {
+      setCartMessage('Please sign in to add to wishlist.');
+    }
+
+    setAddingToWishlist(false);
   };
 
   const { dollars: priceDollars, decimal: priceDecimal, cents: priceCents, ariaLabel: priceAriaLabel } =
@@ -530,8 +547,9 @@ const ItemDisplay = ({ id }: Props) => {
                     Add to cart
                   </Button>
                   <Button
-                    // REMOVE DISABLED WHEN FUNCTIONALITY ADDED
-                    disabled
+                    aria-label={`add ${item.name} to wishlist`}
+                    disabled={addingToWishlist}
+                    onClick={handleAddToWishlist}
                     variant="contained"
                     sx={{
                       width: { xs: '100%', sm: 'auto' },
@@ -659,7 +677,12 @@ const ItemDisplay = ({ id }: Props) => {
       >
         <Alert
           aria-label={cartMessage ?? undefined}
-          severity={cartMessage === 'Added to cart.' ? 'success' : 'warning'}
+          severity={
+            cartMessage === 'Added to cart.' ||
+            cartMessage === 'Added to wishlist.'
+              ? 'success'
+              : 'warning'
+          }
           variant="filled"
           sx={{ width: '100%' }}
         >

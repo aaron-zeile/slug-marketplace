@@ -7,6 +7,7 @@
     "guest": "Invité",
     "sellerDashboard": "Tableau de bord vendeur",
     "orders": "Commandes",
+    "openOrders": "Ouvrir les commandes",
     "logout": "Déconnexion",
     "login": "Connexion",
     "navigation": "Navigation principale",
@@ -98,6 +99,22 @@
     "checkout": "Passer à la caisse",
     "signInToCheckout": "Connectez-vous pour passer à la caisse.",
     "total": "Total"
+  },
+  "Wishlist": {
+    "tooltip": "Liste de souhaits",
+    "openWishlist": "Ouvrir la liste de souhaits",
+    "openWishlistWithCount": "Ouvrir la liste de souhaits, {count} articles",
+    "title": "Liste de souhaits",
+    "itemsInWishlist_one": "{count} article dans votre liste de souhaits",
+    "itemsInWishlist_other": "{count} articles dans votre liste de souhaits",
+    "loading": "Chargement de votre liste de souhaits...",
+    "loadError": "Impossible de charger votre liste de souhaits.",
+    "empty": "Votre liste de souhaits est vide.",
+    "signInToView": "Connectez-vous pour voir votre liste de souhaits.",
+    "itemAriaLabel": "Article de la liste de souhaits : {name}",
+    "addToCart": "Ajouter au panier",
+    "addToCartAria": "Ajouter {name} au panier",
+    "removeAria": "Retirer {name} de la liste de souhaits"
   },
   "Address": {
     "title": "Adresses de livraison",

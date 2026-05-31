@@ -25,13 +25,16 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import SearchBar from '../components/SearchBar';
-import { checkLogin, logout, type CheckLoginResult } from '../login/actions';
+import { logout } from '../login/actions';
 import GoogleLogin from '../login/GoogleLogin';
 import CartButton from './CartButton';
+import OrdersButton from './OrdersButton';
+import WishlistButton from './WishlistButton';
+import { useShopperSession } from './useShopperSession';
 
 const brandColor = '#0f766e';
 const sellerDashboardUrl =
@@ -46,8 +49,8 @@ export default function Topbar() {
   const pathname = usePathname();
   const isHome = pathname === '/';
 
-  const [name, setName] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { name, setName, isAuthenticated, setIsAuthenticated, clearSession } =
+    useShopperSession();
   const [menuPosition, setMenuPosition] = useState<null | {
     left: number;
     top: number;
@@ -58,33 +61,9 @@ export default function Topbar() {
     setMenuPosition(null);
   };
 
-  useEffect(() => {
-    let active = true;
-
-    async function loadSession() {
-      const storedName = window.sessionStorage.getItem('name');
-      const result: CheckLoginResult = await checkLogin().catch(() => ({}));
-
-      if (!active) {
-        return;
-      }
-
-      setIsAuthenticated(Boolean(result.user || storedName));
-      setName(result.user ? (storedName ?? result.user.name) : storedName);
-    }
-
-    void loadSession();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
   const handleLogout = async () => {
     await logout();
-    window.sessionStorage.removeItem('name');
-    setIsAuthenticated(false);
-    setName(null);
+    clearSession();
     handleMenuClose();
   };
 
@@ -221,6 +200,8 @@ export default function Topbar() {
             >
               {greeting}
             </Typography>
+            <OrdersButton isAuthenticated={isAuthenticated} />
+            <WishlistButton />
             <CartButton />
             <IconButton
               aria-label={tTopbar('openProfileMenu')}
@@ -325,7 +306,7 @@ export default function Topbar() {
             <MenuItem
               component="a"
               href="/account/orders"
-              sx={{ py: 1.25 }}
+              sx={{ display: { xs: 'flex', md: 'none' }, py: 1.25 }}
             >
               <ListItemIcon>
                 <ReceiptLongOutlinedIcon aria-hidden sx={{ fontSize: 20 }} />
