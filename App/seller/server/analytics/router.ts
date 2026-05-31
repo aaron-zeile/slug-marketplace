@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { AnalyticsService } from './service';
+import { AnalyticsService } from './service.js';
 
 export const getAvgRating = async (req: Request, res: Response) => {
   if (!req.user || !req.sessionToken) {
