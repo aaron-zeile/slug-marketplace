@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -16,9 +16,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import Chip from '@mui/material/Chip';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 import RateReviewIcon from '@mui/icons-material/RateReview';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import SearchIcon from '@mui/icons-material/Search';
 
 interface AdminItemSeller {
   id: string;
@@ -160,6 +163,17 @@ export default function ReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(
+      (item) =>
+        item.name.toLowerCase().includes(q) ||
+        item.seller.name.toLowerCase().includes(q),
+    );
+  }, [items, searchQuery]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -238,12 +252,36 @@ export default function ReviewsPage() {
         </Alert>
       )}
 
+      {!loading && items.length > 0 && (
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by listing name or seller"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ mb: 2 }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+      )}
+
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
         </Box>
       ) : items.length === 0 ? (
         <Typography color="text.secondary">No listings found.</Typography>
+      ) : filteredItems.length === 0 ? (
+        <Typography color="text.secondary">
+          No listings match &ldquo;{searchQuery}&rdquo;.
+        </Typography>
       ) : (
         <TableContainer>
           <Table size="small">
@@ -257,7 +295,7 @@ export default function ReviewsPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <ItemReviewsRow
                   key={item.id}
                   item={item}

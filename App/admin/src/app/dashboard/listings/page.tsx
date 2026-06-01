@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -13,7 +13,10 @@ import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import SearchIcon from '@mui/icons-material/Search';
 
 interface AdminItemSeller {
   id: string;
@@ -45,6 +48,17 @@ export default function ListingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(
+      (item) =>
+        item.name.toLowerCase().includes(q) ||
+        item.seller.name.toLowerCase().includes(q),
+    );
+  }, [items, searchQuery]);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -104,12 +118,36 @@ export default function ListingsPage() {
         </Alert>
       )}
 
+      {!loading && items.length > 0 && (
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by listing name or seller"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ mb: 2 }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+      )}
+
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
           <CircularProgress />
         </Box>
       ) : items.length === 0 ? (
         <Typography color="text.secondary">No listings found.</Typography>
+      ) : filteredItems.length === 0 ? (
+        <Typography color="text.secondary">
+          No listings match &ldquo;{searchQuery}&rdquo;.
+        </Typography>
       ) : (
         <TableContainer>
           <Table size="small">
@@ -124,7 +162,7 @@ export default function ListingsPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <TableRow key={item.id} hover>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.seller.name}</TableCell>
