@@ -234,8 +234,10 @@ it('displays the first image as the main image on load', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
   await waitFor(() => {
-    const mainImage = screen.getAllByAltText('thumbnail')[0];
-    expect(mainImage.getAttribute('src')).toContain('image1');
+    const mainImage = screen.getAllByRole('img', { name: mockItem.name })[0];
+    expect(mainImage.getAttribute('src')).toContain(
+      encodeURIComponent('https://example.com/image1.jpg'),
+    );
   });
 });
 
@@ -243,14 +245,16 @@ it('updates the main image when a thumbnail is clicked', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
   await waitFor(() => {
-    expect(screen.getAllByAltText('thumbnail')).toHaveLength(3);
+    expect(screen.getAllByRole('img', { name: mockItem.name })).toHaveLength(3);
   });
 
-  fireEvent.click(screen.getAllByAltText('thumbnail')[2]);
+  fireEvent.click(screen.getAllByRole('img', { name: mockItem.name })[2]);
 
   await waitFor(() => {
-    const mainImage = screen.getAllByAltText('thumbnail')[0];
-    expect(mainImage.getAttribute('src')).toContain('image2');
+    const mainImage = screen.getAllByRole('img', { name: mockItem.name })[0];
+    expect(mainImage.getAttribute('src')).toContain(
+      encodeURIComponent('https://example.com/image2.jpg'),
+    );
   });
 });
 

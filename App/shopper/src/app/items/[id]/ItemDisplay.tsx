@@ -1,6 +1,6 @@
 'use client';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { proxiedImageUrl } from '@/lib/imageProxy';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
@@ -269,13 +269,16 @@ const ItemDisplay = ({ id }: Props) => {
                   borderColor: 'divider',
                 }}
               >
-                <Image
+                <Box
                   key={mainImage}
-                  src={mainImage}
-                  fill
-                  alt="thumbnail"
-                  sizes="(max-width: 900px) 90vw, 852px"
-                  style={{ objectFit: 'contain' }}
+                  component="img"
+                  src={proxiedImageUrl(mainImage)}
+                  alt={item.name}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                  }}
                 />
               </Box>
               <Box
@@ -328,12 +331,15 @@ const ItemDisplay = ({ id }: Props) => {
                       },
                     }}
                   >
-                    <Image
-                      src={image}
-                      fill
-                      alt="thumbnail"
-                      sizes="88px"
-                      style={{ objectFit: 'contain' }}
+                    <Box
+                      component="img"
+                      src={proxiedImageUrl(image)}
+                      alt={item.name}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                      }}
                     />
                   </Box>
                 ))}
