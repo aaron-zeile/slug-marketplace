@@ -50,9 +50,6 @@ const intlMessages: Record<string, Record<string, string>> = {
     heroTitleLine2: 'favorite find',
     heroSubtitle:
       'Curated picks from trusted sellers — great gear, fair prices, shopping made simple.',
-    heroChipCurated: 'Curated picks',
-    heroChipPrices: 'Fair prices',
-    heroChipEasy: 'Easy browsing',
     heroTitle: 'Find your next favorite find',
     spotlightTitle: "Today's spotlight",
     spotlightEmpty:

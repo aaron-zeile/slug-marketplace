@@ -145,28 +145,7 @@ export default function Topbar() {
                 {tTopbar('home')}
               </Button>
             </Box>
-          ) : (
-            <Button
-              component={Link}
-              href="/"
-              sx={{
-                display: { xs: 'none', md: 'inline-flex' },
-                borderRadius: 2,
-                color: brandColor,
-                flexShrink: 0,
-                fontWeight: 700,
-                letterSpacing: '-0.02em',
-                minWidth: 'auto',
-                px: 1.5,
-                textTransform: 'none',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
-              }}
-            >
-              {tTopbar('brand')}
-            </Button>
-          )}
+          ) : null}
 
           <Box
             sx={{

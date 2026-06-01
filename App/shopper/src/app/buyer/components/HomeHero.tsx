@@ -1,20 +1,11 @@
 'use client';
 
-import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import SellOutlinedIcon from '@mui/icons-material/SellOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
-import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
 import { Box, Container, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 
 export default function HomeHero() {
   const t = useTranslations('Home');
-
-  const chips = [
-    { icon: VerifiedOutlinedIcon, label: t('heroChipCurated') },
-    { icon: SellOutlinedIcon, label: t('heroChipPrices') },
-    { icon: LocalShippingOutlinedIcon, label: t('heroChipEasy') },
-  ];
 
   return (
     <Box
@@ -139,48 +130,6 @@ export default function HomeHero() {
           >
             {t('heroSubtitle')}
           </Typography>
-
-          <Box
-            sx={{
-              alignItems: 'center',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: { xs: 1.5, md: 2.5 },
-            }}
-          >
-            {chips.map(({ icon: Icon, label }, index) => (
-              <Box
-                key={label}
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  gap: { xs: 0.6, md: 0.75 },
-                  minWidth: 0,
-                  ...(index > 0
-                    ? {
-                        borderLeft: {
-                          xs: 'none',
-                          md: '1px solid rgba(255,255,255,0.22)',
-                        },
-                        pl: { xs: 0, md: 2.5 },
-                      }
-                    : {}),
-                }}
-              >
-                <Icon sx={{ fontSize: { xs: 17, md: 20 }, opacity: 0.85 }} />
-                <Typography
-                  sx={{
-                    fontSize: { xs: '0.8rem', md: '0.9rem' },
-                    fontWeight: 500,
-                    lineHeight: 1.3,
-                    opacity: 0.9,
-                  }}
-                >
-                  {label}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
         </Box>
       </Container>
 
