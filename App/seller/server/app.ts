@@ -27,6 +27,7 @@ apiRouter.post('/keys', doCheck, apiKeys.post);
 apiRouter.post('/messages', doCheck, messages.post);
 apiRouter.get('/sessions', doCheck, auth.getSession);
 apiRouter.get('/analytics/average-rating', doCheck, analytics.getAvgRating)
+apiRouter.get('/analytics/star-distribution', doCheck, analytics.getStarDistribution)
 
 app.use('/seller/api', apiRouter);
 app.use('/api', apiRouter);

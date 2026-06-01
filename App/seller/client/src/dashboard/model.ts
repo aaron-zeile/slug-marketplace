@@ -173,3 +173,24 @@ export async function avgRating(
     return undefined
   }
 }
+
+export async function starDistribution(
+  setError: (error: string | undefined) => void,
+): Promise<number[] | undefined> {
+  try {
+    const response = await fetch('/seller/api/analytics/star-distribution')
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+    const body = await response.json() as {ratings?: number[]}
+    setError(undefined)
+    return body.ratings
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : 'Failed to load rating distribution',
+    )
+    return undefined
+  }
+}
