@@ -7,6 +7,7 @@
     "guest": "Guest",
     "sellerDashboard": "Seller Dashboard",
     "orders": "Orders",
+    "openOrders": "Open orders",
     "logout": "Logout",
     "login": "Login",
     "navigation": "Main navigation",
@@ -24,9 +25,6 @@
     "heroTitleLine1": "Find your next",
     "heroTitleLine2": "favorite find",
     "heroSubtitle": "Curated picks from trusted sellers — great gear, fair prices, shopping made simple.",
-    "heroChipCurated": "Curated picks",
-    "heroChipPrices": "Fair prices",
-    "heroChipEasy": "Easy browsing",
     "heroTitle": "Find your next favorite find",
     "spotlightTitle": "Today's spotlight",
     "spotlightEmpty": "Our spotlight pick is loading soon. Explore featured items below.",
@@ -48,6 +46,10 @@
       "pets": "Pets",
       "decor": "Decor"
     },
+    "buyAgainItems": "Buy again",
+    "buyAgainSubtitle": "Revisit items from your recent orders.",
+    "recentlyViewedItems": "Recently viewed",
+    "recentlyViewedSubtitle": "Pick up where you left off.",
     "featuredItems": "Featured items",
     "featuredSubtitle": "Scroll to discover more products hand-picked for you.",
     "viewDetails": "Tap to view details"
@@ -98,6 +100,22 @@
     "checkout": "Checkout",
     "signInToCheckout": "Sign in to checkout.",
     "total": "Total"
+  },
+  "Wishlist": {
+    "tooltip": "Wishlist",
+    "openWishlist": "Open wishlist",
+    "openWishlistWithCount": "Open wishlist, {count} items",
+    "title": "Wishlist",
+    "itemsInWishlist_one": "{count} item in your wishlist",
+    "itemsInWishlist_other": "{count} items in your wishlist",
+    "loading": "Loading your wishlist...",
+    "loadError": "Unable to load your wishlist.",
+    "empty": "Your wishlist is empty.",
+    "signInToView": "Sign in to view your wishlist.",
+    "itemAriaLabel": "Wishlist item {name}",
+    "addToCart": "Add to cart",
+    "addToCartAria": "Add {name} to cart",
+    "removeAria": "Remove {name} from wishlist"
   },
   "Address": {
     "title": "Shipping addresses",

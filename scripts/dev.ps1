@@ -122,6 +122,28 @@ try {
 }
 docker compose -f Service/ItemsService/docker-compose.yml up -d postgres
 docker compose -f Service/Cart/docker-compose.yml up -d postgres
+
+Write-Host "Applying Cart DB migrations (viewed_item)..."
+$cartMigrateSql = Join-Path $repoRoot "Service\Cart\src\sql\migrate-viewed-items.sql"
+$prevErrorAction = $ErrorActionPreference
+$hadNativeCmdPref = Test-Path variable:PSNativeCommandUseErrorActionPreference
+if ($hadNativeCmdPref) {
+  $prevNativeCmdErrors = $PSNativeCommandUseErrorActionPreference
+}
+try {
+  if ($hadNativeCmdPref) {
+    $PSNativeCommandUseErrorActionPreference = $false
+  }
+  $ErrorActionPreference = 'Continue'
+  Get-Content $cartMigrateSql |
+    docker exec -i cart-service-db psql -q -U postgres -d cart 2>&1 |
+    Out-Null
+} finally {
+  if ($hadNativeCmdPref) {
+    $PSNativeCommandUseErrorActionPreference = $prevNativeCmdErrors
+  }
+  $ErrorActionPreference = $prevErrorAction
+}
 docker compose -f Service/Order/docker-compose.yml up -d postgres
 
 Write-Host "Starting marketplace (admin, seller, shopper, ItemsService, Cart, Order, Login)..."

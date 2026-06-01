@@ -1,6 +1,6 @@
 'use client';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { proxiedImageUrl } from '@/lib/imageProxy';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
@@ -19,9 +19,15 @@ import {
   Snackbar,
 } from '@mui/material';
 import { Item } from '../../../item';
-import { fetchItemAction, fetchItemReviewsAction } from './actions';
+import {
+  fetchItemAction,
+  fetchItemReviewsAction,
+  recordViewedItemAction,
+} from './actions';
 import { dispatchCartUpdated } from '../../../cart/events';
+import { dispatchWishlistUpdated } from '../../../wishlist/events';
 import { addCartItemAction } from '../../cart/actions';
+import { addWishlistItemAction } from '../../wishlist/actions';
 import Reviews from './Reviews';
 
 interface Props {
@@ -97,6 +103,7 @@ const ItemDisplay = ({ id }: Props) => {
   const [mainImage, setMainImage] = useState<string>('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
   const [reviewSummaryPayload, setReviewSummaryPayload] = useState<{
     itemId: string;
@@ -138,6 +145,7 @@ const ItemDisplay = ({ id }: Props) => {
       if (result.success && result.data) {
         setItem(result.data);
         setMainImage(result.data.images[0]);
+        void recordViewedItemAction(result.data.id);
       } else {
         router.push('/');
       }
@@ -197,6 +205,20 @@ const ItemDisplay = ({ id }: Props) => {
     setAddingToCart(false);
   };
 
+  const handleAddToWishlist = async () => {
+    setAddingToWishlist(true);
+    const result = await addWishlistItemAction(item.id);
+
+    if (result.success) {
+      setCartMessage('Added to wishlist.');
+      dispatchWishlistUpdated();
+    } else {
+      setCartMessage('Please sign in to add to wishlist.');
+    }
+
+    setAddingToWishlist(false);
+  };
+
   const { dollars: priceDollars, decimal: priceDecimal, cents: priceCents, ariaLabel: priceAriaLabel } =
     formatPriceParts(item.price, locale);
   const displayStatus =
@@ -252,13 +274,16 @@ const ItemDisplay = ({ id }: Props) => {
                   borderColor: 'divider',
                 }}
               >
-                <Image
+                <Box
                   key={mainImage}
-                  src={mainImage}
-                  fill
-                  alt="thumbnail"
-                  sizes="(max-width: 900px) 90vw, 852px"
-                  style={{ objectFit: 'contain' }}
+                  component="img"
+                  src={proxiedImageUrl(mainImage)}
+                  alt={item.name}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                  }}
                 />
               </Box>
               <Box
@@ -311,12 +336,15 @@ const ItemDisplay = ({ id }: Props) => {
                       },
                     }}
                   >
-                    <Image
-                      src={image}
-                      fill
-                      alt="thumbnail"
-                      sizes="88px"
-                      style={{ objectFit: 'contain' }}
+                    <Box
+                      component="img"
+                      src={proxiedImageUrl(image)}
+                      alt={item.name}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                      }}
                     />
                   </Box>
                 ))}
@@ -530,8 +558,9 @@ const ItemDisplay = ({ id }: Props) => {
                     Add to cart
                   </Button>
                   <Button
-                    // REMOVE DISABLED WHEN FUNCTIONALITY ADDED
-                    disabled
+                    aria-label={`add ${item.name} to wishlist`}
+                    disabled={addingToWishlist}
+                    onClick={handleAddToWishlist}
                     variant="contained"
                     sx={{
                       width: { xs: '100%', sm: 'auto' },
@@ -659,7 +688,12 @@ const ItemDisplay = ({ id }: Props) => {
       >
         <Alert
           aria-label={cartMessage ?? undefined}
-          severity={cartMessage === 'Added to cart.' ? 'success' : 'warning'}
+          severity={
+            cartMessage === 'Added to cart.' ||
+            cartMessage === 'Added to wishlist.'
+              ? 'success'
+              : 'warning'
+          }
           variant="filled"
           sx={{ width: '100%' }}
         >

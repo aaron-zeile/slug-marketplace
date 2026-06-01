@@ -9,6 +9,7 @@ vi.mock('../../src/app/items/[id]/actions', () => ({
   fetchItemAction: vi.fn(),
   fetchItemReviewsAction: vi.fn(),
   fetchItemReviewSessionAction: vi.fn(),
+  recordViewedItemAction: vi.fn(),
   createItemReviewAction: vi.fn(),
 }));
 
@@ -24,6 +25,7 @@ import {
   fetchItemAction,
   fetchItemReviewSessionAction,
   fetchItemReviewsAction,
+  recordViewedItemAction,
 } from '../../src/app/items/[id]/actions';
 import { addCartItemAction } from '../../src/app/cart/actions';
 import { dispatchCartUpdated } from '../../src/cart/events';
@@ -64,6 +66,15 @@ beforeEach(() => {
   vi.mocked(fetchItemReviewSessionAction).mockResolvedValue({
     loggedIn: false,
   });
+  vi.mocked(recordViewedItemAction).mockResolvedValue({
+    success: true,
+    data: {
+      id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      member: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      item: mockItem.id,
+      viewedAt: new Date('2026-05-11T12:00:00.000Z'),
+    },
+  });
   vi.mocked(addCartItemAction).mockResolvedValue({
     success: true,
     data: {
@@ -80,6 +91,14 @@ it('renders the item name', async () => {
 
   await waitFor(() => {
     expect(screen.getByText(mockItem.name)).toBeDefined();
+  });
+});
+
+it('records the viewed item after loading item details', async () => {
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(recordViewedItemAction).toHaveBeenCalledWith(mockItem.id);
   });
 });
 
@@ -234,8 +253,10 @@ it('displays the first image as the main image on load', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
   await waitFor(() => {
-    const mainImage = screen.getAllByAltText('thumbnail')[0];
-    expect(mainImage.getAttribute('src')).toContain('image1');
+    const mainImage = screen.getAllByRole('img', { name: mockItem.name })[0];
+    expect(mainImage.getAttribute('src')).toContain(
+      encodeURIComponent('https://example.com/image1.jpg'),
+    );
   });
 });
 
@@ -243,14 +264,16 @@ it('updates the main image when a thumbnail is clicked', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 
   await waitFor(() => {
-    expect(screen.getAllByAltText('thumbnail')).toHaveLength(3);
+    expect(screen.getAllByRole('img', { name: mockItem.name })).toHaveLength(3);
   });
 
-  fireEvent.click(screen.getAllByAltText('thumbnail')[2]);
+  fireEvent.click(screen.getAllByRole('img', { name: mockItem.name })[2]);
 
   await waitFor(() => {
-    const mainImage = screen.getAllByAltText('thumbnail')[0];
-    expect(mainImage.getAttribute('src')).toContain('image2');
+    const mainImage = screen.getAllByRole('img', { name: mockItem.name })[0];
+    expect(mainImage.getAttribute('src')).toContain(
+      encodeURIComponent('https://example.com/image2.jpg'),
+    );
   });
 });
 
