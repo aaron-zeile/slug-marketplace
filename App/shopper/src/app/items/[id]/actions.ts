@@ -109,3 +109,40 @@ export async function deleteItemReviewAction(reviewId: string) {
     return { success: false as const, error: message };
   }
 }
+
+export async function submitReportAction(payload: {
+  type: 'item' | 'review';
+  targetId: string;
+  targetName: string;
+  reason: string;
+  description?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const adminUrl = process.env.ADMIN_URL ?? 'http://localhost:3002';
+  const secret = process.env.ADMIN_INTERNAL_SECRET ?? 'dev-internal-secret';
+
+  let reporterName = 'Anonymous';
+  try {
+    const { user } = await checkLogin();
+    if (user) reporterName = user.name;
+  } catch {
+    // not logged in — report anonymously
+  }
+
+  try {
+    const res = await fetch(`${adminUrl}/admin/api/reports`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': secret,
+      },
+      body: JSON.stringify({ ...payload, reporterName }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      return { success: false, error: (body as { error?: string }).error ?? 'Failed to submit report' };
+    }
+    return { success: true };
+  } catch {
+    return { success: false, error: 'Could not reach the server. Please try again.' };
+  }
+}

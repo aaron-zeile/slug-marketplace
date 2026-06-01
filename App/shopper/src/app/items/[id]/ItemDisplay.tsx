@@ -29,6 +29,7 @@ import { dispatchWishlistUpdated } from '../../../wishlist/events';
 import { addCartItemAction } from '../../cart/actions';
 import { addWishlistItemAction } from '../../wishlist/actions';
 import Reviews from './Reviews';
+import ReportModal from './ReportModal';
 
 interface Props {
   id: string;
@@ -105,6 +106,7 @@ const ItemDisplay = ({ id }: Props) => {
   const [addingToCart, setAddingToCart] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
   const [reviewSummaryPayload, setReviewSummaryPayload] = useState<{
     itemId: string;
     average: number;
@@ -579,6 +581,18 @@ const ItemDisplay = ({ id }: Props) => {
                   </Button>
                 </Box>
 
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    size="small"
+                    variant="text"
+                    color="inherit"
+                    onClick={() => setReportOpen(true)}
+                    sx={{ color: 'text.disabled', fontSize: '0.75rem', textTransform: 'none', '&:hover': { color: 'warning.main' } }}
+                  >
+                    Report listing
+                  </Button>
+                </Box>
+
                 <Box
                   sx={{
                     width: '100%',
@@ -681,6 +695,15 @@ const ItemDisplay = ({ id }: Props) => {
           </Box>
         </Paper>
       </Box>
+      {item && (
+        <ReportModal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          type="item"
+          targetId={item.id}
+          targetName={item.name}
+        />
+      )}
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         autoHideDuration={4000}

@@ -1,12 +1,14 @@
 'use client';
 
 import DeleteIcon from '@mui/icons-material/Delete';
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import StarRounded from '@mui/icons-material/StarRounded';
 import { Avatar, Box, IconButton, Rating, Typography } from '@mui/material';
 import { useState } from 'react';
 import type { Review } from '../../../item/review';
 import { deleteItemReviewAction } from './actions';
 import { initialsFromName } from './reviewDisplayUtils';
+import ReportModal from './ReportModal';
 
 export default function ReviewCard({
   review,
@@ -18,6 +20,7 @@ export default function ReviewCard({
   onDeleted: (reviewId: string) => void;
 }) {
   const [deleting, setDeleting] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const created = new Date(review.created_at).toLocaleDateString(undefined, {
     dateStyle: 'medium',
   });
@@ -97,6 +100,14 @@ export default function ReviewCard({
               >
                 {created}
               </Typography>
+              <IconButton
+                aria-label="Report review"
+                size="small"
+                onClick={() => setReportOpen(true)}
+                sx={{ p: 0.25, color: 'text.disabled', '&:hover': { color: 'warning.main' } }}
+              >
+                <FlagOutlinedIcon sx={{ fontSize: '1rem' }} />
+              </IconButton>
               {canDelete ? (
                 <IconButton
                   aria-label="Delete review"
@@ -139,6 +150,13 @@ export default function ReviewCard({
           </Typography>
         </Box>
       </Box>
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        type="review"
+        targetId={review.id}
+        targetName={`Review by ${review.user.name}`}
+      />
     </Box>
   );
 }

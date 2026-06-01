@@ -82,6 +82,48 @@ export class AdminReview {
 }
 
 @ObjectType()
+export class AdminReport {
+  @Field(() => String)
+  id!: string;
+
+  @Field(() => String)
+  type!: string;
+
+  @Field(() => String)
+  targetId!: string;
+
+  @Field(() => String)
+  targetName!: string;
+
+  @Field(() => String, { nullable: true })
+  reporterId?: string;
+
+  @Field(() => String)
+  reporterName!: string;
+
+  @Field(() => String)
+  reason!: string;
+
+  @Field(() => String, { nullable: true })
+  description?: string;
+
+  @Field(() => String)
+  status!: string;
+
+  @Field(() => String, { nullable: true })
+  adminNotes?: string;
+
+  @Field(() => String)
+  createdAt!: string;
+
+  @Field(() => String, { nullable: true })
+  resolvedAt?: string;
+
+  @Field(() => String, { nullable: true })
+  resolvedBy?: string;
+}
+
+@ObjectType()
 export class SellerMessage {
   @Field(() => String)
   id!: string;
