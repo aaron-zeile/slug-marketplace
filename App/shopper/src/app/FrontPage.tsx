@@ -9,6 +9,8 @@ import ItemCard from './buyer/components/ItemCard';
 import ItemCarousel from './buyer/components/ItemCarousel';
 import LinkCarousel from './buyer/components/LinkCarousel';
 import { fetchRandomItemsAction } from './items/[id]/actions';
+import { fetchCurrentUserOrdersAction } from './order/actions';
+import { fetchViewedItemsAction } from './viewed/actions';
 import { Item } from '../item';
 import { type CardItem } from './buyer/components/ItemCard';
 import { type LinkCardItem } from './buyer/components/LinkCard';
@@ -100,6 +102,10 @@ export default function FrontPage() {
     category: t(`category.${category.id}`),
   }));
   const [singleItem, setSingleItem] = React.useState<CardItem>();
+  const [buyAgainItems, setBuyAgainItems] = React.useState<CardItem[]>([]);
+  const [recentlyViewedItems, setRecentlyViewedItems] = React.useState<
+    CardItem[]
+  >([]);
   const [carouselItems, setCarouselItems] = React.useState<CardItem[]>([]);
   const [loadingSpotlight, setLoadingSpotlight] = React.useState(true);
   const [loadingCarousel, setLoadingCarousel] = React.useState(true);
@@ -117,6 +123,42 @@ export default function FrontPage() {
         setCarouselItems(result.data.map(toCardItem));
       }
       setLoadingCarousel(false);
+    });
+
+    fetchCurrentUserOrdersAction().then((result) => {
+      if (!result.success || !result.data) {
+        return;
+      }
+
+      const seenItems = new Set<string>();
+      const orderedItems = result.data
+        .flatMap((order) => order.lineItems)
+        .filter((item) => {
+          if (item.unavailable || seenItems.has(item.itemId)) {
+            return false;
+          }
+
+          seenItems.add(item.itemId);
+          return true;
+        })
+        .map((item) => ({
+          id: item.itemId,
+          name: item.name,
+          price: item.price,
+          imageurl: item.image ? [item.image] : [],
+        }));
+
+      setBuyAgainItems(orderedItems);
+    });
+
+    fetchViewedItemsAction().then((result) => {
+      if (!result.success || !result.data) {
+        return;
+      }
+
+      setRecentlyViewedItems(
+        result.data.map((viewedItem) => toCardItem(viewedItem.item)),
+      );
     });
   }, []);
 
@@ -179,6 +221,26 @@ export default function FrontPage() {
             subtitle={t('categoriesSubtitle')}
           />
         </Box>
+
+        {buyAgainItems.length > 0 ? (
+          <Box sx={{ mb: 2 }}>
+            <ItemCarousel
+              carouselTitle={t('buyAgainItems')}
+              items={buyAgainItems}
+              subtitle={t('buyAgainSubtitle')}
+            />
+          </Box>
+        ) : null}
+
+        {recentlyViewedItems.length > 0 ? (
+          <Box sx={{ mb: 2 }}>
+            <ItemCarousel
+              carouselTitle={t('recentlyViewedItems')}
+              items={recentlyViewedItems}
+              subtitle={t('recentlyViewedSubtitle')}
+            />
+          </Box>
+        ) : null}
 
         {loadingCarousel ? (
           <Box>

@@ -8,6 +8,7 @@ import {
   getReviews,
 } from '../../../item/review/service';
 import { getItem, getRandomItems } from '../../../item/service';
+import { recordViewedItem } from '../../../viewed/service';
 
 export async function fetchItemAction(id: string) {
   try {
@@ -58,6 +59,22 @@ export async function fetchItemReviewSessionAction(itemId: string) {
     };
   } catch {
     return { loggedIn: false as const };
+  }
+}
+
+export async function recordViewedItemAction(itemId: string) {
+  try {
+    const { user } = await checkLogin();
+    if (!user) {
+      return { success: false as const, error: 'Not signed in' };
+    }
+
+    const viewedItem = await recordViewedItem(user.id, itemId);
+    return { success: true as const, data: viewedItem };
+  } catch (error) {
+    console.error('recordViewedItemAction error:', error);
+    const message = error instanceof Error && error.message;
+    return { success: false as const, error: message };
   }
 }
 

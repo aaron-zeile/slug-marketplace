@@ -46,6 +46,10 @@
       "pets": "Animaux",
       "decor": "Décoration"
     },
+    "buyAgainItems": "Acheter à nouveau",
+    "buyAgainSubtitle": "Retrouvez les articles de vos commandes récentes.",
+    "recentlyViewedItems": "Consultés récemment",
+    "recentlyViewedSubtitle": "Reprenez là où vous vous étiez arrêté.",
     "featuredItems": "Articles en vedette",
     "featuredSubtitle": "Faites défiler pour découvrir d'autres produits choisis pour vous.",
     "viewDetails": "Appuyez pour voir les détails"
