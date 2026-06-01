@@ -19,7 +19,11 @@ import {
   Snackbar,
 } from '@mui/material';
 import { Item } from '../../../item';
-import { fetchItemAction, fetchItemReviewsAction } from './actions';
+import {
+  fetchItemAction,
+  fetchItemReviewsAction,
+  recordViewedItemAction,
+} from './actions';
 import { dispatchCartUpdated } from '../../../cart/events';
 import { dispatchWishlistUpdated } from '../../../wishlist/events';
 import { addCartItemAction } from '../../cart/actions';
@@ -141,6 +145,7 @@ const ItemDisplay = ({ id }: Props) => {
       if (result.success && result.data) {
         setItem(result.data);
         setMainImage(result.data.images[0]);
+        void recordViewedItemAction(result.data.id);
       } else {
         router.push('/');
       }

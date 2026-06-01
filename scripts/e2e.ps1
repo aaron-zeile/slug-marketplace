@@ -146,6 +146,7 @@ $devPorts = @(3000, 3002, 3010, 4000, 4010, 4500, 4600, 4700, 5173)
 
 if ($UseDev) {
   $env:E2E_SELLER_URL = "http://localhost:5173"
+  $env:ORDER_DB_PORT = "5435"
 
   if ($StopPortProcesses) {
     Stop-PortProcesses -Ports $devPorts
@@ -211,6 +212,7 @@ if ($StopPortProcesses) {
 Assert-PortsAvailable -Ports $e2ePorts
 
 Write-Host "Starting Docker containers for e2e..."
+$env:ORDER_DB_PORT = "5433"
 $composeArgs = @("compose", "up", "--force-recreate", "-d")
 if ($SkipBuild) {
   $composeArgs += "--no-build"
