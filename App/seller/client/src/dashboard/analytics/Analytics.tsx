@@ -3,6 +3,7 @@ import Stack from '@mui/material/Stack'
 
 import RatingCard from "./SellerRating"
 import StarGraph from './StarGraph'
+// import SalesGraph from './SalesGraph'
 
 export default function Analytics() {
   return (
@@ -28,6 +29,7 @@ export default function Analytics() {
           <StarGraph/>
         </Box>
       </Stack>
+      {/* <SalesGraph/> */}
     </Box>
   )
 }
