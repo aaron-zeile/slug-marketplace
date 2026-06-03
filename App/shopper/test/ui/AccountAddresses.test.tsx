@@ -9,6 +9,16 @@ vi.mock('../../src/app/account/actions', () => ({
 }));
 
 describe('AccountAddresses', () => {
+  it('shows loading state while addresses are fetched', () => {
+    vi.mocked(listAddressesAction).mockImplementation(
+      () => new Promise(() => undefined),
+    );
+
+    render(<AccountAddresses />);
+
+    expect(screen.getByText('Loading addresses...')).toBeInTheDocument();
+  });
+
   it('renders address list after successful load', async () => {
     vi.mocked(listAddressesAction).mockResolvedValue({
       success: true,
@@ -57,5 +67,16 @@ describe('AccountAddresses', () => {
     render(<AccountAddresses />);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Session expired.');
+  });
+
+  it('renders an empty address list when the user has no addresses', async () => {
+    vi.mocked(listAddressesAction).mockResolvedValue({
+      success: true,
+      data: [],
+    });
+
+    render(<AccountAddresses />);
+
+    expect(await screen.findByRole('button', { name: 'Add new address' })).toBeInTheDocument();
   });
 });

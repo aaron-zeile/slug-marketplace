@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { expect, it, beforeEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import * as nextIntl from 'next-intl';
 import ItemDisplay from '../../src/app/items/[id]/ItemDisplay';
 import { Item } from '../../src/item';
 import { Review } from '../../src/item/review';
@@ -11,14 +12,23 @@ vi.mock('../../src/app/items/[id]/actions', () => ({
   fetchItemReviewSessionAction: vi.fn(),
   recordViewedItemAction: vi.fn(),
   createItemReviewAction: vi.fn(),
+  submitReportAction: vi.fn(),
 }));
 
 vi.mock('../../src/app/cart/actions', () => ({
   addCartItemAction: vi.fn(),
 }));
 
+vi.mock('../../src/app/wishlist/actions', () => ({
+  addWishlistItemAction: vi.fn(),
+}));
+
 vi.mock('../../src/cart/events', () => ({
   dispatchCartUpdated: vi.fn(),
+}));
+
+vi.mock('../../src/wishlist/events', () => ({
+  dispatchWishlistUpdated: vi.fn(),
 }));
 
 import {
@@ -28,7 +38,9 @@ import {
   recordViewedItemAction,
 } from '../../src/app/items/[id]/actions';
 import { addCartItemAction } from '../../src/app/cart/actions';
+import { addWishlistItemAction } from '../../src/app/wishlist/actions';
 import { dispatchCartUpdated } from '../../src/cart/events';
+import { dispatchWishlistUpdated } from '../../src/wishlist/events';
 
 const mockItem: Item = {
   id: '550e8400-e29b-41d4-a716-446655440000',
@@ -54,6 +66,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 beforeEach(() => {
+  vi.spyOn(nextIntl, 'useLocale').mockReturnValue('en');
   vi.clearAllMocks();
   vi.mocked(fetchItemAction).mockResolvedValue({
     success: true,
@@ -82,6 +95,15 @@ beforeEach(() => {
       member: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
       item: mockItem.id,
       quantity: 1,
+    },
+  });
+  vi.mocked(addWishlistItemAction).mockResolvedValue({
+    success: true,
+    data: {
+      id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      member: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      item: mockItem.id,
+      createdAt: new Date('2026-05-11T12:00:00.000Z'),
     },
   });
 });
@@ -502,4 +524,72 @@ it('does not show added message when signed out add to cart fails', async () => 
   expect(dispatchCartUpdated).not.toHaveBeenCalled();
   await screen.findByLabelText('Please sign in to add to cart.');
   expect(screen.queryByLabelText('Added to cart.')).toBeNull();
+});
+
+it('formats the price with French number formatting when locale is fr', async () => {
+  vi.spyOn(nextIntl, 'useLocale').mockReturnValue('fr');
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText(/894,74/)).toBeDefined();
+  });
+});
+
+it('uses default decimal separators when Intl omits fraction parts', async () => {
+  const formatToPartsSpy = vi
+    .spyOn(Intl.NumberFormat.prototype, 'formatToParts')
+    .mockReturnValue([{ type: 'integer', value: '894' }]);
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByText('894')).toBeDefined();
+    expect(screen.getByText('.00')).toBeDefined();
+  });
+
+  formatToPartsSpy.mockRestore();
+});
+
+it('adds the item to the wishlist when Add to wishlist is clicked', async () => {
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await userEvent.click(
+    await screen.findByLabelText(`add ${mockItem.name} to wishlist`),
+  );
+
+  expect(addWishlistItemAction).toHaveBeenCalledWith(mockItem.id);
+  expect(dispatchWishlistUpdated).toHaveBeenCalledTimes(1);
+  expect(await screen.findByLabelText('Added to wishlist.')).toBeDefined();
+});
+
+it('shows a sign in alert when Add to wishlist is clicked while signed out', async () => {
+  vi.mocked(addWishlistItemAction).mockResolvedValue({
+    success: false,
+    error: 'Not signed in',
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await userEvent.click(
+    await screen.findByLabelText(`add ${mockItem.name} to wishlist`),
+  );
+
+  expect(dispatchWishlistUpdated).not.toHaveBeenCalled();
+  expect(
+    await screen.findByLabelText('Please sign in to add to wishlist.'),
+  ).toBeDefined();
+});
+
+it('opens and closes the report listing dialog', async () => {
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await userEvent.click(await screen.findByRole('button', { name: 'Report listing' }));
+  expect(screen.getByText('Report this listing')).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+  await waitFor(() => {
+    expect(screen.queryByText('Report this listing')).not.toBeInTheDocument();
+  });
 });

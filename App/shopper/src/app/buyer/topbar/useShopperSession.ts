@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { checkLogin, type CheckLoginResult } from '../login/actions';
 
-function readStoredName() {
+export function readStoredName() {
   if (typeof window === 'undefined') {
     return null;
   }

@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as nextIntl from 'next-intl';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import CartList from '../../src/app/cart/CartList';
@@ -74,6 +75,7 @@ const cartItems: CartItemType[] = [
 ];
 
 beforeEach(() => {
+  vi.spyOn(nextIntl, 'useLocale').mockReturnValue('en');
   vi.mocked(checkLogin).mockResolvedValue({ user });
   vi.mocked(fetchCartItemsAction).mockResolvedValue({
     success: true,
@@ -107,6 +109,35 @@ it('fetches and renders cart items', async () => {
   expect(screen.getByText('3 items in your cart')).toBeDefined();
   expect(screen.getByText('Total')).toBeDefined();
   expect(screen.getByText('$1,599.98')).toBeDefined();
+  expect(screen.getByRole('link', { name: 'Checkout' })).toHaveAttribute(
+    'href',
+    '/checkout/shipping',
+  );
+});
+
+it('formats totals with French number formatting when locale is fr', async () => {
+  vi.spyOn(nextIntl, 'useLocale').mockReturnValue('fr');
+
+  render(<CartList />);
+
+  await waitFor(() => {
+    expect(screen.getByText(cartItems[0].item.name)).toBeDefined();
+  });
+
+  expect(screen.getByText(/1[\s\u00a0\u202f]?599,98/)).toBeDefined();
+});
+
+it('loads the cart when session lookup fails', async () => {
+  vi.mocked(checkLogin).mockRejectedValue(new Error('network down'));
+
+  render(<CartList />);
+
+  await waitFor(() => {
+    expect(screen.getByText(cartItems[0].item.name)).toBeDefined();
+  });
+
+  expect(screen.getByText('Sign in to checkout.')).toBeDefined();
+  expect(screen.queryByRole('link', { name: 'Checkout' })).not.toBeInTheDocument();
 });
 
 it('renders a failed fetch message when the cart cannot load', async () => {
@@ -132,6 +163,19 @@ it('renders empty state after fetching an empty cart', async () => {
 
   await waitFor(() => {
     expect(screen.getByText('Your cart is empty.')).toBeDefined();
+  });
+});
+
+it('uses singular copy when the cart has one item', async () => {
+  vi.mocked(fetchCartItemsAction).mockResolvedValue({
+    success: true,
+    data: [cartItems[1]],
+  });
+
+  render(<CartList />);
+
+  await waitFor(() => {
+    expect(screen.getByText('1 item in your cart')).toBeDefined();
   });
 });
 

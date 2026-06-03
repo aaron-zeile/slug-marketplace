@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { usePathname } from 'next/navigation';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import CartButton from '../../src/app/buyer/topbar/CartButton';
@@ -63,6 +64,51 @@ it('hides the badge when the cart is empty', async () => {
   });
 
   expect(screen.queryByText('0')).not.toBeInTheDocument();
+});
+
+it('resets the count to zero when cart fetch fails', async () => {
+  vi.mocked(fetchCartItemsAction).mockResolvedValue({
+    success: false,
+    error: 'Unable to load your cart.',
+  });
+
+  render(<CartButton />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Open cart')).toBeInTheDocument();
+  });
+
+  expect(screen.queryByText('2')).not.toBeInTheDocument();
+});
+
+it('resets the count to zero when cart fetch succeeds without data', async () => {
+  vi.mocked(fetchCartItemsAction).mockResolvedValue({
+    success: true,
+  } as Awaited<ReturnType<typeof fetchCartItemsAction>>);
+
+  render(<CartButton />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Open cart')).toBeInTheDocument();
+  });
+});
+
+it('reloads the cart count when the pathname changes', async () => {
+  const pathname = vi.mocked(usePathname);
+  pathname.mockReturnValue('/');
+
+  const { rerender } = render(<CartButton />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Open cart, 2 items')).toBeInTheDocument();
+  });
+
+  pathname.mockReturnValue('/search');
+  rerender(<CartButton />);
+
+  await waitFor(() => {
+    expect(fetchCartItemsAction).toHaveBeenCalledTimes(2);
+  });
 });
 
 it('refetches the cart count when the cart updated event fires', async () => {

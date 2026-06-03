@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import * as nextIntl from 'next-intl';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import WishlistList from '../../src/app/wishlist/WishlistList';
@@ -75,6 +76,7 @@ const wishlistItems: WishlistItem[] = [
 ];
 
 beforeEach(() => {
+  vi.spyOn(nextIntl, 'useLocale').mockReturnValue('en');
   vi.mocked(checkLogin).mockResolvedValue({ user });
   vi.mocked(fetchWishlistItemsAction).mockResolvedValue({
     success: true,
@@ -136,6 +138,43 @@ it('prompts the shopper to sign in when not authenticated', async () => {
 
   await waitFor(() => {
     expect(screen.getByText('Sign in to view your wishlist.')).toBeDefined();
+  });
+});
+
+it('treats the shopper as signed out when session lookup fails', async () => {
+  vi.mocked(checkLogin).mockRejectedValue(new Error('network down'));
+
+  render(<WishlistList />);
+
+  await waitFor(() => {
+    expect(screen.getByText('Sign in to view your wishlist.')).toBeDefined();
+  });
+
+  expect(fetchWishlistItemsAction).toHaveBeenCalled();
+});
+
+it('uses singular copy when the wishlist has one item', async () => {
+  vi.mocked(fetchWishlistItemsAction).mockResolvedValue({
+    success: true,
+    data: [wishlistItems[0]],
+  });
+
+  render(<WishlistList />);
+
+  await waitFor(() => {
+    expect(screen.getByText('1 item in your wishlist')).toBeDefined();
+  });
+});
+
+it('shows a load error when fetch succeeds without wishlist data', async () => {
+  vi.mocked(fetchWishlistItemsAction).mockResolvedValue({
+    success: true,
+  } as Awaited<ReturnType<typeof fetchWishlistItemsAction>>);
+
+  render(<WishlistList />);
+
+  await waitFor(() => {
+    expect(screen.getByText('Unable to load your wishlist.')).toBeDefined();
   });
 });
 

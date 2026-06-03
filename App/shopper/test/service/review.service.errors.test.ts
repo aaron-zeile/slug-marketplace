@@ -112,6 +112,50 @@ describe('review service errors', () => {
     ).rejects.toThrow('Forbidden');
   });
 
+  it('returns an empty list when the reviews query has no data', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      statusText: 'OK',
+      json: async () => ({ data: {} }),
+    } as Response);
+
+    await expect(getReviews(itemId)).resolves.toEqual([]);
+  });
+
+  it('uses the default items service URL when ITEMS_SERVICE_URL is unset', async () => {
+    const previousUrl = process.env.ITEMS_SERVICE_URL;
+    delete process.env.ITEMS_SERVICE_URL;
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      statusText: 'OK',
+      json: async () => ({ data: { reviews: [] } }),
+    } as Response);
+
+    try {
+      await getReviews(itemId);
+      expect(fetchSpy.mock.calls[0]?.[0]).toBe(
+        'http://localhost:4000/graphql',
+      );
+    } finally {
+      process.env.ITEMS_SERVICE_URL = previousUrl;
+      fetchSpy.mockRestore();
+      releaseFetchStubForServiceTests();
+    }
+  });
+
+  it('uses a generic GraphQL error when create errors omit a message', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      statusText: 'OK',
+      json: async () => ({ errors: [{}] }),
+    } as Response);
+
+    await expect(createReview(itemId, 5, 'Nope')).rejects.toThrow(
+      'GraphQL error',
+    );
+  });
+
   it('uses a generic GraphQL error when delete errors omit a message', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,

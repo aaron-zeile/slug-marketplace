@@ -11,6 +11,7 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => {
     const labels: Record<string, string> = {
       label: 'Locale',
+      selectLocale: 'Select language',
       en: 'English',
       fr: 'Français',
     };
@@ -54,5 +55,35 @@ describe('LocaleSwitcher', () => {
     await waitFor(() => screen.getByRole('option', { name: 'Français' }));
     fireEvent.click(screen.getByRole('option', { name: 'Français' }));
     expect(mockRefresh).toHaveBeenCalledOnce();
+  });
+
+  it('renders the default label in the standard layout', () => {
+    render(<LocaleSwitcher />);
+
+    expect(screen.getByLabelText('Locale')).toBeInTheDocument();
+  });
+
+  it('uses compact layout when the compact prop is set', () => {
+    render(<LocaleSwitcher compact />);
+
+    expect(screen.getByLabelText('Select language')).toBeInTheDocument();
+  });
+
+  it('uses compact layout when variant is compact', () => {
+    render(<LocaleSwitcher variant="compact" />);
+
+    expect(screen.getByLabelText('Select language')).toBeInTheDocument();
+  });
+
+  it('uses menu layout when variant is menu', () => {
+    render(<LocaleSwitcher variant="menu" />);
+
+    expect(screen.getByLabelText('Select language')).toBeInTheDocument();
+  });
+
+  it('uses the default layout when variant is default', () => {
+    render(<LocaleSwitcher variant="default" />);
+
+    expect(screen.getByLabelText('Locale')).toBeInTheDocument();
   });
 });

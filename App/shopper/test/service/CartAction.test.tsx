@@ -2,11 +2,13 @@ import { beforeEach, expect, it, vi } from 'vitest';
 
 import {
   addCartItemAction,
+  clearCartAction,
   fetchCartItemsAction,
   removeCartItemAction,
 } from '../../src/app/cart/actions';
 import {
   addToCart,
+  clearCart,
   getCartItems,
   removeFromCart,
 } from '../../src/cart/service';
@@ -14,6 +16,7 @@ import { check, getSessionToken } from '../../src/server/auth/service';
 
 vi.mock('../../src/cart/service', () => ({
   addToCart: vi.fn(),
+  clearCart: vi.fn(),
   getCartItems: vi.fn(),
   removeFromCart: vi.fn(),
 }));
@@ -66,6 +69,7 @@ beforeEach(() => {
   vi.mocked(getCartItems).mockResolvedValue([cartItem]);
   vi.mocked(addToCart).mockResolvedValue(cartEntry);
   vi.mocked(removeFromCart).mockResolvedValue(true);
+  vi.mocked(clearCart).mockResolvedValue(true);
 });
 
 it('fetches cart items for the signed in user', async () => {
@@ -130,6 +134,30 @@ it('returns a failed result when removing an item throws', async () => {
   vi.mocked(removeFromCart).mockRejectedValue(new Error('Cart unavailable'));
 
   const result = await removeCartItemAction(cartItem.item.id);
+
+  expect(result).toEqual({ success: false, error: 'Cart unavailable' });
+});
+
+it('clears the signed in user cart', async () => {
+  const result = await clearCartAction();
+
+  expect(clearCart).toHaveBeenCalledWith(user.id);
+  expect(result).toEqual({ success: true, data: true });
+});
+
+it('does not clear the cart when the user is not signed in', async () => {
+  vi.mocked(check).mockResolvedValue(undefined);
+
+  const result = await clearCartAction();
+
+  expect(clearCart).not.toHaveBeenCalled();
+  expect(result).toEqual({ success: false, error: 'Not signed in' });
+});
+
+it('returns a failed result when clearing the cart throws', async () => {
+  vi.mocked(clearCart).mockRejectedValue(new Error('Cart unavailable'));
+
+  const result = await clearCartAction();
 
   expect(result).toEqual({ success: false, error: 'Cart unavailable' });
 });

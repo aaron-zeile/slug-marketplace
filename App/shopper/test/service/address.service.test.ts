@@ -137,7 +137,15 @@ it('throws when the login service is unreachable', async () => {
   vi.mocked(fetch).mockRejectedValue(new Error('connection refused'));
 
   await expect(listAddresses(token)).rejects.toThrow(
-    /Login service unavailable at http:\/\/localhost:4010\/api\/v0/,
+    /Login service unavailable at http:\/\/localhost:4010\/api\/v0 \(connection refused\)/,
+  );
+});
+
+it('throws when fetch fails with a non-error rejection', async () => {
+  vi.mocked(fetch).mockRejectedValue('network down');
+
+  await expect(listAddresses(token)).rejects.toThrow(
+    /Login service unavailable at http:\/\/localhost:4010\/api\/v0 \(fetch failed\)/,
   );
 });
 
@@ -153,6 +161,25 @@ it('throws when the response includes an error message', async () => {
   mockFetchResponse({ message: 'Member not found' }, { ok: false, status: 500 });
 
   await expect(listAddresses(token)).rejects.toThrow('Member not found (500)');
+});
+
+it('throws when the response includes an error field', async () => {
+  mockFetchResponse({ error: 'Invalid address' }, { ok: false, status: 400 });
+
+  await expect(listAddresses(token)).rejects.toThrow('Invalid address (400)');
+});
+
+it('throws a generic message when the error response body is not json', async () => {
+  vi.mocked(fetch).mockResolvedValue({
+    ok: false,
+    status: 500,
+    statusText: 'Server Error',
+    json: async () => {
+      throw new Error('invalid json');
+    },
+  } as Response);
+
+  await expect(listAddresses(token)).rejects.toThrow('Address request failed (500)');
 });
 
 it('throws a generic message when the response has no detail', async () => {

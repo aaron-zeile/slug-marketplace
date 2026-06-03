@@ -13,6 +13,12 @@ export default defineConfig({
     hookTimeout: 20000, 
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
+      provider: 'v8',
+      reporter: [
+        ['text', { maxCols: 120, skipFull: false }],
+        'html',
+      ],
+      reportsDirectory: './coverage',
       include: [
         'src/**',
       ],

@@ -99,4 +99,47 @@ describe('checkout reservation service', () => {
       reserveCheckout(testUser.id, [{ itemId, quantity: 999 }]),
     ).rejects.toThrow('Insufficient stock for one or more items');
   });
+
+  it('throws a generic GraphQL error when the items service omits a message', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      statusText: 'OK',
+      json: async () => ({
+        errors: [{}],
+      }),
+    } as Response);
+
+    await expect(
+      reserveCheckout(testUser.id, [{ itemId, quantity: 1 }]),
+    ).rejects.toThrow('GraphQL error');
+  });
+
+  it('uses the default items service URL when ITEMS_SERVICE_URL is unset', async () => {
+    const previousUrl = process.env.ITEMS_SERVICE_URL;
+    delete process.env.ITEMS_SERVICE_URL;
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      statusText: 'OK',
+      json: async () => ({
+        data: {
+          reserveCheckout: {
+            id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+            expiresAt: new Date(Date.now() + 60_000).toISOString(),
+          },
+        },
+      }),
+    } as Response);
+
+    try {
+      await reserveCheckout(testUser.id, [{ itemId, quantity: 1 }]);
+      expect(fetchSpy.mock.calls[0]?.[0]).toBe(
+        'http://localhost:4000/graphql',
+      );
+    } finally {
+      process.env.ITEMS_SERVICE_URL = previousUrl;
+      fetchSpy.mockRestore();
+      releaseFetchStubForServiceTests();
+    }
+  });
 });
