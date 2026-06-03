@@ -56,17 +56,6 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "CorporateApiKeyCreated": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"string","required":true},
-            "name": {"dataType":"string","required":true},
-            "key": {"dataType":"string","required":true},
-            "created_at": {"dataType":"string","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CorporateApiKey": {
         "dataType": "refObject",
         "properties": {
@@ -74,6 +63,17 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "created_at": {"dataType":"string","required":true},
             "revoked_at": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CorporateApiKeyCreated": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "name": {"dataType":"string","required":true},
+            "key": {"dataType":"string","required":true},
+            "created_at": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
