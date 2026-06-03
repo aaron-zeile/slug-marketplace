@@ -1,194 +1,70 @@
-// import * as React from 'react';
-// import Typography from '@mui/material/Typography';
-// import Box from '@mui/material/Box';
-// import { alpha, useTheme } from '@mui/material/styles';
-// import { ChartsDataProviderPro } from '@mui/x-charts-pro/ChartsDataProviderPro';
-// import { ChartsSurface } from '@mui/x-charts-pro/ChartsSurface';
-// import { LinePlot } from '@mui/x-charts-pro/LineChart';
-// import { ChartsXAxis } from '@mui/x-charts-pro/ChartsXAxis';
-// import { ChartsYAxis } from '@mui/x-charts-pro/ChartsYAxis';
-// import { useDrawingArea, useXScale } from '@mui/x-charts-pro/hooks';
-// import { ChartsTooltip } from '@mui/x-charts-pro/ChartsTooltip';
-// import { ChartsGrid } from '@mui/x-charts-pro/ChartsGrid';
-// import { ChartsZoomSlider } from '@mui/x-charts-pro/ChartsZoomSlider';
-// import { ChartsClipPath } from '@mui/x-charts-pro/ChartsClipPath';
-// import { ChartsAxisHighlight } from '@mui/x-charts/ChartsAxisHighlight';
-// import { ChartsLegend } from '@mui/x-charts-pro/ChartsLegend';
-// import { usaUnemploymentAndGdp } from '../dataset/usaUnemploymentAndGdp';
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import {LineChart} from '@mui/x-charts/LineChart'
 
-// type RecessionPeriod = {
-//   start: Date;
-//   end: Date;
-//   label: string;
-// };
+const dataset = [
+  {month: 'Jan', earnings: 420, orders: 8},
+  {month: 'Feb', earnings: 680, orders: 13},
+  {month: 'Mar', earnings: 510, orders: 10},
+  {month: 'Apr', earnings: 940, orders: 18},
+  {month: 'May', earnings: 760, orders: 15},
+  {month: 'Jun', earnings: 1180, orders: 22},
+]
 
-// const recessions = [
-//   {
-//     start: new Date('2001-03-01'),
-//     end: new Date('2001-11-01'),
-//     label: 'Early 2000s',
-//   },
-//   {
-//     start: new Date('2007-12-01'),
-//     end: new Date('2009-06-01'),
-//     label: 'Great Recession',
-//   },
-//   { start: new Date('2020-02-01'), end: new Date('2020-04-01'), label: 'COVID-19' },
-// ];
-
-// function RecessionBands({ periods }: { periods: RecessionPeriod[] }) {
-//   const { top, left, width, height } = useDrawingArea();
-//   const xScale = useXScale();
-//   const theme = useTheme();
-//   const labelFill = alpha(theme.palette.text.primary, 0.7);
-
-//   return (
-//     <g>
-//       {periods.map((p, index) => {
-//         const xStart = xScale(p.start.getTime());
-//         const xEnd = xScale(p.end.getTime());
-
-//         if (xStart === undefined || xEnd === undefined) {
-//           return null;
-//         }
-
-//         // Stick to the left of the drawing area boundaries
-//         let textX: number;
-//         if (xStart >= left && xStart <= left + width) {
-//           textX = xStart;
-//         } else if (xEnd >= left && xEnd <= left + width) {
-//           textX = left;
-//         } else {
-//           return null;
-//         }
-
-//         return (
-//           <React.Fragment key={index}>
-//             <rect
-//               x={textX}
-//               y={top}
-//               width={Math.min(xEnd, left + width) - textX}
-//               height={height}
-//               fill="grey"
-//               opacity={0.2}
-//             />
-//             <text
-//               x={textX}
-//               y={top - 5}
-//               textAnchor="start"
-//               dominantBaseline="auto"
-//               fill={labelFill}
-//               fontSize="0.8rem"
-//               fontWeight={500}
-//               pointerEvents="none"
-//             >
-//               {p.label}
-//             </text>
-//           </React.Fragment>
-//         );
-//       })}
-//     </g>
-//   );
-// }
-
-// export default function SalesGraph() {
-//   const clipPathId = React.useId();
-//   return (
-//     <Box sx={{ width: '100%' }}>
-//       <Typography sx={{ textAlign: 'center' }}>
-//         US unemployment rate comparison with GDP per capita
-//       </Typography>
-//       <ChartsDataProviderPro
-//         height={300}
-//         dataset={usaUnemploymentAndGdp}
-//         series={[
-//           {
-//             type: 'line',
-//             id: 'unemployment',
-//             dataKey: 'unemploymentRate',
-//             label: 'Unemployment rate',
-//             color: '#af3838',
-//             yAxisId: 'unemployment-axis',
-//             valueFormatter: (value) => (value == null ? '' : `${value.toFixed(1)}%`),
-//           },
-//           {
-//             type: 'line',
-//             dataKey: 'gdpPerCapita',
-//             label: 'GDP per capita',
-//             color: '#4caf50',
-//             yAxisId: 'gdp-axis',
-//             connectNulls: true,
-//             valueFormatter: (value) =>
-//               value == null ? '' : `${(value / 1000).toFixed(1)}k`,
-//           },
-//         ]}
-//         xAxis={[
-//           {
-//             scaleType: 'time',
-//             dataKey: 'date',
-//             tickNumber: 4,
-//             valueFormatter: (date, context) => {
-//               if (context.location !== 'tick') {
-//                 return date.toLocaleDateString('en-US', {
-//                   year: 'numeric',
-//                   month: 'short',
-//                 });
-//               }
-//               return date.getMonth() === 0
-//                 ? date.toLocaleDateString('en-US', {
-//                     year: 'numeric',
-//                   })
-//                 : date.toLocaleDateString('en-US', {
-//                     month: 'short',
-//                   });
-//             },
-//             zoom: {
-//               slider: { enabled: true },
-//             },
-//           },
-//         ]}
-//         yAxis={[
-//           {
-//             id: 'unemployment-axis',
-//             scaleType: 'linear',
-//             valueFormatter: (value) => `${value}%`,
-//             width: 55,
-//             position: 'left',
-//           },
-//           {
-//             id: 'gdp-axis',
-//             scaleType: 'linear',
-//             width: 50,
-//             position: 'right',
-//             valueFormatter: (value) => `${(value / 1000).toLocaleString()}k`,
-//           },
-//         ]}
-//       >
-//         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-//           <ChartsLegend />
-//         </Box>
-//         <ChartsSurface>
-//           <ChartsClipPath id={clipPathId} />
-//           <RecessionBands periods={recessions} />
-//           <ChartsGrid horizontal />
-//           <g clipPath={`url(#${clipPathId})`}>
-//             <LinePlot />
-//           </g>
-//           <ChartsXAxis />
-//           <ChartsYAxis axisId="unemployment-axis" label="Unemployment Rate" />
-//           <ChartsYAxis axisId="gdp-axis" label="GDP per capita in US$" />
-//           <ChartsAxisHighlight x="line" />
-//           <ChartsZoomSlider />
-//         </ChartsSurface>
-//         <ChartsTooltip />
-//       </ChartsDataProviderPro>
-//       <Typography
-//         variant="caption"
-//         component="p"
-//         sx={{ color: 'text.secondary', textAlign: 'left', pt: 1 }}
-//       >
-//         Source: FRED
-//       </Typography>
-//     </Box>
-//   );
-// }
+export default function SalesGraph() {
+  return (
+    <Box
+      sx={{
+        mt: 3,
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 1,
+        bgcolor: 'background.paper',
+        boxShadow: '0 10px 28px rgba(15, 23, 42, 0.08)',
+        p: 2,
+      }}
+    >
+      <Typography
+        variant="h6"
+        component="h2"
+        sx={{fontWeight: 700, mb: 1}}
+      >
+        Sales trend
+      </Typography>
+      <LineChart
+        dataset={dataset}
+        xAxis={[{
+          scaleType: 'point',
+          dataKey: 'month',
+        }]}
+        yAxis={[
+          {id: 'earnings-axis', position: 'left'},
+          {id: 'orders-axis', position: 'right'},
+        ]}
+        series={[
+          {
+            dataKey: 'earnings',
+            label: 'Earnings',
+            color: '#0b5a54',
+            yAxisId: 'earnings-axis',
+            valueFormatter: (value) =>
+              value == null
+                ? ''
+                : new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    maximumFractionDigits: 0,
+                  }).format(value),
+          },
+          {
+            dataKey: 'orders',
+            label: 'Orders',
+            color: '#70aaa4',
+            yAxisId: 'orders-axis',
+          },
+        ]}
+        height={320}
+      />
+    </Box>
+  )
+}
