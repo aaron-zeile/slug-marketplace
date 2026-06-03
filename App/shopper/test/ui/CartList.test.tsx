@@ -109,6 +109,38 @@ it('fetches and renders cart items', async () => {
   expect(screen.getByText('$1,599.98')).toBeDefined();
 });
 
+it('uses discounted item prices in the cart total', async () => {
+  vi.mocked(fetchCartItemsAction).mockResolvedValue({
+    success: true,
+    data: [
+      {
+        ...cartItems[0],
+        item: {
+          ...cartItems[0].item,
+          price: 572.39,
+          activeDiscount: {
+            id: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+            itemId: cartItems[0].item.id,
+            discountPercent: 10,
+            duration: 2,
+            created_at: '2026-06-03T12:00:00.000Z',
+            ends_at: '2026-06-05T12:00:00.000Z',
+            originalPrice: 635.99,
+          },
+        },
+      },
+      cartItems[1],
+    ],
+  });
+
+  render(<CartList />);
+
+  await waitFor(() => {
+    expect(screen.getByText('$1,472.78')).toBeDefined();
+  });
+  expect(screen.getByText('10% off')).toBeDefined();
+});
+
 it('renders a failed fetch message when the cart cannot load', async () => {
   vi.mocked(fetchCartItemsAction).mockResolvedValue({
     success: false,

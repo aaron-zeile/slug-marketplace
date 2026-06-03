@@ -10,6 +10,7 @@ import TopBar from './dashboard/Appbar'
 import SellerListings from './dashboard/Listings'
 import Sales from './dashboard/Sales'
 import CreateListing from './dashboard/CreateListing'
+import Discounts from './dashboard/Discounts'
 import ContactAdmin from './dashboard/ContactAdmin'
 import ApiKeys from './dashboard/ApiKeys'
 import { TabProvider } from './dashboard/Provider'
@@ -41,12 +42,15 @@ export function AppContent() {
     content = <Analytics/>
   }
   if (tabValue === 3) {
-    content = <CreateListing />
+    content = <Discounts />
   }
   if (tabValue === 4) {
-    content = <ContactAdmin />
+    content = <CreateListing />
   }
   if (tabValue === 5) {
+    content = <ContactAdmin />
+  }
+  if (tabValue === 6) {
     content = <ApiKeys />
   }
   return (

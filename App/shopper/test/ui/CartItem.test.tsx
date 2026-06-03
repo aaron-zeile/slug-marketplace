@@ -36,6 +36,7 @@ const item: Item = {
   price: 635.99,
   quantity: 1,
   created_at: '2026-05-11T12:00:00.000Z',
+  status: 'active',
 };
 
 beforeEach(() => {
@@ -79,6 +80,31 @@ it('renders the description', () => {
 it('renders the price formatted', () => {
   renderCartItem();
   screen.getByText('$635.99');
+});
+
+it('renders sale pricing when the item has an active discount', () => {
+  render(
+    <CartItem
+      item={{
+        ...item,
+        price: 572.39,
+        activeDiscount: {
+          id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          itemId: item.id,
+          discountPercent: 10,
+          duration: 2,
+          created_at: '2026-06-03T12:00:00.000Z',
+          ends_at: '2026-06-05T12:00:00.000Z',
+          originalPrice: 635.99,
+        },
+      }}
+      quantity={1}
+    />,
+  );
+
+  expect(screen.getByText('$572.39')).toBeDefined();
+  expect(screen.getByText('$635.99')).toBeDefined();
+  expect(screen.getByText('10% off')).toBeDefined();
 });
 
 it('renders the price with French number formatting when locale is fr', () => {

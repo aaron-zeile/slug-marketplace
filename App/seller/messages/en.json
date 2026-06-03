@@ -7,6 +7,7 @@
     "listings": "Listings",
     "sales": "Sales",
     "analytics": "Analytics",
+    "discounts": "Discounts",
     "createListing": "Create Listing",
     "contactAdmin": "Contact Admin",
     "apiKeys": "API Keys",
@@ -72,6 +73,25 @@
     "imagesHelper": "Enter one image URL per line.",
     "submit": "Create Listing",
     "submitting": "Creating..."
+  },
+  "Discounts": {
+    "title": "Discount Hub",
+    "listingLabel": "Listing",
+    "percentLabel": "Discount %",
+    "percentError": "Discount must be between 0 and 100.",
+    "durationLabel": "Duration in days",
+    "durationError": "Duration must be at least 1 day.",
+    "submit": "Create Discount",
+    "submitting": "Creating...",
+    "createdSuccess": "Discount created for {name}.",
+    "activeTitle": "Discounts for selected listing",
+    "tableLabel": "Listing discounts",
+    "percentColumn": "Discount",
+    "durationColumn": "Duration",
+    "createdColumn": "Created",
+    "durationValue": "{count, plural, one {# day} other {# days}}",
+    "empty": "No discounts for this listing.",
+    "loading": "Loading discounts..."
   },
   "Error": {
     "closeAria": "Close error message"

@@ -1,13 +1,17 @@
 import {
   ApiKeyResponseSchema,
   ApiKeysResponseSchema,
+  CreateDiscountResponseSchema,
   CreateListingResponseSchema,
+  DiscountsResponseSchema,
   ListingsResponseSchema,
   OrdersResponseSchema,
   ReviewsResponseSchema,
   type ApiKeyMetadata,
   type ApiKeyResponse,
+  type Discount,
   type Listing,
+  type NewDiscount,
   type NewListing,
   type Order,
   type Review,
@@ -111,6 +115,48 @@ export const getReviews = async (
   } catch (error: unknown) {
     setError(String(error))
     return []
+  }
+}
+
+export const listDiscounts = async (
+  itemId: string,
+  setError: (error: string | undefined) => void,
+): Promise<Discount[]> => {
+  try {
+    const response = await fetch(`/seller/api/listings/${itemId}/discounts`)
+    if (!response.ok) throw new Error(response.statusText)
+    const data = DiscountsResponseSchema.parse(await response.json())
+    setError(undefined)
+    return data.discounts
+  } catch (error: unknown) {
+    setError(String(error))
+    return []
+  }
+}
+
+export const createDiscount = async (
+  input: NewDiscount,
+  setError: (error: string | undefined) => void,
+): Promise<Discount | undefined> => {
+  try {
+    const response = await fetch(`/seller/api/listings/${input.itemId}/discounts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        discountPercent: input.discountPercent,
+        duration: input.duration,
+      }),
+    })
+    if (!response.ok) throw new Error(response.statusText)
+
+    const data = CreateDiscountResponseSchema.parse(await response.json())
+    setError(undefined)
+    return data.discount
+  } catch (error: unknown) {
+    setError(String(error))
+    return undefined
   }
 }
 

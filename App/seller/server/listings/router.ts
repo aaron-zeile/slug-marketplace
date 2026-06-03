@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { ListingService } from './service.js';
-import { NewListingSchema } from '../../shared/index.js';
+import { NewDiscountSchema, NewListingSchema } from '../../shared/index.js';
 
 export const get = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -66,6 +66,46 @@ export const getReviews = async (req: Request, res: Response) => {
 
   const reviews = await new ListingService().getReviews(id);
   res.json({ reviews });
+};
+
+export const getDiscounts = async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const id = req.params.id;
+  if (typeof id !== 'string') {
+    res.sendStatus(400);
+    return;
+  }
+
+  const discounts = await new ListingService().getDiscounts(id);
+  res.json({ discounts });
+};
+
+export const postDiscount = async (req: Request, res: Response) => {
+  if (!req.user || !req.sessionToken) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const itemId = req.params.id;
+  if (typeof itemId !== 'string') {
+    res.sendStatus(400);
+    return;
+  }
+
+  const input = NewDiscountSchema.parse({
+    ...req.body,
+    itemId,
+  });
+  const discount = await new ListingService().createDiscount(
+    input,
+    req.sessionToken,
+  );
+
+  res.status(201).json({ discount });
 };
 
 export const remove = async (req: Request, res: Response) => {

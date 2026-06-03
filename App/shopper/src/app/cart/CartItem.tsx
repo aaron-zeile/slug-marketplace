@@ -47,6 +47,7 @@ export default function CartItem({
   );
 
   const image = item.images[0];
+  const hasActiveSale = Boolean(item.activeDiscount);
 
   const handleDecrease = async () => {
     const result = await removeCartItemAction(item.id);
@@ -175,6 +176,28 @@ export default function CartItem({
           >
             {currencyFormatter.format(item.price)}
           </Typography>
+          {hasActiveSale ? (
+            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                  fontSize: '0.85rem',
+                  textDecoration: 'line-through',
+                }}
+              >
+                {currencyFormatter.format(item.activeDiscount!.originalPrice)}
+              </Typography>
+              <Typography
+                sx={{
+                  color: 'error.dark',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                }}
+              >
+                {item.activeDiscount!.discountPercent}% off
+              </Typography>
+            </Box>
+          ) : null}
         </Box>
 
         <Box

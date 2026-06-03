@@ -26,6 +26,7 @@
 \c items
 
 DROP TABLE IF EXISTS checkout_reservation;
+DROP TABLE IF EXISTS discount;
 DROP TABLE IF EXISTS review;
 DROP TABLE IF EXISTS item;
 DROP TYPE IF EXISTS item_status;
@@ -42,6 +43,12 @@ CREATE TABLE review(
   id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   item UUID NOT NULL REFERENCES item(id) ON DELETE CASCADE,
   data    jsonb
+);
+
+CREATE TABLE discount(
+  id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  item    UUID NOT NULL REFERENCES item(id) ON DELETE CASCADE,
+  data    jsonb NOT NULL
 );
 
 CREATE TABLE checkout_reservation(

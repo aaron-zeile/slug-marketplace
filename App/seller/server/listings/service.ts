@@ -1,8 +1,12 @@
 import { z } from 'zod';
 import {
+  DiscountSchema,
   ListingSchema,
+  NewDiscountSchema,
   NewListingSchema,
+  type Discount,
   type Listing,
+  type NewDiscount,
   type NewListing,
 } from '../../shared/index.js';
 
@@ -83,6 +87,30 @@ const GET_REVIEWS_QUERY = `
   }
 `;
 
+const GET_DISCOUNTS_QUERY = `
+  query GetDiscountsByItem($input: ItemId!) {
+    discountsByItem(input: $input) {
+      id
+      itemId
+      discountPercent
+      duration
+      created_at
+    }
+  }
+`;
+
+const CREATE_DISCOUNT_MUTATION = `
+  mutation CreateDiscount($input: NewDiscount!) {
+    createDiscount(input: $input) {
+      id
+      itemId
+      discountPercent
+      duration
+      created_at
+    }
+  }
+`;
+
 interface SellerItemsResponse {
   data?: {
     sellerItems?: unknown
@@ -122,6 +150,20 @@ type UpdateItemResponse = {
 interface GetReviewsResponse {
   data?: {
     reviews?: unknown[]
+  }
+  errors?: { message?: string }[]
+}
+
+interface GetDiscountsResponse {
+  data?: {
+    discountsByItem?: unknown[]
+  }
+  errors?: { message?: string }[]
+}
+
+interface CreateDiscountResponse {
+  data?: {
+    createDiscount?: unknown
   }
   errors?: { message?: string }[]
 }
@@ -300,6 +342,79 @@ export class ListingService {
     if (!parseResult.success) {
       throw new Error(
         'Updated item response did not match expected listing schema',
+      );
+    }
+
+    return parseResult.data;
+  }
+
+  public async getDiscounts(itemId: string): Promise<Discount[]> {
+    const response = await fetch(ITEMS_SERVICE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: GET_DISCOUNTS_QUERY,
+        variables: { input: { id: itemId } },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch discounts: ${response.statusText}`);
+    }
+
+    const body = await response.json() as GetDiscountsResponse;
+
+    if (body.errors?.length) {
+      throw new Error(body.errors[0]?.message ?? 'GraphQL error');
+    }
+
+    const parseResult = z
+      .array(DiscountSchema)
+      .safeParse(body.data?.discountsByItem ?? []);
+
+    if (!parseResult.success) {
+      throw new Error(
+        'Discounts response did not match expected discount schema',
+      );
+    }
+
+    return parseResult.data;
+  }
+
+  public async createDiscount(
+    input: NewDiscount,
+    sessionToken: string,
+  ): Promise<Discount> {
+    const discountInput = NewDiscountSchema.parse(input);
+    const response = await fetch(ITEMS_SERVICE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionToken}`,
+      },
+      body: JSON.stringify({
+        query: CREATE_DISCOUNT_MUTATION,
+        variables: {
+          input: discountInput,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create discount: ${response.statusText}`);
+    }
+
+    const body = await response.json() as CreateDiscountResponse;
+
+    if (body.errors?.length) {
+      throw new Error(body.errors[0]?.message ?? 'GraphQL error');
+    }
+
+    const parseResult = DiscountSchema.safeParse(body.data?.createDiscount);
+
+    if (!parseResult.success) {
+      throw new Error(
+        'Created discount response did not match expected discount schema',
       );
     }
 

@@ -273,7 +273,7 @@ describe('Shopper e2e interactions', () => {
     await waitForText('1 item')
     await waitForText('Shipping to: 1156 High St, Santa Cruz, CA, 95064, US')
 
-    const breakdown = await page.waitForSelector('text/View item breakdown')
+    const breakdown = await page.waitForSelector('text/View Order breakdown')
     await breakdown.click()
     await waitForText(itemName)
 

@@ -344,12 +344,37 @@ export default function Payment({ addressId }: PaymentProps) {
                     >
                       {t("quantityLine", { count: cartItem.quantity })}
                     </Typography>
+                    {cartItem.item.activeDiscount ? (
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "error.dark", fontWeight: 700 }}
+                      >
+                        {cartItem.item.activeDiscount.discountPercent}% off sale
+                      </Typography>
+                    ) : null}
                   </Box>
-                  <Typography sx={{ fontWeight: 600, whiteSpace: "nowrap" }}>
-                    {currencyFormatter.format(
-                      cartItem.item.price * cartItem.quantity,
-                    )}
-                  </Typography>
+                  <Box sx={{ textAlign: "right" }}>
+                    <Typography sx={{ fontWeight: 600, whiteSpace: "nowrap" }}>
+                      {currencyFormatter.format(
+                        cartItem.item.price * cartItem.quantity,
+                      )}
+                    </Typography>
+                    {cartItem.item.activeDiscount ? (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "text.secondary",
+                          textDecoration: "line-through",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {currencyFormatter.format(
+                          cartItem.item.activeDiscount.originalPrice *
+                            cartItem.quantity,
+                        )}
+                      </Typography>
+                    ) : null}
+                  </Box>
                 </Box>
               ))}
             </Stack>

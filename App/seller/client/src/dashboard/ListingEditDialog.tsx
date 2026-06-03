@@ -262,6 +262,7 @@ export default function ListingEditDialog({
         </Button>
         <Button
           color="error"
+          aria-label={listing ? t('deleteAria', {name: listing.name}) : undefined}
           disabled={!listing || deleting || saving}
           startIcon={<DeleteIcon />}
           onClick={() => void handleDelete()}
@@ -269,6 +270,7 @@ export default function ListingEditDialog({
           {deleting ? t('deleting') : t('delete')}
         </Button>
         <Button
+          aria-label={listing ? t('updateAria', {name: listing.name}) : undefined}
           disabled={!canSave || deleting || saving}
           variant="contained"
           startIcon={<SaveIcon />}

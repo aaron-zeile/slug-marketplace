@@ -26,9 +26,9 @@ beforeEach(async () => {
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
-      '--window-size=768,1024',
+      '--window-size=1280,1024',
     ],
-    defaultViewport: null,
+    defaultViewport: { width: 1280, height: 1024 },
     /*
      * Uncomment these two settings if you want to see the browser.
      * However, in the grading system e2e test run headless, so make
