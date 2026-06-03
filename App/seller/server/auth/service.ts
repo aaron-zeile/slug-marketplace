@@ -15,6 +15,13 @@ export interface CorporateApiKeyCreated {
   created_at: string
 }
 
+export interface CorporateApiKey {
+  id: string
+  name: string
+  created_at: string
+  revoked_at?: string
+}
+
 const LOGIN_SERVICE_URL = process.env.LOGIN_SERVICE_URL || 'http://localhost:4010/api/v0'
 
 export async function check(token: string): Promise<SessionUser | undefined> {
@@ -59,4 +66,36 @@ export async function createApiKey(
   }
 
   return (await response.json()) as CorporateApiKeyCreated
+}
+
+export async function listApiKeys(
+  sessionToken: string,
+): Promise<CorporateApiKey[]> {
+  const response = await fetch(`${LOGIN_SERVICE_URL}/corporate-keys`, {
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to list API keys: ${response.statusText}`)
+  }
+
+  return (await response.json()) as CorporateApiKey[]
+}
+
+export async function revokeApiKey(
+  sessionToken: string,
+  id: string,
+): Promise<void> {
+  const response = await fetch(`${LOGIN_SERVICE_URL}/corporate-keys/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to revoke API key: ${response.statusText}`)
+  }
 }

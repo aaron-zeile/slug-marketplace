@@ -20,6 +20,7 @@ const order = {
   ],
   orderedAt: '2026-05-20T12:34:00.000Z',
   purchaseAmount: 42.5,
+  status: 'ordered',
   address: {
     line1: '1156 High Street',
     line2: '',

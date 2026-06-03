@@ -130,3 +130,91 @@ test('checkCorporateApiKey rejects missing bearer tokens', async () => {
     new AuthService().checkCorporateApiKey(undefined),
   ).rejects.toThrow('Missing bearer token');
 });
+
+test('listCorporateApiKeys returns active key metadata for the authenticated seller', async () => {
+  const authToken = jwt.sign(
+    {
+      id: 'seller-123',
+      email: 'seller@example.com',
+      name: 'Seller Name',
+    },
+    'test-secret',
+  );
+
+  setAuthDbForTest({
+    async query<T>(sql: string) {
+      if (sql.includes('FROM member WHERE id = $1')) {
+        return {
+          rows: [{ id: 'seller-123', email: 'seller@example.com' }] as T[],
+        };
+      }
+
+      if (sql.includes('FROM corporate_api_key')) {
+        return {
+          rows: [
+            {
+              id: 'key-123',
+              name: 'Bulk uploader',
+              key_hash: 'hash',
+              created_at: new Date('2026-05-17T00:00:00.000Z'),
+              revoked_at: null,
+              seller_id: 'seller-123',
+              email: '',
+            },
+          ] as T[],
+        };
+      }
+
+      throw new Error(`Unhandled SQL in mock db: ${sql}`);
+    },
+  });
+
+  const result = await new AuthService().listCorporateApiKeys(
+    `Bearer ${authToken}`,
+  );
+
+  expect(result).toEqual([
+    {
+      id: 'key-123',
+      name: 'Bulk uploader',
+      created_at: '2026-05-17T00:00:00.000Z',
+      revoked_at: undefined,
+    },
+  ]);
+});
+
+test('revokeCorporateApiKey soft deletes a seller key', async () => {
+  const authToken = jwt.sign(
+    {
+      id: 'seller-123',
+      email: 'seller@example.com',
+      name: 'Seller Name',
+    },
+    'test-secret',
+  );
+  const updateCalls: unknown[][] = [];
+
+  setAuthDbForTest({
+    async query<T>(sql: string, params?: unknown[]) {
+      if (sql.includes('FROM member WHERE id = $1')) {
+        return {
+          rows: [{ id: 'seller-123', email: 'seller@example.com' }] as T[],
+        };
+      }
+
+      if (sql.startsWith('UPDATE corporate_api_key')) {
+        updateCalls.push(params ?? []);
+        return { rows: [] as T[] };
+      }
+
+      throw new Error(`Unhandled SQL in mock db: ${sql}`);
+    },
+  });
+
+  await new AuthService().revokeCorporateApiKey(
+    `Bearer ${authToken}`,
+    'key-123',
+  );
+
+  expect(updateCalls).toEqual([['key-123', 'seller-123']]);
+});

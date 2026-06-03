@@ -9,6 +9,7 @@
     "analytics": "Commentaires",
     "createListing": "Créer une annonce",
     "contactAdmin": "Contacter l'admin",
+    "apiKeys": "Cles API",
     "ariaLabel": "Onglets du tableau de bord vendeur"
   },
   "Listings": {
@@ -91,5 +92,23 @@
     "submit": "Envoyer le message",
     "submitting": "Envoi en cours...",
     "success": "Votre message a été envoyé à l'administrateur."
+  },
+  "ApiKeys": {
+    "title": "Cles API",
+    "oneTimeNotice": "La cle complete ne sera affichee qu'une seule fois apres sa creation.",
+    "nameLabel": "Nom de la cle",
+    "create": "Creer la cle",
+    "creating": "Creation en cours...",
+    "created": "{name} a ete creee.",
+    "copy": "Copier la cle API",
+    "copied": "Copie",
+    "tableLabel": "Cles API vendeur",
+    "nameColumn": "Nom",
+    "createdColumn": "Creee",
+    "actionsColumn": "Actions",
+    "revoke": "Revoquer",
+    "revokeKey": "Revoquer {name}",
+    "empty": "Aucune cle API.",
+    "loading": "Chargement des cles API..."
   }
 }

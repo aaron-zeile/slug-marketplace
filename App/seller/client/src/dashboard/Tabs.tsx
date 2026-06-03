@@ -29,6 +29,7 @@ export default function NavTabs() {
         <Tab label={t('analytics')} {...tabProps(2)} />
         <Tab label={t('createListing')} {...tabProps(3)} />
         <Tab label={t('contactAdmin')} {...tabProps(4)} />
+        <Tab label={t('apiKeys')} {...tabProps(5)} />
       </Tabs>
     </Box>
   );

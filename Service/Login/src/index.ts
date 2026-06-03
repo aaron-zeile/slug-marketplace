@@ -26,6 +26,13 @@ export interface CorporateApiKeyCreated {
   created_at: string;
 }
 
+export interface CorporateApiKey {
+  id: string;
+  name: string;
+  created_at: string;
+  revoked_at?: string;
+}
+
 export interface ShippingAddress {
   id: string;
   member: string;

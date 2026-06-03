@@ -30,11 +30,21 @@ vi.mock('../listings/router.js', () => ({
 vi.mock('../orders/router.js', () => ({
   get: (_req: unknown, res: {json: (body: unknown) => void}) =>
     res.json({route: 'get-orders'}),
+  patchStatus: (
+    req: {params: {orderId: string}},
+    res: {json: (body: unknown) => void},
+  ) => res.json({route: 'patch-order-status', id: req.params.orderId}),
 }))
 
 vi.mock('../apiKeys/router.js', () => ({
+  get: (_req: unknown, res: {json: (body: unknown) => void}) =>
+    res.json({route: 'get-api-keys'}),
   post: (_req: unknown, res: {json: (body: unknown) => void}) =>
     res.json({route: 'post-api-key'}),
+  remove: (
+    req: {params: {id: string}},
+    res: {json: (body: unknown) => void},
+  ) => res.json({route: 'remove-api-key', id: req.params.id}),
 }))
 
 vi.mock('../auth/router.js', () => ({
@@ -61,6 +71,7 @@ const routeCases: RouteCase[] = [
     expected: {route: 'get-listing-reviews', id: 'abc'},
   },
   {method: 'get', path: '/api/orders', expected: {route: 'get-orders'}},
+  {method: 'get', path: '/api/keys', expected: {route: 'get-api-keys'}},
   {method: 'get', path: '/api/sessions', expected: {route: 'get-session'}},
   {method: 'post', path: '/api/listings', expected: {route: 'post-listing'}},
   {method: 'post', path: '/api/keys', expected: {route: 'post-api-key'}},
@@ -74,6 +85,11 @@ const routeCases: RouteCase[] = [
     method: 'delete',
     path: '/api/listings/abc',
     expected: {route: 'remove-listing', id: 'abc'},
+  },
+  {
+    method: 'delete',
+    path: '/api/keys/key-1',
+    expected: {route: 'remove-api-key', id: 'key-1'},
   },
 ]
 

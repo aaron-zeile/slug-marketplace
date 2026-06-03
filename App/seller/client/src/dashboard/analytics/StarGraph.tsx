@@ -1,3 +1,4 @@
+import React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useContext, useEffect, useState } from 'react';
 

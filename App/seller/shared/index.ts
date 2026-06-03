@@ -78,7 +78,27 @@ export const ReviewSchema = z.object({
 });
 export const ReviewsResponseSchema = z.object({ reviews: z.array(ReviewSchema) });
 
+export const ApiKeyResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  key: z.string(),
+  created_at: z.string(),
+})
+
+export const ApiKeyMetadataSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  created_at: z.string(),
+  revoked_at: z.string().optional(),
+})
+
+export const ApiKeysResponseSchema = z.object({
+  keys: z.array(ApiKeyMetadataSchema),
+})
+
 export type Listing = z.infer<typeof ListingSchema>;
 export type NewListing = z.infer<typeof NewListingSchema>;
 export type Order = z.infer<typeof OrderSchema>;
 export type Review = z.infer<typeof ReviewSchema>;
+export type ApiKeyResponse = z.infer<typeof ApiKeyResponseSchema>;
+export type ApiKeyMetadata = z.infer<typeof ApiKeyMetadataSchema>;

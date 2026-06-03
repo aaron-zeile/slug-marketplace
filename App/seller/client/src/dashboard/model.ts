@@ -1,8 +1,12 @@
 import {
+  ApiKeyResponseSchema,
+  ApiKeysResponseSchema,
   CreateListingResponseSchema,
   ListingsResponseSchema,
   OrdersResponseSchema,
   ReviewsResponseSchema,
+  type ApiKeyMetadata,
+  type ApiKeyResponse,
   type Listing,
   type NewListing,
   type Order,
@@ -192,5 +196,68 @@ export async function starDistribution(
         : 'Failed to load rating distribution',
     )
     return undefined
+  }
+}
+
+export async function createApiKey(
+  name: string,
+  setError: (error: string | undefined) => void,
+): Promise<ApiKeyResponse | undefined> {
+  try {
+    const response = await fetch('/seller/api/keys', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    })
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+
+    const apiKey = ApiKeyResponseSchema.parse(await response.json())
+    setError(undefined)
+    return apiKey
+  } catch (error: unknown) {
+    setError(String(error))
+    return undefined
+  }
+}
+
+export async function listApiKeys(
+  setError: (error: string | undefined) => void,
+): Promise<ApiKeyMetadata[]> {
+  try {
+    const response = await fetch('/seller/api/keys')
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+
+    const data = ApiKeysResponseSchema.parse(await response.json())
+    setError(undefined)
+    return data.keys
+  } catch (error: unknown) {
+    setError(String(error))
+    return []
+  }
+}
+
+export async function revokeApiKey(
+  id: string,
+  setError: (error: string | undefined) => void,
+): Promise<boolean> {
+  try {
+    const response = await fetch(`/seller/api/keys/${id}`, {
+      method: 'DELETE',
+    })
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+
+    setError(undefined)
+    return true
+  } catch (error: unknown) {
+    setError(String(error))
+    return false
   }
 }

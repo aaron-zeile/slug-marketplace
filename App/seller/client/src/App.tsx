@@ -11,6 +11,7 @@ import SellerListings from './dashboard/Listings'
 import Sales from './dashboard/Sales'
 import CreateListing from './dashboard/CreateListing'
 import ContactAdmin from './dashboard/ContactAdmin'
+import ApiKeys from './dashboard/ApiKeys'
 import { TabProvider } from './dashboard/Provider'
 import { useDashboard } from './dashboard/useDashboard'
 import AppProviders from './providers/AppProviders'
@@ -44,6 +45,9 @@ export function AppContent() {
   }
   if (tabValue === 4) {
     content = <ContactAdmin />
+  }
+  if (tabValue === 5) {
+    content = <ApiKeys />
   }
   return (
     <>
