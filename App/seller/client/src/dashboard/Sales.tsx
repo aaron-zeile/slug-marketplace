@@ -26,16 +26,13 @@ function statusLabel(
   status: Order['status'],
   t: ReturnType<typeof useTranslations<'Sales'>>,
 ): string {
-  switch (status) {
-    case 'ordered':
-      return t('statusOrdered')
-    case 'shipping':
-      return t('statusShipping')
-    case 'delivered':
-      return t('statusDelivered')
-    default:
-      return status
+  const labels = {
+    ordered: t('statusOrdered'),
+    shipping: t('statusShipping'),
+    delivered: t('statusDelivered'),
   }
+
+  return labels[status]
 }
 
 export default function Sales() {

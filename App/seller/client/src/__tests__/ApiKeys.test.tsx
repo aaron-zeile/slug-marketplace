@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -113,5 +113,32 @@ describe('ApiKeys', () => {
         method: 'DELETE',
       },
     ])
+  })
+
+  it('does not create an API key with a blank name', async () => {
+    const fetchMock = vi.mocked(fetch)
+    renderWithProviders(<ApiKeys />)
+
+    await screen.findByText('Existing key')
+    fireEvent.change(screen.getByRole('textbox', { name: /Key name/ }), {
+      target: { value: '   ' },
+    })
+    fireEvent.submit(screen.getByRole('textbox', { name: /Key name/ }).closest('form')!)
+
+    expect(fetchMock.mock.calls).toHaveLength(1)
+  })
+
+  it('renders without an error provider when key loading fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: false,
+        statusText: 'Unauthorized',
+      })),
+    )
+
+    render(<ApiKeys />)
+
+    expect(await screen.findByText('No API keys yet.')).toBeInTheDocument()
   })
 })

@@ -127,7 +127,7 @@ export default function Discounts() {
     if (discount) {
       setDiscounts((current) => [discount, ...current])
       setForm(emptyForm)
-      setSuccess(t('createdSuccess', { name: selectedListing?.name ?? '' }))
+      setSuccess(t('createdSuccess', { name: selectedListing!.name }))
     }
   }
 

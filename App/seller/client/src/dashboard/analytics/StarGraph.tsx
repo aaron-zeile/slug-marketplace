@@ -1,6 +1,5 @@
-import React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { ErrorContext } from '../../error/Context';
 import { starDistribution } from '../model';

@@ -28,7 +28,7 @@ function ThemedApp({ children }: { children: ReactNode }) {
             },
           },
         },
-        muiLocales[locale] ?? enUS,
+        muiLocales[locale],
       ),
     [locale],
   );

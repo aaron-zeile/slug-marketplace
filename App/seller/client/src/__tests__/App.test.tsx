@@ -84,6 +84,21 @@ describe('App', () => {
           }
         }
 
+        if (url.includes('/seller/api/listings/item-1/discounts')) {
+          return {
+            ok: true,
+            json: async () => ({
+              discounts: [],
+            }),
+          }
+        }
+
+        if (url.includes('/seller/api/messages')) {
+          return {
+            ok: true,
+          }
+        }
+
         return {
           ok: true,
           json: async () => listingsResponse,
@@ -136,13 +151,43 @@ describe('App', () => {
 
     fireEvent.click(screen.getByRole('tab', {name: 'Create Listing'}))
     await screen.findByRole('heading', {name: 'Create Listing'})
+    const afterCreateListingClick = {
+      createHeadingVisible:
+        screen.queryByRole('heading', {name: 'Create Listing'}) !== null,
+      analyticsVisible: screen.queryByText('Seller Rating') !== null,
+    }
+
+    fireEvent.click(screen.getByRole('tab', {name: 'Discounts'}))
+    await screen.findByRole('heading', {name: 'Discount Hub'})
+    const afterDiscountsClick = {
+      discountsHeadingVisible:
+        screen.queryByRole('heading', {name: 'Discount Hub'}) !== null,
+      createHeadingVisible:
+        screen.queryByRole('heading', {name: 'Create Listing'}) !== null,
+    }
+
+    fireEvent.click(screen.getByRole('tab', {name: 'Contact Admin'}))
+    await screen.findByRole('heading', {name: 'Contact Admin'})
+    const afterContactAdminClick = {
+      contactHeadingVisible:
+        screen.queryByRole('heading', {name: 'Contact Admin'}) !== null,
+      discountsHeadingVisible:
+        screen.queryByRole('heading', {name: 'Discount Hub'}) !== null,
+    }
+
+    fireEvent.click(screen.getByRole('tab', {name: 'API Keys'}))
+    await screen.findByRole('heading', {name: 'API Keys'})
     expect({
       afterSalesClick,
       afteranalyticsClick,
-      afterCreateListingClick: {
-        createHeadingVisible:
-          screen.queryByRole('heading', {name: 'Create Listing'}) !== null,
-        analyticsVisible: screen.queryByText('Seller Rating') !== null,
+      afterCreateListingClick,
+      afterDiscountsClick,
+      afterContactAdminClick,
+      afterApiKeysClick: {
+        apiKeysHeadingVisible:
+          screen.queryByRole('heading', {name: 'API Keys'}) !== null,
+        contactHeadingVisible:
+          screen.queryByRole('heading', {name: 'Contact Admin'}) !== null,
       },
     }).toEqual({
       afterSalesClick: {
@@ -157,9 +202,18 @@ describe('App', () => {
         createHeadingVisible: true,
         analyticsVisible: false,
       },
+      afterDiscountsClick: {
+        discountsHeadingVisible: true,
+        createHeadingVisible: false,
+      },
+      afterContactAdminClick: {
+        contactHeadingVisible: true,
+        discountsHeadingVisible: false,
+      },
+      afterApiKeysClick: {
+        apiKeysHeadingVisible: true,
+        contactHeadingVisible: false,
+      },
     })
-
-    fireEvent.click(screen.getByRole('tab', {name: 'API Keys'}))
-    await screen.findByRole('heading', {name: 'API Keys'})
   }, 15000)
 })

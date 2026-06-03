@@ -92,6 +92,39 @@ describe('CreateListing', () => {
     })
   })
 
+  it('does not submit while the quantity is invalid', () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderWithProviders(<CreateListing />)
+
+    fireEvent.change(nameField(), {
+      target: {value: 'USB Hub'},
+    })
+    fireEvent.change(descriptionField(), {
+      target: {value: 'A useful hub.'},
+    })
+    fireEvent.change(priceField(), {
+      target: {value: '24.99'},
+    })
+    fireEvent.change(quantityField(), {
+      target: {value: '0'},
+    })
+
+    expect({
+      quantityErrorVisible:
+        screen.queryByText('Quantity must be a whole number of at least 1.') !== null,
+      submitDisabled: screen
+        .getByRole('button', {name: 'Create Listing'})
+        .hasAttribute('disabled'),
+      fetchCalls: fetchMock.mock.calls,
+    }).toEqual({
+      quantityErrorVisible: true,
+      submitDisabled: true,
+      fetchCalls: [],
+    })
+  })
+
   it('submits the form, shows success, and clears the fields', async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import {LineChart} from '@mui/x-charts/LineChart'
+import React from 'react'
 
 const dataset = [
   {month: 'Jan', earnings: 420, orders: 8},

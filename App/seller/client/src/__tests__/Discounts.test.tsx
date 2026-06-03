@@ -83,3 +83,112 @@ it('creates discounts for seller listings', async () => {
     durationCellVisible: true,
   })
 })
+
+it('changes selected listing before creating a discount', async () => {
+  const secondListing = {...listing, id: 'item-2', name: 'Laptop Stand'}
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ listings: [listing, secondListing] }),
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ discounts: [] }),
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ discounts: [] }),
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ discount: {...discount, itemId: 'item-2'} }),
+    })
+
+  vi.stubGlobal('fetch', fetchMock)
+
+  renderWithProviders(<Discounts />)
+
+  fireEvent.mouseDown(await screen.findByRole('combobox', {name: 'Listing'}))
+  fireEvent.click(await screen.findByRole('option', {name: 'Laptop Stand'}))
+  fireEvent.change(screen.getByRole('spinbutton', { name: /Discount %/ }), {
+    target: { value: '20' },
+  })
+  fireEvent.change(screen.getByRole('spinbutton', { name: /Duration in days/ }), {
+    target: { value: '5' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Create Discount' }))
+
+  await waitFor(() => expect(fetchMock.mock.calls[3]?.[0]).toBe(
+    '/seller/api/listings/item-2/discounts',
+  ))
+})
+
+it('does not submit when the discount form is invalid', async () => {
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ listings: [listing] }),
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ discounts: [] }),
+    })
+
+  vi.stubGlobal('fetch', fetchMock)
+
+  renderWithProviders(<Discounts />)
+
+  await screen.findByText('USB Hub')
+  fireEvent.submit(screen.getByRole('spinbutton', { name: /Discount %/ }).closest('form')!)
+
+  expect(fetchMock.mock.calls).toHaveLength(2)
+})
+
+it('shows validation messages for invalid discount values', async () => {
+  const fetchMock = vi
+    .fn()
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ listings: [listing] }),
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ discounts: [] }),
+    })
+
+  vi.stubGlobal('fetch', fetchMock)
+
+  renderWithProviders(<Discounts />)
+
+  await screen.findByText('USB Hub')
+  fireEvent.change(screen.getByRole('spinbutton', { name: /Discount %/ }), {
+    target: { value: '101' },
+  })
+  fireEvent.change(screen.getByRole('spinbutton', { name: /Duration in days/ }), {
+    target: { value: '0' },
+  })
+
+  expect({
+    percentErrorVisible: screen.queryByText('Discount must be between 0 and 100.') !== null,
+    durationErrorVisible: screen.queryByText('Duration must be at least 1 day.') !== null,
+  }).toEqual({
+    percentErrorVisible: true,
+    durationErrorVisible: true,
+  })
+})
+
+it('shows the empty discount state when the seller has no listings', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ listings: [] }),
+    })),
+  )
+
+  renderWithProviders(<Discounts />)
+
+  expect(await screen.findByText('No discounts for this listing.')).toBeInTheDocument()
+})
