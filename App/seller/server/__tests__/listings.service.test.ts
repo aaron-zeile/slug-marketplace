@@ -27,6 +27,14 @@ const review = {
   created_at: '2026-05-20T12:00:00.000Z',
 }
 
+const discount = {
+  id: 'discount-1',
+  itemId: 'item-1',
+  discountPercent: 15,
+  duration: 7,
+  created_at: '2026-06-03T12:00:00.000Z',
+}
+
 describe('ListingService', () => {
   const fetchMock = vi.fn()
 
@@ -296,6 +304,83 @@ describe('ListingService', () => {
         },
       },
       queryIncludesReviews: true,
+    })
+  })
+
+  it('fetches discounts for a listing from the items service', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          discountsByItem: [discount],
+        },
+      }),
+    })
+
+    const discounts = await new ListingService().getDiscounts('item-1')
+
+    const [, request] = fetchMock.mock.calls[0] as [
+      string,
+      {body: string; headers: Record<string, string>},
+    ]
+    const body = JSON.parse(request.body)
+
+    expect({
+      discounts,
+      variables: body.variables,
+      queryIncludesDiscounts: body.query.includes('discountsByItem'),
+    }).toEqual({
+      discounts: [discount],
+      variables: {
+        input: {
+          id: 'item-1',
+        },
+      },
+      queryIncludesDiscounts: true,
+    })
+  })
+
+  it('creates a discount with the session token', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          createDiscount: discount,
+        },
+      }),
+    })
+
+    const created = await new ListingService().createDiscount(
+      {
+        itemId: 'item-1',
+        discountPercent: 15,
+        duration: 7,
+      },
+      'session-token',
+    )
+
+    const [, request] = fetchMock.mock.calls[0] as [
+      string,
+      {body: string; headers: Record<string, string>},
+    ]
+    const body = JSON.parse(request.body)
+
+    expect({
+      created,
+      authorization: request.headers.Authorization,
+      variables: body.variables,
+      queryIncludesCreateDiscount: body.query.includes('createDiscount'),
+    }).toEqual({
+      created: discount,
+      authorization: 'Bearer session-token',
+      variables: {
+        input: {
+          itemId: 'item-1',
+          discountPercent: 15,
+          duration: 7,
+        },
+      },
+      queryIncludesCreateDiscount: true,
     })
   })
 

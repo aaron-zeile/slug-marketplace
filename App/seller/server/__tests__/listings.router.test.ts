@@ -1,6 +1,14 @@
 import type {Request, Response} from 'express'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {get, getReviews, post, put, remove} from '../listings/router.js'
+import {
+  get,
+  getDiscounts,
+  getReviews,
+  post,
+  postDiscount,
+  put,
+  remove,
+} from '../listings/router.js'
 
 const serviceMocks = vi.hoisted(() => ({
   getListings: vi.fn(),
@@ -8,6 +16,8 @@ const serviceMocks = vi.hoisted(() => ({
   updateListing: vi.fn(),
   deleteListing: vi.fn(),
   getReviews: vi.fn(),
+  getDiscounts: vi.fn(),
+  createDiscount: vi.fn(),
 }))
 
 vi.mock('../listings/service.js', () => ({
@@ -40,6 +50,14 @@ const review = {
   created_at: '2026-05-20T12:00:00.000Z',
 }
 
+const discount = {
+  id: 'discount-1',
+  itemId: 'item-1',
+  discountPercent: 15,
+  duration: 7,
+  created_at: '2026-06-03T12:00:00.000Z',
+}
+
 function response() {
   const res = {
     status: vi.fn(() => res),
@@ -57,6 +75,8 @@ describe('listings router', () => {
     serviceMocks.updateListing.mockReset()
     serviceMocks.deleteListing.mockReset()
     serviceMocks.getReviews.mockReset()
+    serviceMocks.getDiscounts.mockReset()
+    serviceMocks.createDiscount.mockReset()
   })
 
   it('gets active listings for the authenticated seller by default', async () => {
@@ -300,6 +320,92 @@ describe('listings router', () => {
       serviceCalls: serviceMocks.getReviews.mock.calls,
     }).toEqual({
       statusCall: [400],
+      serviceCalls: [],
+    })
+  })
+
+  it('gets discounts for an authenticated seller listing', async () => {
+    serviceMocks.getDiscounts.mockResolvedValue([discount])
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      params: {
+        id: 'item-1',
+      },
+    } as unknown as Request
+    const res = response()
+
+    await getDiscounts(req, res)
+
+    expect({
+      serviceCall: serviceMocks.getDiscounts.mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: ['item-1'],
+      jsonCall: [{discounts: [discount]}],
+    })
+  })
+
+  it('creates a discount for an authenticated seller session', async () => {
+    serviceMocks.createDiscount.mockResolvedValue(discount)
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      sessionToken: 'session-token',
+      params: {
+        id: 'item-1',
+      },
+      body: {
+        discountPercent: 15,
+        duration: 7,
+      },
+    } as unknown as Request
+    const res = response()
+
+    await postDiscount(req, res)
+
+    expect({
+      serviceCall: serviceMocks.createDiscount.mock.calls[0],
+      statusCall: (res.status as ReturnType<typeof vi.fn>).mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: [
+        {
+          itemId: 'item-1',
+          discountPercent: 15,
+          duration: 7,
+        },
+        'session-token',
+      ],
+      statusCall: [201],
+      jsonCall: [{discount}],
+    })
+  })
+
+  it('rejects create discount requests without a session token', async () => {
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      params: {
+        id: 'item-1',
+      },
+      body: {
+        discountPercent: 15,
+        duration: 7,
+      },
+    } as unknown as Request
+    const res = response()
+
+    await postDiscount(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.createDiscount.mock.calls,
+    }).toEqual({
+      statusCall: [401],
       serviceCalls: [],
     })
   })

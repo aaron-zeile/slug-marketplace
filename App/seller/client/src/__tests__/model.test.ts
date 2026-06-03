@@ -1,6 +1,6 @@
 import {describe, expect, it, vi} from 'vitest'
 
-import {create, list, remove} from '../dashboard/model'
+import {create, createDiscount, list, listDiscounts, remove} from '../dashboard/model'
 
 const listing = {
   id: 'item-1',
@@ -15,6 +15,14 @@ const listing = {
   created_at: '2025-07-18T23:28:50.000Z',
   images: [],
   status: 'active'
+}
+
+const discount = {
+  id: 'discount-1',
+  itemId: 'item-1',
+  discountPercent: 15,
+  duration: 7,
+  created_at: '2026-06-03T12:00:00.000Z',
 }
 
 describe('dashboard model', () => {
@@ -176,6 +184,69 @@ describe('dashboard model', () => {
     }).toEqual({
       result: false,
       errorCall: ['Error: Not Found'],
+    })
+  })
+
+  it('loads discounts for a listing', async () => {
+    const setError = vi.fn()
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        discounts: [discount],
+      }),
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await listDiscounts('item-1', setError)
+
+    expect({
+      result,
+      fetchCall: fetchMock.mock.calls[0],
+      errorCall: setError.mock.calls[0],
+    }).toEqual({
+      result: [discount],
+      fetchCall: ['/seller/api/listings/item-1/discounts'],
+      errorCall: [undefined],
+    })
+  })
+
+  it('creates a discount and returns the parsed response', async () => {
+    const setError = vi.fn()
+    const input = {
+      itemId: 'item-1',
+      discountPercent: 15,
+      duration: 7,
+    }
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        discount,
+      }),
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await createDiscount(input, setError)
+
+    expect({
+      result,
+      fetchCall: fetchMock.mock.calls[0],
+      errorCall: setError.mock.calls[0],
+    }).toEqual({
+      result: discount,
+      fetchCall: [
+        '/seller/api/listings/item-1/discounts',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            discountPercent: 15,
+            duration: 7,
+          }),
+        },
+      ],
+      errorCall: [undefined],
     })
   })
 })

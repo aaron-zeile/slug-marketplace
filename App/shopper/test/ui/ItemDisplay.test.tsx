@@ -140,6 +140,36 @@ it('renders the item price formatted', async () => {
   });
 });
 
+it('renders an active sale price with a countdown timer', async () => {
+  const createdAt = new Date().toISOString();
+  const endsAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+  vi.mocked(fetchItemAction).mockResolvedValue({
+    success: true,
+    data: {
+      ...mockItem,
+      price: 805.27,
+      activeDiscount: {
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        itemId: mockItem.id,
+        discountPercent: 10,
+        duration: 2,
+        created_at: createdAt,
+        ends_at: endsAt,
+        originalPrice: 894.74,
+      },
+    },
+  });
+
+  render(<ItemDisplay id={mockItem.id} />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('$805.27')).toBeDefined();
+    expect(screen.getByText('Sale 10% off')).toBeDefined();
+    expect(screen.getByText('$894.74')).toBeDefined();
+    expect(screen.getByRole('timer').textContent).toMatch(/^Ends in /);
+  });
+});
+
 it('renders the item quantity', async () => {
   render(<ItemDisplay id={mockItem.id} />);
 

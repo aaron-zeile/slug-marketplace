@@ -80,7 +80,7 @@ it('updates a listing only after edits are made', async () => {
   fireEvent.change(nameInput, { target: { value: 'USB Hub Pro' } })
 
   const updateButton = await screen.findByRole('button', {
-    name: 'Update',
+    name: 'Update USB Hub 937',
   })
   fireEvent.click(updateButton)
 

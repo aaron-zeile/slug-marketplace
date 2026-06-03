@@ -7,6 +7,7 @@
     "listings": "Annonces",
     "sales": "Ventes",
     "analytics": "Commentaires",
+    "discounts": "Remises",
     "createListing": "Créer une annonce",
     "contactAdmin": "Contacter l'admin",
     "apiKeys": "Cles API",
@@ -72,6 +73,25 @@
     "imagesHelper": "Saisissez une URL d'image par ligne.",
     "submit": "Créer l'annonce",
     "submitting": "Création en cours..."
+  },
+  "Discounts": {
+    "title": "Remises",
+    "listingLabel": "Annonce",
+    "percentLabel": "Remise %",
+    "percentError": "La remise doit etre comprise entre 0 et 100.",
+    "durationLabel": "Duree en jours",
+    "durationError": "La duree doit etre d'au moins 1 jour.",
+    "submit": "Creer une remise",
+    "submitting": "Creation en cours...",
+    "createdSuccess": "Remise creee pour {name}.",
+    "activeTitle": "Remises pour l'annonce selectionnee",
+    "tableLabel": "Remises de l'annonce",
+    "percentColumn": "Remise",
+    "durationColumn": "Duree",
+    "createdColumn": "Creee",
+    "durationValue": "{count, plural, one {# jour} other {# jours}}",
+    "empty": "Aucune remise pour cette annonce.",
+    "loading": "Chargement des remises..."
   },
   "Error": {
     "closeAria": "Fermer le message d'erreur"

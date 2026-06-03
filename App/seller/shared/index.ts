@@ -78,6 +78,28 @@ export const ReviewSchema = z.object({
 });
 export const ReviewsResponseSchema = z.object({ reviews: z.array(ReviewSchema) });
 
+export const DiscountSchema = z.object({
+  id: z.string(),
+  itemId: z.string(),
+  discountPercent: z.number().min(0).max(100),
+  duration: z.number().int().min(1),
+  created_at: z.string(),
+})
+
+export const NewDiscountSchema = z.object({
+  itemId: z.string(),
+  discountPercent: z.number().min(0).max(100),
+  duration: z.number().int().min(1),
+})
+
+export const DiscountsResponseSchema = z.object({
+  discounts: z.array(DiscountSchema),
+})
+
+export const CreateDiscountResponseSchema = z.object({
+  discount: DiscountSchema,
+})
+
 export const ApiKeyResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -100,5 +122,7 @@ export type Listing = z.infer<typeof ListingSchema>;
 export type NewListing = z.infer<typeof NewListingSchema>;
 export type Order = z.infer<typeof OrderSchema>;
 export type Review = z.infer<typeof ReviewSchema>;
+export type Discount = z.infer<typeof DiscountSchema>;
+export type NewDiscount = z.infer<typeof NewDiscountSchema>;
 export type ApiKeyResponse = z.infer<typeof ApiKeyResponseSchema>;
 export type ApiKeyMetadata = z.infer<typeof ApiKeyMetadataSchema>;

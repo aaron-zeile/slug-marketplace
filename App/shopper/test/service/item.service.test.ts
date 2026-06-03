@@ -9,6 +9,7 @@ import {
 import {
   registerItemsServiceHooks,
   releaseFetchStubForServiceTests,
+  seedItemsServiceDiscount,
   seedItemsServiceItem,
 } from '../support/itemsService';
 
@@ -25,6 +26,11 @@ describe('shopper item service', () => {
       price: 42.5,
     });
     itemId = created.id;
+    await seedItemsServiceDiscount({
+      itemId,
+      discountPercent: 15,
+      duration: 7,
+    });
 
     await seedItemsServiceItem({
       name: 'Unique Shopper Search Lamp',
@@ -49,7 +55,14 @@ describe('shopper item service', () => {
 
     expect(result.name).toBe('Shopper Service Item');
     expect(result.status).toBe('active');
-    expect(Number(result.price)).toBe(42.5);
+    expect(Number(result.price)).toBe(36.13);
+    expect(result.activeDiscount).toMatchObject({
+      itemId,
+      discountPercent: 15,
+      duration: 7,
+      originalPrice: 42.5,
+    });
+    expect(result.activeDiscount?.ends_at).toBeDefined();
   });
 
   it('sends the item id in the GraphQL variables', async () => {
