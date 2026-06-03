@@ -7,7 +7,7 @@ services:
 variables:
   PIPELINE: true
   POSTGRES_HOST: postgres
-  POSTGRES_PORT: 5432
+  POSTGRES_PORT: "5432"
   POSTGRES_DB: admin
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
@@ -29,9 +29,18 @@ stages:
   - build
   - test
 
-before_script:
+.default_before_script: &default_before_script
   - npm config set cache .npm
   - npm run cis
+
+.postgres_test_before_script: &postgres_test_before_script
+  - npm config set cache .npm
+  - npm run cis
+  - apt-get update -qq && apt-get install -y -qq postgresql-client
+  - bash scripts/ci-init-postgres.sh
+
+before_script:
+  *default_before_script
 
 quality:
   stage: quality
@@ -60,3 +69,33 @@ test:shopper:
   stage: test
   script:
     - npm run test-shopper
+
+test:items:
+  stage: test
+  before_script: *postgres_test_before_script
+  variables:
+    POSTGRES_DB: items
+  script:
+    - npm run test-items
+
+test:login:
+  stage: test
+  script:
+    - npm run test-login
+
+test:cart:
+  stage: test
+  before_script: *postgres_test_before_script
+  variables:
+    POSTGRES_DB: cart
+    CART_POSTGRES_DB: cart
+  script:
+    - npm run test-cart
+
+test:order:
+  stage: test
+  before_script: *postgres_test_before_script
+  variables:
+    ORDER_POSTGRES_DB: orders
+  script:
+    - npm run test-order
