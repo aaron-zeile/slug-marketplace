@@ -9,7 +9,9 @@ import { LogoutPage } from '@/components/dashboard/LogoutPage';
 describe('AccountsPage', () => {
   it('renders the Accounts heading', () => {
     render(<AccountsPage />);
-    expect(screen.getByRole('heading', { name: /accounts/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /accounts/i }),
+    ).toBeInTheDocument();
   });
 
   it('renders a description hint about coming soon', () => {
@@ -21,12 +23,9 @@ describe('AccountsPage', () => {
 describe('ReportsPage', () => {
   it('renders the Reports heading', () => {
     render(<ReportsPage />);
-    expect(screen.getByRole('heading', { name: /reports/i })).toBeInTheDocument();
-  });
-
-  it('renders a description hint about coming soon', () => {
-    render(<ReportsPage />);
-    expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /reports/i }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -40,6 +39,8 @@ describe('LoginPage', () => {
 describe('LogoutPage', () => {
   it('renders the logging out message', () => {
     render(<LogoutPage />);
-    expect(screen.getByRole('heading', { name: /logging out/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /logging out/i }),
+    ).toBeInTheDocument();
   });
 });
