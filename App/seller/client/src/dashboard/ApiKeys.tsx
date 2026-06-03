@@ -159,7 +159,7 @@ export default function ApiKeys() {
                   overflowWrap: 'anywhere',
                 }}
               >
-                Authorization: Bearer {apiKey.key}
+                X-API-Key: {apiKey.key}
               </Typography>
             </Stack>
           </Alert>

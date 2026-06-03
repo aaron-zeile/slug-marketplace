@@ -17,9 +17,9 @@ function getCookie(req: Request, name: string): string | undefined {
     ?.slice(name.length + 1)
 }
 
-function getBearerToken(req: Request): string | undefined {
-  const [scheme, token] = req.headers.authorization?.split(' ') ?? []
-  return scheme === 'Bearer' && token ? token : undefined
+function getApiKey(req: Request): string | undefined {
+  const value = req.headers['x-api-key']
+  return typeof value === 'string' && value ? value : undefined
 }
 
 export async function doCheck(
@@ -28,7 +28,7 @@ export async function doCheck(
   next: NextFunction,
 ) {
   const token = getCookie(req, 'session')
-  const apiKey = getBearerToken(req)
+  const apiKey = getApiKey(req)
 
   if (apiKey) {
     const authenticated = await checkApiKey(apiKey)

@@ -106,6 +106,62 @@ describe('doCheck', () => {
     })
   })
 
+  it('sets the authenticated user and session token from x-api-key', async () => {
+    authMocks.checkApiKey.mockResolvedValue({
+      id: 'seller-1',
+      email: 'seller@example.com',
+      name: 'Corporate Seller',
+      token: 'forwarded-session-token',
+    })
+    const req = {
+      headers: {
+        'x-api-key': 'slug_sk_test',
+      },
+    } as unknown as Request
+    const res = response()
+    const next = vi.fn()
+
+    await doCheck(req, res, next)
+
+    expect({
+      checkApiKeyCall: authMocks.checkApiKey.mock.calls[0],
+      sessionToken: req.sessionToken,
+      user: req.user,
+      nextCalls: next.mock.calls.length,
+    }).toEqual({
+      checkApiKeyCall: ['slug_sk_test'],
+      sessionToken: 'forwarded-session-token',
+      user: {
+        id: 'seller-1',
+        email: 'seller@example.com',
+        name: 'Corporate Seller',
+      },
+      nextCalls: 1,
+    })
+  })
+
+  it('does not treat Authorization bearer tokens as seller API keys', async () => {
+    const req = {
+      headers: {
+        authorization: 'Bearer slug_sk_test',
+      },
+    } as Request
+    const res = response()
+    const next = vi.fn()
+
+    await doCheck(req, res, next)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      checkApiKeyCalls: authMocks.checkApiKey.mock.calls,
+      nextCalls: next.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      checkApiKeyCalls: [],
+      nextCalls: [],
+    })
+  })
+
   it('rejects requests when login check does not return a user', async () => {
     process.env.NODE_ENV = 'production'
     authMocks.check.mockResolvedValue(undefined)

@@ -60,7 +60,7 @@ describe('ApiKeys', () => {
     expect({
       fetchCalls: fetchMock.mock.calls.slice(0, 3),
       headerVisible:
-        screen.queryByText('Authorization: Bearer slug_sk_created') !== null,
+        screen.queryByText('X-API-Key: slug_sk_created') !== null,
     }).toEqual({
       fetchCalls: [
         ['/seller/api/keys'],
