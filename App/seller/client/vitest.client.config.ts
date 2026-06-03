@@ -5,7 +5,10 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['client/src/**/*.test.ts', 'client/src/**/*.test.tsx'],
-    setupFiles: './client/src/__tests__/setupTests.ts',
+    setupFiles: [
+      './client/vitest.setup.ts',
+      './client/src/__tests__/setupTests.ts',
+    ],
     coverage: {
       reportsDirectory: './coverage/client',
       include: ['client/src/**/*.{ts,tsx}'],

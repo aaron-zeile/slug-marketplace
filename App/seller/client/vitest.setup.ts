@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import React from 'react';
 import { vi } from 'vitest';
 
 const intlMessages: Record<string, Record<string, string>> = {
@@ -7,8 +8,19 @@ const intlMessages: Record<string, Record<string, string>> = {
     listings: 'Listings',
     sales: 'Sales',
     analytics: 'Analytics',
+    discounts: 'Discounts',
     createListing: 'Create Listing',
+    contactAdmin: 'Contact Admin',
+    apiKeys: 'API Keys',
     ariaLabel: 'Seller dashboard tabs',
+  },
+  ApiKeys: {
+    title: 'API Keys',
+    empty: 'No API keys yet',
+  },
+  Sales: {
+    gridNoRows: 'No orders yet',
+    gridLoadError: 'Orders failed to load',
   },
   Listings: {
     status: 'Status',
