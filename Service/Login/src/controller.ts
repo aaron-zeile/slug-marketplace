@@ -16,6 +16,7 @@ import type { Request as ExpressRequest } from 'express'
 
 import {Credentials, Authenticated, SessionUser} from '.'
 import type {
+  CorporateApiKey,
   CorporateApiKeyCreated,
   CorporateApiKeyRequest,
   ShippingAddress,
@@ -61,6 +62,17 @@ export class AuthController extends Controller {
 
 @Route('corporate-keys')
 export class CorporateApiKeyController extends Controller {
+  @Get()
+  @Security('jwt', ['member'])
+  @Response('401', 'Unauthorised')
+  public async list(
+    @Request() request: ExpressRequest,
+  ): Promise<CorporateApiKey[]> {
+    return new AuthService().listCorporateApiKeys(
+      request.headers.authorization,
+    )
+  }
+
   @Post()
   @Security('jwt', ['member'])
   @Response('401', 'Unauthorised')
@@ -89,6 +101,20 @@ export class CorporateApiKeyController extends Controller {
         message: error instanceof Error ? error.message : 'Invalid API key',
       }
     }
+  }
+
+  @Delete('{id}')
+  @Security('jwt', ['member'])
+  @Response('401', 'Unauthorised')
+  public async revoke(
+    @Request() request: ExpressRequest,
+    @Path() id: string,
+  ): Promise<void> {
+    await new AuthService().revokeCorporateApiKey(
+      request.headers.authorization,
+      id,
+    )
+    this.setStatus(204)
   }
 }
 

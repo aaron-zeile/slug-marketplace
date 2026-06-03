@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { usePathname } from 'next/navigation';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import WishlistButton from '../../src/app/buyer/topbar/WishlistButton';
@@ -79,6 +80,51 @@ it('hides the badge when the wishlist is empty', async () => {
   });
 
   expect(screen.queryByText('0')).not.toBeInTheDocument();
+});
+
+it('resets the count to zero when wishlist fetch fails', async () => {
+  vi.mocked(fetchWishlistItemsAction).mockResolvedValue({
+    success: false,
+    error: 'Unable to load your wishlist.',
+  });
+
+  render(<WishlistButton />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Open wishlist')).toBeInTheDocument();
+  });
+
+  expect(screen.queryByText('2')).not.toBeInTheDocument();
+});
+
+it('resets the count to zero when wishlist fetch succeeds without data', async () => {
+  vi.mocked(fetchWishlistItemsAction).mockResolvedValue({
+    success: true,
+  } as Awaited<ReturnType<typeof fetchWishlistItemsAction>>);
+
+  render(<WishlistButton />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Open wishlist')).toBeInTheDocument();
+  });
+});
+
+it('reloads the wishlist count when the pathname changes', async () => {
+  const pathname = vi.mocked(usePathname);
+  pathname.mockReturnValue('/');
+
+  const { rerender } = render(<WishlistButton />);
+
+  await waitFor(() => {
+    expect(screen.getByLabelText('Open wishlist, 2 items')).toBeInTheDocument();
+  });
+
+  pathname.mockReturnValue('/search');
+  rerender(<WishlistButton />);
+
+  await waitFor(() => {
+    expect(fetchWishlistItemsAction).toHaveBeenCalledTimes(2);
+  });
 });
 
 it('refetches the wishlist count when the wishlist updated event fires', async () => {

@@ -139,6 +139,49 @@ export async function seedItemsServiceItem(input: {
   );
 }
 
+export async function seedItemsServiceDiscount(input: {
+  itemId: string;
+  discountPercent: number;
+  duration: number;
+}) {
+  if (!server) {
+    await startItemsServiceForTests();
+  }
+
+  const response = await fetch(getItemsServiceGraphqlUrl(), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer test-session-token',
+    },
+    body: JSON.stringify({
+      query: `mutation CreateDiscount($input: NewDiscount!) {
+        createDiscount(input: $input) {
+          id
+          itemId
+          discountPercent
+          duration
+          created_at
+        }
+      }`,
+      variables: {
+        input,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`createDiscount failed: ${response.statusText}`);
+  }
+
+  const body = await response.json();
+  if (body.errors) {
+    throw new Error(`createDiscount failed: ${JSON.stringify(body.errors)}`);
+  }
+
+  return body.data.createDiscount;
+}
+
 export const testUser = {
   id: '6a74cd3c-0c10-4507-ab92-a700174f4b15',
   email: 'seller@example.com',

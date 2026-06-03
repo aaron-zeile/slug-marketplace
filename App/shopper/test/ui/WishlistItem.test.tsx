@@ -91,6 +91,30 @@ it('routes to the item page when the image is clicked', async () => {
   expect(routerSpy).toHaveBeenCalledWith(`/items/11111111-1111-1111-1111-111111111111`);
 });
 
+it('routes to the item page when the title is clicked', async () => {
+  renderWishlistItem();
+  const [, titleLink] = screen.getAllByLabelText(`Wishlist item ${item.name}`);
+
+  await userEvent.click(titleLink);
+
+  expect(routerSpy).toHaveBeenCalledWith(`/items/${item.id}`);
+});
+
+it('does not dispatch cart updates when add to cart fails', async () => {
+  vi.mocked(addCartItemAction).mockResolvedValue({
+    success: false,
+    error: 'Not signed in',
+  });
+
+  renderWishlistItem();
+
+  await userEvent.click(
+    screen.getByRole('button', { name: `Add ${item.name} to cart` }),
+  );
+
+  expect(dispatchCartUpdated).not.toHaveBeenCalled();
+});
+
 it('adds the item to cart when add to cart is clicked', async () => {
   renderWishlistItem();
 

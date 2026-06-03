@@ -3,22 +3,24 @@
 import { Alert, Snackbar } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function CartExpiredToast() {
   const t = useTranslations('Checkout');
   const searchParams = useSearchParams();
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const message = useMemo(() => {
+    if (searchParams.get('outOfStock') === '1') {
+      return t('insufficientStock');
+    }
+    if (searchParams.get('cartExpired') === '1') {
+      return t('cartExpired');
+    }
+    return null;
+  }, [searchParams, t]);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get('outOfStock') === '1') {
-      setMessage(t('insufficientStock'));
-      setOpen(true);
-    } else if (searchParams.get('cartExpired') === '1') {
-      setMessage(t('cartExpired'));
-      setOpen(true);
-    } else {
+    if (!message) {
       return;
     }
 
@@ -26,9 +28,9 @@ export default function CartExpiredToast() {
     url.searchParams.delete('cartExpired');
     url.searchParams.delete('outOfStock');
     window.history.replaceState({}, '', `${url.pathname}${url.search}`);
-  }, [searchParams, t]);
+  }, [message]);
 
-  if (!message) {
+  if (!message || dismissed) {
     return null;
   }
 
@@ -36,12 +38,12 @@ export default function CartExpiredToast() {
     <Snackbar
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       autoHideDuration={6000}
-      open={open}
-      onClose={() => setOpen(false)}
+      open
+      onClose={() => setDismissed(true)}
     >
       <Alert
         aria-label={message}
-        onClose={() => setOpen(false)}
+        onClose={() => setDismissed(true)}
         severity="warning"
         variant="filled"
         sx={{ width: '100%' }}

@@ -21,7 +21,7 @@ vi.mock('stripe', () => {
     paymentIntents = {
       retrieve: retrieveMock,
     };
-    constructor(_key: string) {}
+    constructor() {}
   }
   return { default: StripeMock };
 });
@@ -52,6 +52,7 @@ import { checkLogin } from '../../src/app/buyer/login/actions';
 import { listAddressesAction } from '../../src/app/account/actions';
 import { clearCartAction, fetchCartItemsAction } from '../../src/app/cart/actions';
 import { createOrderAction } from '../../src/app/order/actions';
+import type { Order } from '../../src/order/service';
 import {
   confirmCheckoutReservationAction,
   getCheckoutReservationIdFromCookie,
@@ -61,6 +62,22 @@ const sessionUser = {
   id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   email: 'buyer@example.com',
   name: 'Buyer',
+};
+
+const mockOrder: Order = {
+  id: 'order-1',
+  buyer: sessionUser.id,
+  items: [{ itemId: 'item-1', sellerId: 'seller-1' }],
+  orderedAt: '2026-05-11T12:00:00.000Z',
+  purchaseAmount: 10,
+  status: 'ordered',
+  address: {
+    line1: '123 Main St',
+    city: 'Springfield',
+    state: 'IL',
+    postalCode: '62701',
+    country: 'US',
+  },
 };
 
 beforeEach(() => {
@@ -114,10 +131,8 @@ beforeEach(() => {
   });
   vi.mocked(createOrderAction).mockResolvedValue({
     success: true,
-    data: {
-      id: 'order-1',
-    },
-  } as any);
+    data: mockOrder,
+  });
   vi.mocked(getCheckoutReservationIdFromCookie).mockResolvedValue(undefined);
   vi.mocked(confirmCheckoutReservationAction).mockResolvedValue({
     success: true,
@@ -322,7 +337,7 @@ it('treats cart as empty when cart fetch is unsuccessful', async () => {
   vi.mocked(fetchCartItemsAction).mockResolvedValueOnce({
     success: false,
     error: 'cart unavailable',
-  } as any);
+  });
 
   await expectRedirect(
     () =>
@@ -353,7 +368,7 @@ it('renders an error when address fetch is unsuccessful', async () => {
   vi.mocked(listAddressesAction).mockResolvedValueOnce({
     success: false,
     error: 'address unavailable',
-  } as any);
+  });
 
   const tree = await CheckoutCompletePage({
     searchParams: Promise.resolve({ payment_intent: 'pi_123' }),
@@ -369,7 +384,7 @@ it('renders create-order error message when provided by action', async () => {
   vi.mocked(createOrderAction).mockResolvedValueOnce({
     success: false,
     error: 'Order service down',
-  } as any);
+  });
 
   const tree = await CheckoutCompletePage({
     searchParams: Promise.resolve({ payment_intent: 'pi_123' }),
@@ -383,7 +398,7 @@ it('renders fallback create-order error when action returns empty error', async 
   vi.mocked(createOrderAction).mockResolvedValueOnce({
     success: false,
     error: '',
-  } as any);
+  });
 
   const tree = await CheckoutCompletePage({
     searchParams: Promise.resolve({ payment_intent: 'pi_123' }),

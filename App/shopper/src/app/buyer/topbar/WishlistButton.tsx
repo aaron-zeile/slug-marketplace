@@ -27,8 +27,24 @@ export default function WishlistButton() {
   }, []);
 
   useEffect(() => {
-    void loadItemCount();
-  }, [loadItemCount, pathname]);
+    let active = true;
+
+    void (async () => {
+      const result = await fetchWishlistItemsAction();
+      if (!active) {
+        return;
+      }
+      if (result.success && result.data) {
+        setItemCount(result.data.length);
+        return;
+      }
+      setItemCount(0);
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const handleWishlistUpdated = () => {

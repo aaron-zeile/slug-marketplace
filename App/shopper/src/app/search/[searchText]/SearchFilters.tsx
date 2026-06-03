@@ -119,7 +119,7 @@ export default function SearchFilters({ filters, maxItemPrice = DEFAULT_MAX_PRIC
                 sx={{
                   all: 'unset',
                   cursor: 'pointer',
-                  display: { xs: 'inline', md: 'contents' },
+                  display: 'inline',
                 }}
               >
                 {t('filters')}

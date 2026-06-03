@@ -21,7 +21,7 @@ import {ErrorContext} from '../error/Context'
 import {remove, update} from './model'
 import ListingReviews from './ListingReviews'
 
-type ListingDraft = {
+interface ListingDraft {
   name: string
   description: string
   price: string
@@ -29,7 +29,7 @@ type ListingDraft = {
   images: string
 }
 
-type ListingEditDialogProps = {
+interface ListingEditDialogProps {
   open: boolean
   listing?: Listing
   onClose: () => void
@@ -262,6 +262,7 @@ export default function ListingEditDialog({
         </Button>
         <Button
           color="error"
+          aria-label={listing ? t('deleteAria', {name: listing.name}) : undefined}
           disabled={!listing || deleting || saving}
           startIcon={<DeleteIcon />}
           onClick={() => void handleDelete()}
@@ -269,6 +270,7 @@ export default function ListingEditDialog({
           {deleting ? t('deleting') : t('delete')}
         </Button>
         <Button
+          aria-label={listing ? t('updateAria', {name: listing.name}) : undefined}
           disabled={!canSave || deleting || saving}
           variant="contained"
           startIcon={<SaveIcon />}

@@ -107,7 +107,7 @@ describe('seller corporate REST API', () => {
   it('gets seller listings with a corporate API key', async () => {
     mockCheckApiKey.mockResolvedValue(corporateAuth)
     const req = {
-      headers: {authorization: 'Bearer slug_sk_test'},
+      headers: {'x-api-key': 'slug_sk_test'},
       query: {status: 'sold'},
     } as unknown as Request
     const res = response()
@@ -135,7 +135,7 @@ describe('seller corporate REST API', () => {
       images: ['https://example.com/image.jpg'],
     }
     const req = {
-      headers: {authorization: 'Bearer slug_sk_test'},
+      headers: {'x-api-key': 'slug_sk_test'},
       body: input,
     } as unknown as Request
     const res = response()
@@ -156,7 +156,7 @@ describe('seller corporate REST API', () => {
   it('deletes a listing with a corporate API key and forwards the session token to ItemsService', async () => {
     mockCheckApiKey.mockResolvedValue(corporateAuth)
     const req = {
-      headers: {authorization: 'Bearer slug_sk_test'},
+      headers: {'x-api-key': 'slug_sk_test'},
       params: {id: 'item-123'},
     } as unknown as Request
     const res = response()
@@ -175,7 +175,7 @@ describe('seller corporate REST API', () => {
   it('rejects an invalid corporate API key', async () => {
     mockCheckApiKey.mockResolvedValue(undefined)
     const req = {
-      headers: {authorization: 'Bearer slug_sk_bad'},
+      headers: {'x-api-key': 'slug_sk_bad'},
       query: {},
     } as unknown as Request
     const res = response()

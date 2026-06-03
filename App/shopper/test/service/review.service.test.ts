@@ -71,4 +71,12 @@ describe('review service', () => {
       'Not signed in',
     );
   });
+
+  it('throws when deleting a review without a session', async () => {
+    vi.mocked(getSessionToken).mockResolvedValueOnce(undefined);
+
+    await expect(
+      deleteReview('00000000-0000-0000-0000-000000000000'),
+    ).rejects.toThrow('Not signed in');
+  });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -61,8 +61,12 @@ async function gql(query: string, variables?: Record<string, unknown>) {
 function StarRating({ rating }: { rating: number }) {
   const stars = Math.round(rating);
   return (
-    <Typography component="span" sx={{ color: '#f59e0b', letterSpacing: '-1px' }}>
-      {'★'.repeat(stars)}{'☆'.repeat(5 - stars)}
+    <Typography
+      component="span"
+      sx={{ color: '#f59e0b', letterSpacing: '-1px' }}
+    >
+      {'★'.repeat(stars)}
+      {'☆'.repeat(5 - stars)}
     </Typography>
   );
 }
@@ -93,7 +97,9 @@ function ItemReviewsRow({
         <TableCell>${Number(item.price).toFixed(2)}</TableCell>
         <TableCell>
           <Chip
-            label={reviews.length === 1 ? '1 review' : `${reviews.length} reviews`}
+            label={
+              reviews.length === 1 ? '1 review' : `${reviews.length} reviews`
+            }
             size="small"
             color={reviews.length > 0 ? 'primary' : 'default'}
             variant={reviews.length > 0 ? 'filled' : 'outlined'}
@@ -105,7 +111,11 @@ function ItemReviewsRow({
           <Collapse in={open} unmountOnExit>
             <Box sx={{ mx: 2, my: 1 }}>
               {reviews.length === 0 ? (
-                <Typography variant="body2" color="text.secondary" sx={{ py: 1 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ py: 1 }}
+                >
                   No reviews for this listing.
                 </Typography>
               ) : (
@@ -123,7 +133,14 @@ function ItemReviewsRow({
                     }}
                   >
                     <Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          mb: 0.5,
+                        }}
+                      >
                         <Typography variant="body2" fontWeight={600}>
                           {review.user.name}
                         </Typography>
@@ -159,7 +176,9 @@ function ItemReviewsRow({
 
 export default function ReviewsPage() {
   const [items, setItems] = useState<AdminItem[]>([]);
-  const [reviewsByItem, setReviewsByItem] = useState<Record<string, AdminReview[]>>({});
+  const [reviewsByItem, setReviewsByItem] = useState<
+    Record<string, AdminReview[]>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -175,44 +194,51 @@ export default function ReviewsPage() {
     );
   }, [items, searchQuery]);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [itemsData, reviewsData] = await Promise.all([
-        gql(`query { adminItems { id name price status createdAt seller { id name } } }`),
-        gql(`query { adminReviews { id itemId itemName content rating createdAt user { id name } } }`),
-      ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [itemsData, reviewsData] = await Promise.all([
+          gql(
+            `query { adminItems { id name price status createdAt seller { id name } } }`,
+          ),
+          gql(
+            `query { adminReviews { id itemId itemName content rating createdAt user { id name } } }`,
+          ),
+        ]);
 
-      const fetchedItems: AdminItem[] = itemsData.adminItems;
-      const fetchedReviews: AdminReview[] = reviewsData.adminReviews;
+        const fetchedItems: AdminItem[] = itemsData.adminItems;
+        const fetchedReviews: AdminReview[] = reviewsData.adminReviews;
 
-      const grouped: Record<string, AdminReview[]> = {};
-      for (const item of fetchedItems) {
-        grouped[item.id] = [];
-      }
-      for (const review of fetchedReviews) {
-        if (grouped[review.itemId]) {
-          grouped[review.itemId].push(review);
+        const grouped: Record<string, AdminReview[]> = {};
+        for (const item of fetchedItems) {
+          grouped[item.id] = [];
         }
+        for (const review of fetchedReviews) {
+          if (grouped[review.itemId]) {
+            grouped[review.itemId].push(review);
+          }
+        }
+
+        setItems(fetchedItems);
+        setReviewsByItem(grouped);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load data');
+      } finally {
+        setLoading(false);
       }
-
-      setItems(fetchedItems);
-      setReviewsByItem(grouped);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
+    };
+    fetchData();
   }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleDeleteReview = async (reviewId: string) => {
     if (!confirm('Delete this review? This cannot be undone.')) return;
     setDeletingId(reviewId);
     try {
-      await gql(`mutation($id: String!) { adminDeleteReview(id: $id) }`, { id: reviewId });
+      await gql(`mutation($id: String!) { adminDeleteReview(id: $id) }`, {
+        id: reviewId,
+      });
       setReviewsByItem((prev) => {
         const updated: Record<string, AdminReview[]> = {};
         for (const [itemId, reviews] of Object.entries(prev)) {
@@ -227,12 +253,20 @@ export default function ReviewsPage() {
     }
   };
 
-  const totalReviews = Object.values(reviewsByItem).reduce((sum, r) => sum + r.length, 0);
+  const totalReviews = Object.values(reviewsByItem).reduce(
+    (sum, r) => sum + r.length,
+    0,
+  );
 
   return (
     <Paper
       elevation={0}
-      sx={{ borderRadius: 2, p: 4, border: '1px solid #e5e7eb', bgcolor: '#fff' }}
+      sx={{
+        borderRadius: 2,
+        p: 4,
+        border: '1px solid #e5e7eb',
+        bgcolor: '#fff',
+      }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
         <RateReviewIcon color="primary" fontSize="large" />
@@ -288,10 +322,18 @@ export default function ReviewsPage() {
             <TableHead>
               <TableRow>
                 <TableCell width={48} />
-                <TableCell><strong>Listing</strong></TableCell>
-                <TableCell><strong>Seller</strong></TableCell>
-                <TableCell><strong>Price</strong></TableCell>
-                <TableCell><strong>Reviews</strong></TableCell>
+                <TableCell>
+                  <strong>Listing</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Seller</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Price</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Reviews</strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

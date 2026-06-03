@@ -10,7 +10,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import type { ShippingAddress, ShippingAddressInput } from '../../address/types';
 import {
@@ -34,28 +34,30 @@ const emptyInput: ShippingAddressInput = {
   country: 'US',
 };
 
-export default function AddressForm({ address, onSaved, onCancel }: Props) {
+function addressToInput(address?: ShippingAddress): ShippingAddressInput {
+  if (!address) {
+    return emptyInput;
+  }
+
+  return {
+    label: address.label,
+    line1: address.line1,
+    line2: address.line2,
+    city: address.city,
+    state: address.state,
+    postal_code: address.postal_code,
+    country: address.country,
+    is_default: address.is_default,
+  };
+}
+
+function AddressFormFields({ address, onSaved, onCancel }: Props) {
   const t = useTranslations('Address');
-  const [input, setInput] = useState<ShippingAddressInput>(emptyInput);
+  const [input, setInput] = useState<ShippingAddressInput>(() =>
+    addressToInput(address),
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (address) {
-      setInput({
-        label: address.label,
-        line1: address.line1,
-        line2: address.line2,
-        city: address.city,
-        state: address.state,
-        postal_code: address.postal_code,
-        country: address.country,
-        is_default: address.is_default,
-      });
-      return;
-    }
-    setInput(emptyInput);
-  }, [address]);
 
   const updateField = <K extends keyof ShippingAddressInput>(
     field: K,
@@ -216,4 +218,8 @@ export default function AddressForm({ address, onSaved, onCancel }: Props) {
       </Stack>
     </Box>
   );
+}
+
+export default function AddressForm(props: Props) {
+  return <AddressFormFields key={props.address?.id ?? 'create'} {...props} />;
 }

@@ -12,6 +12,7 @@ it('renders top bar', async () => {
 it('renders tabs', async () => {
   render(<Dashboard/>)
   expect(await screen.findByText('Listings')).toBeInTheDocument()
+  expect(await screen.findByText('Discounts')).toBeInTheDocument()
 })
 
 it('tab selection changes on click', () => {

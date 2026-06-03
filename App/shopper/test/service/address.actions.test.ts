@@ -1,7 +1,4 @@
-import { SignJWT } from 'jose';
-import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest';
-import type { Server } from 'http';
-import { Pool } from 'pg';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   createAddressAction,
@@ -10,248 +7,274 @@ import {
   setDefaultAddressAction,
   updateAddressAction,
 } from '../../src/app/account/actions';
-import { setLoginCookieStoreForTest } from '../../src/app/buyer/login/cookies';
+import {
+  createAddress,
+  deleteAddress,
+  listAddresses,
+  setDefaultAddress,
+  updateAddress,
+} from '../../src/server/address/service';
+import { check, getSessionToken } from '../../src/server/auth/service';
 
-const memberId = '7b355067-1dee-4b9a-a87a-fa745332ecf8';
+vi.mock('../../src/server/address/service', () => ({
+  listAddresses: vi.fn(),
+  createAddress: vi.fn(),
+  updateAddress: vi.fn(),
+  deleteAddress: vi.fn(),
+  setDefaultAddress: vi.fn(),
+}));
 
-let server: Server | undefined;
-let pool: Pool | undefined;
-let sessionToken: string;
-let dbReady = false;
+vi.mock('../../src/server/auth/service', () => ({
+  check: vi.fn(),
+  getSessionToken: vi.fn(),
+}));
 
-beforeAll(async () => {
-  process.env.AUTH_SECRET = 'test-secret';
-  process.env.ADMIN_DATABASE_URL =
-    process.env.LOGIN_DATABASE_URL ??
-    process.env.ADMIN_DATABASE_URL ??
-    'postgres://postgres:postgres@localhost:4005/account';
+const user = {
+  id: '7b355067-1dee-4b9a-a87a-fa745332ecf8',
+  email: 'buyer@example.com',
+  name: 'Buyer',
+};
 
-  pool = new Pool({ connectionString: process.env.ADMIN_DATABASE_URL });
-  try {
-    await pool.query('SELECT 1');
-  } catch {
-    return;
-  }
+const address = {
+  id: '11111111-1111-4111-8111-111111111111',
+  member: user.id,
+  label: 'Home',
+  line1: '123 Main St',
+  city: 'Santa Cruz',
+  state: 'CA',
+  postal_code: '95060',
+  country: 'US',
+  is_default: true,
+  created_at: '2026-05-17T00:00:00.000Z',
+  updated_at: '2026-05-17T00:00:00.000Z',
+};
 
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS member (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      email TEXT NOT NULL UNIQUE,
-      google_id TEXT UNIQUE,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-    CREATE TABLE IF NOT EXISTS shipping_address (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      member UUID NOT NULL REFERENCES member(id) ON DELETE CASCADE,
-      data JSONB NOT NULL DEFAULT '{}'::jsonb
-    );
-    CREATE UNIQUE INDEX IF NOT EXISTS shipping_address_one_default_per_member
-      ON shipping_address (member)
-      WHERE (data->>'is_default')::boolean IS TRUE;
-  `);
+const validInput = {
+  line1: '123 Main St',
+  city: 'Santa Cruz',
+  state: 'CA',
+  postal_code: '95060',
+  country: 'US',
+};
 
-  const { app } = await import('../../../../Service/Login/app');
-  await new Promise<void>((resolve) => {
-    server = app.listen(0, resolve);
+function signIn() {
+  vi.mocked(getSessionToken).mockResolvedValue('session-token');
+  vi.mocked(check).mockResolvedValue(user);
+}
+
+function signOut() {
+  vi.mocked(getSessionToken).mockResolvedValue(undefined);
+}
+
+describe('account address actions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    signIn();
+    vi.mocked(listAddresses).mockResolvedValue([address]);
+    vi.mocked(createAddress).mockResolvedValue(address);
+    vi.mocked(updateAddress).mockResolvedValue(address);
+    vi.mocked(deleteAddress).mockResolvedValue(undefined);
+    vi.mocked(setDefaultAddress).mockResolvedValue(address);
   });
 
-  const address = server.address();
-  if (!address || typeof address === 'string') {
-    throw new Error('Login service test server did not start');
-  }
+  it('lists addresses for a signed-in user', async () => {
+    const result = await listAddressesAction();
 
-  process.env.LOGIN_SERVICE_URL = `http://127.0.0.1:${address.port}/api/v0`;
-  sessionToken = await new SignJWT({
-    id: memberId,
-    email: 'buyer@example.com',
-    name: 'Buyer',
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setExpirationTime('2h')
-    .sign(new TextEncoder().encode('test-secret'));
-  dbReady = true;
-});
+    expect(result).toEqual({ success: true, data: [address] });
+    expect(listAddresses).toHaveBeenCalledWith('session-token');
+  });
 
-beforeEach(async () => {
-  if (!dbReady || !pool) {
-    return;
-  }
-  await pool.query('TRUNCATE shipping_address, member RESTART IDENTITY CASCADE');
-  await pool.query(
-    `INSERT INTO member (id, email, google_id)
-     VALUES ($1, $2, $3)`,
-    [memberId, 'buyer@example.com', 'google-buyer'],
-  );
+  it('returns not signed in for list when there is no session', async () => {
+    signOut();
 
-  setLoginCookieStoreForTest(async () => ({
-    get: (name: string) =>
-      name === 'session' ? { value: sessionToken } : undefined,
-    set: vi.fn(),
-    delete: vi.fn(),
-  }));
-});
+    const result = await listAddressesAction();
 
-afterAll(async () => {
-  setLoginCookieStoreForTest(undefined);
-  if (server) {
-    await new Promise<void>((resolve, reject) => {
-      server.close((error) => (error ? reject(error) : resolve()));
+    expect(result).toEqual({ success: false, error: 'Not signed in' });
+    expect(listAddresses).not.toHaveBeenCalled();
+  });
+
+  it('returns service error message when list throws an Error', async () => {
+    vi.mocked(listAddresses).mockRejectedValue(new Error('Database offline'));
+
+    const result = await listAddressesAction();
+
+    expect(result).toEqual({ success: false, error: 'Database offline' });
+  });
+
+  it('returns generic list error when list throws a non-Error', async () => {
+    vi.mocked(listAddresses).mockRejectedValue('offline');
+
+    const result = await listAddressesAction();
+
+    expect(result).toEqual({ success: false, error: 'Unable to load addresses' });
+  });
+
+  it('creates an address for a signed-in user', async () => {
+    const result = await createAddressAction(validInput);
+
+    expect(result).toEqual({ success: true, data: address });
+    expect(createAddress).toHaveBeenCalledWith('session-token', validInput);
+  });
+
+  it('returns not signed in for create when there is no session', async () => {
+    signOut();
+
+    const result = await createAddressAction(validInput);
+
+    expect(result).toEqual({ success: false, error: 'Not signed in' });
+  });
+
+  it('returns validation error for invalid create input', async () => {
+    const result = await createAddressAction({ ...validInput, line1: '' });
+
+    expect(result.success).toBe(false);
+    expect(createAddress).not.toHaveBeenCalled();
+  });
+
+  it('returns generic create error when create throws a non-Error', async () => {
+    vi.mocked(createAddress).mockRejectedValue('nope');
+
+    const result = await createAddressAction(validInput);
+
+    expect(result).toEqual({ success: false, error: 'Unable to save address' });
+  });
+
+  it('returns service error message when create throws an Error', async () => {
+    vi.mocked(createAddress).mockRejectedValue(new Error('Create failed'));
+
+    const result = await createAddressAction(validInput);
+
+    expect(result).toEqual({ success: false, error: 'Create failed' });
+  });
+
+  it('updates an address for a signed-in user', async () => {
+    const result = await updateAddressAction(address.id, {
+      ...validInput,
+      label: 'Work',
     });
-  }
-  if (pool) {
-    await pool.end();
-  }
-});
 
-it.skipIf(!dbReady)('creates, lists, sets default, and deletes addresses', async () => {
-  const created = await createAddressAction({
-    label: 'Home',
-    line1: '123 Main St',
-    city: 'Santa Cruz',
-    state: 'CA',
-    postal_code: '95060',
-    country: 'US',
+    expect(result).toEqual({ success: true, data: address });
+    expect(updateAddress).toHaveBeenCalledWith(
+      'session-token',
+      address.id,
+      expect.objectContaining({ label: 'Work' }),
+    );
   });
 
-  expect(created.success).toBe(true);
-  expect(created.data?.label).toBe('Home');
-  expect(created.data?.is_default).toBe(true);
+  it('returns not signed in for update when there is no session', async () => {
+    signOut();
 
-  const second = await createAddressAction({
-    line1: '456 Oak Ave',
-    city: 'Santa Cruz',
-    state: 'CA',
-    postal_code: '95064',
-    country: 'US',
-    is_default: false,
+    const result = await updateAddressAction(address.id, validInput);
+
+    expect(result).toEqual({ success: false, error: 'Not signed in' });
   });
 
-  expect(second.success).toBe(true);
+  it('returns validation error for invalid update id', async () => {
+    const result = await updateAddressAction('bad-id', validInput);
 
-  const listed = await listAddressesAction();
-  expect(listed.success).toBe(true);
-  expect(listed.data).toHaveLength(2);
-
-  const defaultResult = await setDefaultAddressAction(second.data!.id);
-  expect(defaultResult.success).toBe(true);
-  expect(defaultResult.data?.is_default).toBe(true);
-
-  const deleted = await deleteAddressAction(created.data!.id);
-  expect(deleted.success).toBe(true);
-
-  const afterDelete = await listAddressesAction();
-  expect(afterDelete.data).toHaveLength(1);
-  expect(afterDelete.data?.[0]?.is_default).toBe(true);
-});
-
-it('returns not signed in when there is no session cookie', async () => {
-  // Does not require Postgres.
-  setLoginCookieStoreForTest(async () => ({
-    get: () => undefined,
-    set: vi.fn(),
-    delete: vi.fn(),
-  }));
-
-  const result = await listAddressesAction();
-  expect(result.success).toBe(false);
-  expect(result.error).toBe('Not signed in');
-});
-
-it.skipIf(!dbReady)('returns validation error when create input is invalid', async () => {
-  const result = await createAddressAction({
-    line1: '',
-    city: 'Santa Cruz',
-    state: 'CA',
-    postal_code: '95060',
-    country: 'US',
+    expect(result.success).toBe(false);
+    expect(updateAddress).not.toHaveBeenCalled();
   });
 
-  expect(result.success).toBe(false);
-  expect(result.error).toBe('Address line 1 is required.');
-});
+  it('returns validation error for invalid update payload', async () => {
+    const result = await updateAddressAction(address.id, { ...validInput, city: '' });
 
-it.skipIf(!dbReady)('returns validation error when update address id is invalid', async () => {
-  const result = await updateAddressAction('not-a-uuid', {
-    line1: '123 Main St',
-    city: 'Santa Cruz',
-    state: 'CA',
-    postal_code: '95060',
-    country: 'US',
+    expect(result.success).toBe(false);
+    expect(updateAddress).not.toHaveBeenCalled();
   });
 
-  expect(result.success).toBe(false);
-  expect(result.error).toContain('Invalid address id');
-});
+  it('returns generic update error when update throws a non-Error', async () => {
+    vi.mocked(updateAddress).mockRejectedValue('nope');
 
-it.skipIf(!dbReady)('returns validation error when update payload is invalid', async () => {
-  const created = await createAddressAction({
-    line1: '123 Main St',
-    city: 'Santa Cruz',
-    state: 'CA',
-    postal_code: '95060',
-    country: 'US',
+    const result = await updateAddressAction(address.id, validInput);
+
+    expect(result).toEqual({ success: false, error: 'Unable to save address' });
   });
 
-  expect(created.success).toBe(true);
+  it('returns service error message when update throws an Error', async () => {
+    vi.mocked(updateAddress).mockRejectedValue(new Error('Update failed'));
 
-  const result = await updateAddressAction(created.data!.id, {
-    line1: '456 Oak Ave',
-    city: '',
-    state: 'CA',
-    postal_code: '95064',
-    country: 'US',
+    const result = await updateAddressAction(address.id, validInput);
+
+    expect(result).toEqual({ success: false, error: 'Update failed' });
   });
 
-  expect(result.success).toBe(false);
-  expect(result.error).toBe('City is required.');
-});
+  it('deletes an address for a signed-in user', async () => {
+    const result = await deleteAddressAction(address.id);
 
-it.skipIf(!dbReady)('updates an existing address', async () => {
-  const created = await createAddressAction({
-    line1: '123 Main St',
-    city: 'Santa Cruz',
-    state: 'CA',
-    postal_code: '95060',
-    country: 'US',
+    expect(result).toEqual({ success: true });
+    expect(deleteAddress).toHaveBeenCalledWith('session-token', address.id);
   });
 
-  expect(created.success).toBe(true);
+  it('returns not signed in for delete when there is no session', async () => {
+    signOut();
 
-  const result = await updateAddressAction(created.data!.id, {
-    label: 'Work',
-    line1: '456 Oak Ave',
-    city: 'Santa Cruz',
-    state: 'CA',
-    postal_code: '95064',
-    country: 'US',
+    const result = await deleteAddressAction(address.id);
+
+    expect(result).toEqual({ success: false, error: 'Not signed in' });
   });
 
-  expect(result.success).toBe(true);
-  expect(result.data?.label).toBe('Work');
-  expect(result.data?.line1).toBe('456 Oak Ave');
-});
+  it('returns validation error for invalid delete id', async () => {
+    const result = await deleteAddressAction('bad-id');
 
-it.skipIf(!dbReady)('returns validation error when delete address id is invalid', async () => {
-  const result = await deleteAddressAction('not-a-uuid');
+    expect(result.success).toBe(false);
+    expect(deleteAddress).not.toHaveBeenCalled();
+  });
 
-  expect(result.success).toBe(false);
-  expect(result.error).toContain('Invalid address id');
-});
+  it('returns generic delete error when delete throws a non-Error', async () => {
+    vi.mocked(deleteAddress).mockRejectedValue('nope');
 
-it.skipIf(!dbReady)('returns validation error when default address id is invalid', async () => {
-  const result = await setDefaultAddressAction('not-a-uuid');
+    const result = await deleteAddressAction(address.id);
 
-  expect(result.success).toBe(false);
-  expect(result.error).toContain('Invalid address id');
-});
+    expect(result).toEqual({ success: false, error: 'Unable to delete address' });
+  });
 
-it.skipIf(!dbReady)('returns service error when login service is unavailable', async () => {
-  const originalUrl = process.env.LOGIN_SERVICE_URL;
-  process.env.LOGIN_SERVICE_URL = 'http://127.0.0.1:1/api/v0';
+  it('returns service error message when delete throws an Error', async () => {
+    vi.mocked(deleteAddress).mockRejectedValue(new Error('Delete failed'));
 
-  const result = await listAddressesAction();
+    const result = await deleteAddressAction(address.id);
 
-  expect(result.success).toBe(false);
-  expect(result.error).toContain('fetch failed');
-  process.env.LOGIN_SERVICE_URL = originalUrl;
+    expect(result).toEqual({ success: false, error: 'Delete failed' });
+  });
+
+  it('sets the default address for a signed-in user', async () => {
+    const result = await setDefaultAddressAction(address.id);
+
+    expect(result).toEqual({ success: true, data: address });
+    expect(setDefaultAddress).toHaveBeenCalledWith('session-token', address.id);
+  });
+
+  it('returns not signed in for set default when there is no session', async () => {
+    signOut();
+
+    const result = await setDefaultAddressAction(address.id);
+
+    expect(result).toEqual({ success: false, error: 'Not signed in' });
+  });
+
+  it('returns validation error for invalid default id', async () => {
+    const result = await setDefaultAddressAction('bad-id');
+
+    expect(result.success).toBe(false);
+    expect(setDefaultAddress).not.toHaveBeenCalled();
+  });
+
+  it('returns generic default error when setDefault throws a non-Error', async () => {
+    vi.mocked(setDefaultAddress).mockRejectedValue('nope');
+
+    const result = await setDefaultAddressAction(address.id);
+
+    expect(result).toEqual({
+      success: false,
+      error: 'Unable to set default address',
+    });
+  });
+
+  it('returns service error message when setDefault throws an Error', async () => {
+    vi.mocked(setDefaultAddress).mockRejectedValue(new Error('Default failed'));
+
+    const result = await setDefaultAddressAction(address.id);
+
+    expect(result).toEqual({ success: false, error: 'Default failed' });
+  });
 });

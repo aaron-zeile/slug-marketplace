@@ -78,6 +78,33 @@ function formatPriceParts(price: number, locale: string) {
   return { dollars, decimal, cents, ariaLabel };
 }
 
+function formatCurrency(price: number, locale: string) {
+  return new Intl.NumberFormat(localeTagForNumbers(locale), {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price);
+}
+
+function formatSaleRemaining(milliseconds: number) {
+  if (milliseconds <= 0) {
+    return 'Sale ended';
+  }
+
+  const totalSeconds = Math.ceil(milliseconds / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (days > 0) {
+    return `${days}d ${hours}h ${minutes}m`;
+  }
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+  return `${minutes}m ${seconds}s`;
+}
+
 const itemStatusDisplay = {
   active: {
     label: 'In stock',
@@ -100,6 +127,7 @@ const ItemDisplay = ({ id }: Props) => {
   const locale = useLocale();
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState(() => Date.now());
 
   const [mainImage, setMainImage] = useState<string>('');
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -141,6 +169,7 @@ const ItemDisplay = ({ id }: Props) => {
           count: reviewSummaryPayload.count,
         }
       : null;
+  const activeDiscountEndsAt = item?.activeDiscount?.ends_at;
 
   useEffect(() => {
     fetchItemAction(id).then((result) => {
@@ -154,6 +183,18 @@ const ItemDisplay = ({ id }: Props) => {
       setLoading(false);
     });
   }, [id, router]);
+
+  useEffect(() => {
+    if (!activeDiscountEndsAt) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [activeDiscountEndsAt]);
 
   if (loading || !item) {
     return (
@@ -221,6 +262,11 @@ const ItemDisplay = ({ id }: Props) => {
     setAddingToWishlist(false);
   };
 
+  const activeDiscount = item.activeDiscount ?? null;
+  const saleRemainingMs = activeDiscount
+    ? new Date(activeDiscount.ends_at).getTime() - now
+    : 0;
+  const hasActiveSale = activeDiscount !== null && saleRemainingMs > 0;
   const { dollars: priceDollars, decimal: priceDecimal, cents: priceCents, ariaLabel: priceAriaLabel } =
     formatPriceParts(item.price, locale);
   const displayStatus =
@@ -501,6 +547,59 @@ const ItemDisplay = ({ id }: Props) => {
                       {priceDecimal}{priceCents}
                     </Typography>
                   </Box>
+                  {hasActiveSale ? (
+                    <Box
+                      aria-label={`${activeDiscount.discountPercent}% off sale ends in ${formatSaleRemaining(saleRemainingMs)}`}
+                      sx={{
+                        border: 1,
+                        borderColor: 'error.light',
+                        borderRadius: 2,
+                        bgcolor: 'error.50',
+                        color: 'error.dark',
+                        display: 'grid',
+                        gap: 0.5,
+                        px: 1.5,
+                        py: 1,
+                        minWidth: { xs: '100%', sm: 220 },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          flexWrap: 'wrap',
+                          gap: 1,
+                        }}
+                      >
+                        <Typography
+                          component="span"
+                          sx={{ fontWeight: 800, fontSize: '0.95rem' }}
+                        >
+                          Sale {activeDiscount.discountPercent}% off
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{
+                            color: 'text.secondary',
+                            fontSize: '0.85rem',
+                            textDecoration: 'line-through',
+                          }}
+                        >
+                          {formatCurrency(activeDiscount.originalPrice, locale)}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        role="timer"
+                        sx={{
+                          color: 'error.dark',
+                          fontSize: '0.85rem',
+                          fontWeight: 700,
+                        }}
+                      >
+                        Ends in {formatSaleRemaining(saleRemainingMs)}
+                      </Typography>
+                    </Box>
+                  ) : null}
                   <Box
                     sx={{
                       display: 'flex',

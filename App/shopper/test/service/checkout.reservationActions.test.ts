@@ -40,6 +40,7 @@ import {
 } from '../../src/checkout/reservation/service';
 import { clearCart } from '../../src/cart/service';
 import { check, getSessionToken } from '../../src/server/auth/service';
+import type { CartItem } from '../../src/cart';
 import {
   confirmCheckoutReservationAction,
   expireCheckoutAction,
@@ -88,7 +89,7 @@ describe('checkout reservation server actions', () => {
       expiresAt: '2026-05-11T12:05:00.000Z',
     });
 
-    const result = await reserveCheckoutAction(cartItems as any);
+    const result = await reserveCheckoutAction(cartItems as CartItem[]);
 
     expect(result.success).toBe(true);
     expect(reserveCheckout).toHaveBeenCalledWith(user.id, [
@@ -104,7 +105,7 @@ describe('checkout reservation server actions', () => {
   it('reserveCheckoutAction returns not signed in for guests', async () => {
     vi.mocked(getSessionToken).mockResolvedValueOnce(undefined);
 
-    const result = await reserveCheckoutAction(cartItems as any);
+    const result = await reserveCheckoutAction(cartItems as CartItem[]);
 
     expect(result).toEqual({ success: false, error: 'Not signed in' });
     expect(reserveCheckout).not.toHaveBeenCalled();
@@ -113,7 +114,7 @@ describe('checkout reservation server actions', () => {
   it('reserveCheckoutAction returns fallback error for non-Error throw', async () => {
     vi.mocked(reserveCheckout).mockRejectedValueOnce('boom');
 
-    const result = await reserveCheckoutAction(cartItems as any);
+    const result = await reserveCheckoutAction(cartItems as CartItem[]);
 
     expect(result).toEqual({ success: false, error: 'Unable to reserve items' });
   });
@@ -121,7 +122,7 @@ describe('checkout reservation server actions', () => {
   it('reserveCheckoutAction returns Error message when Error is thrown', async () => {
     vi.mocked(reserveCheckout).mockRejectedValueOnce(new Error('reserve failed'));
 
-    const result = await reserveCheckoutAction(cartItems as any);
+    const result = await reserveCheckoutAction(cartItems as CartItem[]);
 
     expect(result).toEqual({ success: false, error: 'reserve failed' });
   });

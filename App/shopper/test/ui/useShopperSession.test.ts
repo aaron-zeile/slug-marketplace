@@ -2,7 +2,10 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, expect, it, vi } from 'vitest';
 
 import { checkLogin } from '../../src/app/buyer/login/actions';
-import { useShopperSession } from '../../src/app/buyer/topbar/useShopperSession';
+import {
+  readStoredName,
+  useShopperSession,
+} from '../../src/app/buyer/topbar/useShopperSession';
 
 vi.mock('../../src/app/buyer/login/actions', () => ({
   checkLogin: vi.fn(),
@@ -58,6 +61,27 @@ it('keeps authenticated state when checkLogin returns a user', async () => {
   await waitFor(() => {
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.name).toBe('Riley');
+  });
+});
+
+it('returns null from readStoredName when window is unavailable', () => {
+  const originalWindow = globalThis.window;
+  vi.stubGlobal('window', undefined);
+
+  expect(readStoredName()).toBeNull();
+
+  vi.stubGlobal('window', originalWindow);
+});
+
+it('treats checkLogin failures as logged out', async () => {
+  window.sessionStorage.setItem('name', 'Riley');
+  vi.mocked(checkLogin).mockRejectedValue(new Error('network down'));
+
+  const { result } = renderHook(() => useShopperSession());
+
+  await waitFor(() => {
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.name).toBeNull();
   });
 });
 

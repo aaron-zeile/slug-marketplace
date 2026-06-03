@@ -1,11 +1,11 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { checkLogin, type CheckLoginResult } from '../login/actions';
 
-function readStoredName() {
+export function readStoredName() {
   if (typeof window === 'undefined') {
     return null;
   }
@@ -16,16 +16,12 @@ function readStoredName() {
 export function useShopperSession() {
   const pathname = usePathname();
   const sessionGeneration = useRef(0);
-  const [name, setName] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useLayoutEffect(() => {
-    const storedName = readStoredName();
-    if (storedName) {
-      setIsAuthenticated(true);
-      setName(storedName);
-    }
-  }, [pathname]);
+  const [name, setName] = useState<string | null>(() =>
+    typeof window === 'undefined' ? null : readStoredName(),
+  );
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => typeof window !== 'undefined' && Boolean(readStoredName()),
+  );
 
   useEffect(() => {
     const generation = sessionGeneration.current;

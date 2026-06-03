@@ -7,8 +7,10 @@
     "listings": "Listings",
     "sales": "Sales",
     "analytics": "Analytics",
+    "discounts": "Discounts",
     "createListing": "Create Listing",
     "contactAdmin": "Contact Admin",
+    "apiKeys": "API Keys",
     "ariaLabel": "Seller dashboard tabs"
   },
   "Listings": {
@@ -72,6 +74,25 @@
     "submit": "Create Listing",
     "submitting": "Creating..."
   },
+  "Discounts": {
+    "title": "Discount Hub",
+    "listingLabel": "Listing",
+    "percentLabel": "Discount %",
+    "percentError": "Discount must be between 0 and 100.",
+    "durationLabel": "Duration in days",
+    "durationError": "Duration must be at least 1 day.",
+    "submit": "Create Discount",
+    "submitting": "Creating...",
+    "createdSuccess": "Discount created for {name}.",
+    "activeTitle": "Discounts for selected listing",
+    "tableLabel": "Listing discounts",
+    "percentColumn": "Discount",
+    "durationColumn": "Duration",
+    "createdColumn": "Created",
+    "durationValue": "{count, plural, one {# day} other {# days}}",
+    "empty": "No discounts for this listing.",
+    "loading": "Loading discounts..."
+  },
   "Error": {
     "closeAria": "Close error message"
   },
@@ -91,5 +112,23 @@
     "submit": "Send Message",
     "submitting": "Sending...",
     "success": "Your message has been sent to the admin."
+  },
+  "ApiKeys": {
+    "title": "API Keys",
+    "oneTimeNotice": "The full key will only be shown once after creation.",
+    "nameLabel": "Key name",
+    "create": "Create Key",
+    "creating": "Creating...",
+    "created": "{name} was created.",
+    "copy": "Copy API key",
+    "copied": "Copied",
+    "tableLabel": "Seller API keys",
+    "nameColumn": "Name",
+    "createdColumn": "Created",
+    "actionsColumn": "Actions",
+    "revoke": "Revoke",
+    "revokeKey": "Revoke {name}",
+    "empty": "No API keys yet.",
+    "loading": "Loading API keys..."
   }
 }

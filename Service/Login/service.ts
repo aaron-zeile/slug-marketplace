@@ -4,6 +4,7 @@ import { createHash, randomBytes } from 'node:crypto';
 
 import type {
   Authenticated,
+  CorporateApiKey,
   CorporateApiKeyCreated,
   CorporateApiKeyRequest,
   Credentials,
@@ -24,6 +25,7 @@ interface CorporateApiKeyRow {
   name: string;
   key_hash: string;
   created_at: Date | string;
+  revoked_at?: Date | string | null;
   seller_id: string;
   email: string;
 }
@@ -96,6 +98,22 @@ function createSessionToken(user: SessionUser): string {
   return jwt.sign(user, getSessionSecret(), {
     expiresIn: SESSION_DURATION,
   });
+}
+
+function serializeApiKey(row: CorporateApiKeyRow): CorporateApiKey {
+  return {
+    id: row.id,
+    name: row.name,
+    created_at:
+      row.created_at instanceof Date
+        ? row.created_at.toISOString()
+        : row.created_at,
+    revoked_at: row.revoked_at
+      ? row.revoked_at instanceof Date
+        ? row.revoked_at.toISOString()
+        : row.revoked_at
+      : undefined,
+  };
 }
 
 export class AuthService {
@@ -265,5 +283,35 @@ export class AuthService {
       ...user,
       token: createSessionToken(user),
     };
+  }
+
+  public async listCorporateApiKeys(
+    authorization: string | undefined,
+  ): Promise<CorporateApiKey[]> {
+    const user = await this.check(authorization, ['member']);
+    const result = await getDb().query<CorporateApiKeyRow>(
+      `SELECT id, name, key_hash, created_at, revoked_at, seller_id, '' AS email
+       FROM corporate_api_key
+       WHERE seller_id = $1
+         AND revoked_at IS NULL
+       ORDER BY created_at DESC`,
+      [user.id],
+    );
+
+    return result.rows.map(serializeApiKey);
+  }
+
+  public async revokeCorporateApiKey(
+    authorization: string | undefined,
+    id: string,
+  ): Promise<void> {
+    const user = await this.check(authorization, ['member']);
+    await getDb().query(
+      `UPDATE corporate_api_key
+       SET revoked_at = COALESCE(revoked_at, NOW())
+       WHERE id = $1
+         AND seller_id = $2`,
+      [id, user.id],
+    );
   }
 }

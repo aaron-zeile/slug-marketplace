@@ -1,60 +1,54 @@
-import React from 'react'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import { useTranslations } from 'next-intl'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import AuthGuard from './auth/AuthGuard'
-import { ErrorProvider } from './error/Provider'
-import TopBar from './dashboard/Appbar'
-import SellerListings from './dashboard/Listings'
-import Sales from './dashboard/Sales'
-import CreateListing from './dashboard/CreateListing'
-import ContactAdmin from './dashboard/ContactAdmin'
-import { TabProvider } from './dashboard/Provider'
-import { useDashboard } from './dashboard/useDashboard'
-import AppProviders from './providers/AppProviders'
+import AuthGuard from './auth/AuthGuard';
+import { ErrorProvider } from './error/Provider';
+import TopBar from './dashboard/Appbar';
+import SellerListings from './dashboard/Listings';
+import Sales from './dashboard/Sales';
+import CreateListing from './dashboard/CreateListing';
+import Discounts from './dashboard/Discounts';
+import ContactAdmin from './dashboard/ContactAdmin';
+import ApiKeys from './dashboard/ApiKeys';
+import { TabProvider } from './dashboard/Provider';
+import { useDashboard } from './dashboard/useDashboard';
+import AppProviders from './providers/AppProviders';
 
-import Analytics from './dashboard/analytics/Analytics'
-
-function TabPlaceholder({ messageKey }: { messageKey: 'analytics' }) {
-  const t = useTranslations('Placeholders')
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography color="text.secondary">{t(messageKey)}</Typography>
-    </Box>
-  )
-}
+import Analytics from './dashboard/analytics/Analytics';
 
 export function AppContent() {
-  const { tabValue } = useDashboard()
+  const { tabValue } = useDashboard();
 
-  let content = null
+  let content = null;
   if (tabValue === 0) {
-    content = <SellerListings />
+    content = <SellerListings />;
   }
   if (tabValue === 1) {
-    content = <Sales />
+    content = <Sales />;
   }
   if (tabValue === 2) {
-    content = <Analytics/>
+    content = <Analytics />;
   }
   if (tabValue === 3) {
-    content = <CreateListing />
+    content = <Discounts />;
   }
   if (tabValue === 4) {
-    content = <ContactAdmin />
+    content = <CreateListing />;
+  }
+  if (tabValue === 5) {
+    content = <ContactAdmin />;
+  }
+  if (tabValue === 6) {
+    content = <ApiKeys />;
   }
   return (
     <>
       <TopBar />
       {content}
     </>
-  )
+  );
 }
 
-const routerBasename =
-  import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
 
 export function App() {
   return (

@@ -72,6 +72,8 @@ export default function ReportModal({ open, onClose, type, targetId, targetName 
 
   const label = type === 'item' ? 'listing' : 'review';
 
+  const handleSnackbarClose = () => setSnackbar((s) => ({ ...s, open: false }));
+
   return (
     <>
       <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
@@ -125,13 +127,13 @@ export default function ReportModal({ open, onClose, type, targetId, targetName 
       <Snackbar
         open={snackbar.open}
         autoHideDuration={5000}
-        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           severity={snackbar.success ? 'success' : 'error'}
           variant="filled"
-          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+          onClose={handleSnackbarClose}
         >
           {snackbar.message}
         </Alert>

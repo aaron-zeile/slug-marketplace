@@ -48,6 +48,42 @@ describe('App', () => {
           }
         }
 
+        if (url.includes('/seller/api/orders')) {
+          return {
+            ok: true,
+            json: async () => ({
+              orders: [],
+            }),
+          }
+        }
+
+        if (url.includes('/seller/api/analytics/average-rating')) {
+          return {
+            ok: true,
+            json: async () => ({
+              averageRating: 4.5,
+            }),
+          }
+        }
+
+        if (url.includes('/seller/api/analytics/star-distribution')) {
+          return {
+            ok: true,
+            json: async () => ({
+              ratings: [1, 2, 3, 4, 5],
+            }),
+          }
+        }
+
+        if (url.includes('/seller/api/keys')) {
+          return {
+            ok: true,
+            json: async () => ({
+              keys: [],
+            }),
+          }
+        }
+
         return {
           ok: true,
           json: async () => listingsResponse,
@@ -87,15 +123,15 @@ describe('App', () => {
       }
     })
     const afterSalesClick = {
-      salesVisible: screen.queryByText('Sales — coming soon') !== null,
+      salesVisible: screen.queryByText('No orders yet') !== null,
       listingVisible: screen.queryByText('USB Hub') !== null,
     }
 
-    fireEvent.click(screen.getByRole('tab', {name: 'analytics'}))
-    await screen.findByText('Analytics — coming soon')
+    fireEvent.click(screen.getByRole('tab', {name: 'Analytics'}))
+    await screen.findByText('Seller Rating')
     const afteranalyticsClick = {
-      analyticsVisible: screen.queryByText('Analytics — coming soon') !== null,
-      salesVisible: screen.queryByText('Sales — coming soon') !== null,
+      analyticsVisible: screen.queryByText('Seller Rating') !== null,
+      salesVisible: screen.queryByText('No orders yet') !== null,
     }
 
     fireEvent.click(screen.getByRole('tab', {name: 'Create Listing'}))
@@ -106,11 +142,11 @@ describe('App', () => {
       afterCreateListingClick: {
         createHeadingVisible:
           screen.queryByRole('heading', {name: 'Create Listing'}) !== null,
-        analyticsVisible: screen.queryByText('Analytics — coming soon') !== null,
+        analyticsVisible: screen.queryByText('Seller Rating') !== null,
       },
     }).toEqual({
       afterSalesClick: {
-        salesVisible: false,
+        salesVisible: true,
         listingVisible: false,
       },
       afteranalyticsClick: {
@@ -122,5 +158,8 @@ describe('App', () => {
         analyticsVisible: false,
       },
     })
+
+    fireEvent.click(screen.getByRole('tab', {name: 'API Keys'}))
+    await screen.findByRole('heading', {name: 'API Keys'})
   }, 15000)
 })

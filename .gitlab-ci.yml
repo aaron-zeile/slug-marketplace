@@ -1,0 +1,97 @@
+image: node:lts
+
+services:
+  - name: postgres:16-alpine
+    alias: postgres
+
+variables:
+  PIPELINE: true
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: '5432'
+  POSTGRES_DB: admin
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST_AUTH_METHOD: trust
+  AUTH_SECRET: test-secret
+  SESSION_SECRET: test-secret2
+  ADMIN_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/admin
+  ITEMS_SERVICE_URL: http://localhost:4500/graphql
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: test-client-id
+  LOGIN_SERVICE_URL: http://localhost:4010/api/v0
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - .npm/
+
+stages:
+  - quality
+  - build
+  - test
+
+.default_before_script: &default_before_script
+  - npm config set cache .npm
+  - npm run cis
+
+.postgres_test_before_script: &postgres_test_before_script
+  - npm config set cache .npm
+  - npm run cis
+  - apt-get update -qq && apt-get install -y -qq postgresql-client
+  - bash scripts/ci-init-postgres.sh
+
+before_script: *default_before_script
+
+quality:
+  stage: quality
+  script:
+    - npm run lint
+
+build:
+  stage: build
+  script:
+    - npm run build
+
+test:admin:
+  stage: test
+  script:
+    - npm run test-admin
+
+test:seller:
+  stage: test
+  script:
+    - npm run test-seller
+
+test:shopper:
+  stage: test
+  script:
+    - npm run test-shopper
+
+test:items:
+  stage: test
+  before_script: *postgres_test_before_script
+  variables:
+    POSTGRES_DB: items
+  script:
+    - npm run test-items
+
+test:login:
+  stage: test
+  script:
+    - npm run test-login
+
+test:cart:
+  stage: test
+  before_script: *postgres_test_before_script
+  variables:
+    POSTGRES_DB: cart
+    CART_POSTGRES_DB: cart
+  script:
+    - npm run test-cart
+
+test:order:
+  stage: test
+  before_script: *postgres_test_before_script
+  variables:
+    ORDER_POSTGRES_DB: orders
+  script:
+    - npm run test-order

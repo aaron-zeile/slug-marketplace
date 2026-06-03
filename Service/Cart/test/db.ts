@@ -5,11 +5,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  database: process.env.POSTGRES_DB,
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
+  host: process.env.POSTGRES_HOST ?? 'localhost',
+  port: parseInt(process.env.POSTGRES_PORT ?? '5434', 10),
+  database: process.env.POSTGRES_DB ?? 'cart',
+  user: process.env.POSTGRES_USER ?? 'postgres',
+  password: process.env.POSTGRES_PASSWORD ?? 'postgres',
 });
 
 const run = async (file: string) => {

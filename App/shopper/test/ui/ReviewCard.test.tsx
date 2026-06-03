@@ -1,14 +1,17 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ReviewCard from '../../src/app/items/[id]/ReviewCard';
 import { Review } from '../../src/item/review';
+import {
+  deleteItemReviewAction,
+  submitReportAction,
+} from '../../src/app/items/[id]/actions';
 
-vi.mock('../../src/item/review/service', () => ({
-  deleteReview: vi.fn(),
+vi.mock('../../src/app/items/[id]/actions', () => ({
+  deleteItemReviewAction: vi.fn(),
+  submitReportAction: vi.fn(),
 }));
-
-import { deleteReview } from '../../src/item/review/service';
 
 const review: Review = {
   id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
@@ -20,6 +23,8 @@ const review: Review = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(deleteItemReviewAction).mockResolvedValue({ success: true });
+  vi.mocked(submitReportAction).mockResolvedValue({ success: true });
 });
 
 describe('ReviewCard', () => {
@@ -42,7 +47,6 @@ describe('ReviewCard', () => {
   it('calls onDeleted after a successful delete', async () => {
     const user = userEvent.setup();
     const onDeleted = vi.fn();
-    vi.mocked(deleteReview).mockResolvedValue(undefined);
 
     render(
       <ReviewCard review={review} canDelete={true} onDeleted={onDeleted} />,
@@ -51,7 +55,7 @@ describe('ReviewCard', () => {
     await user.click(screen.getByRole('button', { name: 'Delete review' }));
 
     await waitFor(() => {
-      expect(deleteReview).toHaveBeenCalledWith(review.id);
+      expect(deleteItemReviewAction).toHaveBeenCalledWith(review.id);
     });
     expect(onDeleted).toHaveBeenCalledWith(review.id);
   });
@@ -59,9 +63,10 @@ describe('ReviewCard', () => {
   it('does not call onDeleted when delete fails', async () => {
     const user = userEvent.setup();
     const onDeleted = vi.fn();
-    vi.mocked(deleteReview).mockRejectedValue(
-      new Error('Review not found or user does not own review'),
-    );
+    vi.mocked(deleteItemReviewAction).mockResolvedValue({
+      success: false,
+      error: 'Review not found or user does not own review',
+    });
 
     render(
       <ReviewCard review={review} canDelete={true} onDeleted={onDeleted} />,
@@ -70,7 +75,7 @@ describe('ReviewCard', () => {
     await user.click(screen.getByRole('button', { name: 'Delete review' }));
 
     await waitFor(() => {
-      expect(deleteReview).toHaveBeenCalledWith(review.id);
+      expect(deleteItemReviewAction).toHaveBeenCalledWith(review.id);
     });
     expect(onDeleted).not.toHaveBeenCalled();
   });
@@ -78,7 +83,7 @@ describe('ReviewCard', () => {
   it('disables the delete button while a delete is in progress', async () => {
     const user = userEvent.setup();
     let resolveDelete: (value: { success: true }) => void = () => {};
-    vi.mocked(deleteReview).mockImplementation(
+    vi.mocked(deleteItemReviewAction).mockImplementation(
       () =>
         new Promise((resolve) => {
           resolveDelete = resolve;
@@ -97,6 +102,46 @@ describe('ReviewCard', () => {
     resolveDelete({ success: true });
     await waitFor(() => {
       expect(deleteButton).toHaveProperty('disabled', false);
+    });
+  });
+
+  it('opens and closes the report review dialog', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ReviewCard review={review} canDelete={false} onDeleted={vi.fn()} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Report review' }));
+    expect(screen.getByText('Report this review')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Report this review')).not.toBeInTheDocument();
+    });
+  });
+
+  it('submits a review report from the card', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ReviewCard review={review} canDelete={false} onDeleted={vi.fn()} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Report review' }));
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: 'Spam' }));
+    await user.click(screen.getByRole('button', { name: 'Submit report' }));
+
+    await waitFor(() => {
+      expect(submitReportAction).toHaveBeenCalledWith({
+        type: 'review',
+        targetId: review.id,
+        targetName: `Review by ${review.user.name}`,
+        reason: 'spam',
+        description: undefined,
+      });
     });
   });
 });
