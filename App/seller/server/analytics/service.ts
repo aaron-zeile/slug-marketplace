@@ -22,25 +22,25 @@ const GET_REVIEWS_QUERY = `
   }
 `;
 
-type GraphQLErrorResponse = {
-  errors?: Array<{
+interface GraphQLErrorResponse {
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
 type SellerItemsResponse = GraphQLErrorResponse & {
   data?: {
-    sellerItems?: Array<{
+    sellerItems?: {
       id: string
-    }>
+    }[]
   }
 }
 
 type ReviewsResponse = GraphQLErrorResponse & {
   data?: {
-    reviews?: Array<{
+    reviews?: {
       rating: number
-    }>
+    }[]
   }
 }
 
@@ -99,7 +99,7 @@ export class AnalyticsService {
   private async getSellerItems(
     sellerId: string,
     status: 'active' | 'sold',
-  ): Promise<Array<{id: string}>> {
+  ): Promise<{id: string}[]> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {
@@ -123,7 +123,7 @@ export class AnalyticsService {
     return body.data?.sellerItems ?? []
   }
 
-  private async getReviews(itemId: string): Promise<Array<{rating: number}>> {
+  private async getReviews(itemId: string): Promise<{rating: number}[]> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {

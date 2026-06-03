@@ -138,13 +138,13 @@ interface DeleteItemResponse {
   }[]
 }
 
-type UpdateItemResponse = {
+interface UpdateItemResponse {
   data?: {
     updateItem?: unknown
   }
-  errors?: Array<{
+  errors?: {
     message?: string
-  }>
+  }[]
 }
 
 interface GetReviewsResponse {

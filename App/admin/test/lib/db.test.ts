@@ -31,13 +31,14 @@ describe('lib/db', () => {
   });
 
   it('creates a postgres client when ADMIN_DATABASE_URL is set', async () => {
-    process.env.ADMIN_DATABASE_URL = 'postgresql://user:pass@localhost:5432/admin';
+    process.env.ADMIN_DATABASE_URL =
+      'postgresql://user:pass@localhost:5432/admin';
 
-    const module = await import('@/lib/db');
+    const dbModule = await import('@/lib/db');
 
     expect(postgresMock).toHaveBeenCalledWith(
       'postgresql://user:pass@localhost:5432/admin',
     );
-    expect(module.default).toBe('mock-sql-client');
+    expect(dbModule.default).toBe('mock-sql-client');
   });
 });

@@ -5,18 +5,14 @@ import {
   Box,
   Button,
   CircularProgress,
-  Divider,
-  Paper,
   Stack,
-  Typography,
 } from "@mui/material";
 import {
   PaymentElement,
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 
 import convertToSubcurrency from "@/lib/convertToSubcurrency";
 

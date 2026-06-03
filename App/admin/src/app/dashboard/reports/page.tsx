@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -36,9 +36,18 @@ interface AdminReport {
   resolvedBy?: string;
 }
 
-const STATUS_FILTERS = ['all', 'open', 'investigating', 'resolved', 'dismissed'] as const;
+const STATUS_FILTERS = [
+  'all',
+  'open',
+  'investigating',
+  'resolved',
+  'dismissed',
+] as const;
 
-const STATUS_CHIP: Record<string, { label: string; color: 'default' | 'warning' | 'info' | 'success' }> = {
+const STATUS_CHIP: Record<
+  string,
+  { label: string; color: 'default' | 'warning' | 'info' | 'success' }
+> = {
   open: { label: 'Open', color: 'warning' },
   investigating: { label: 'Investigating', color: 'info' },
   resolved: { label: 'Resolved', color: 'success' },
@@ -79,28 +88,29 @@ export default function ReportsPage() {
     targetName: string;
   } | null>(null);
 
-  const fetchReports = useCallback(async (status: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await gql(
-        `query($status: String) {
-          adminReports(status: $status) {
-            id type targetId targetName reporterName reason description
-            status adminNotes createdAt resolvedAt resolvedBy
-          }
-        }`,
-        { status: status === 'all' ? null : status },
-      );
-      setReports(data.adminReports);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load reports');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchReports(activeFilter); }, [activeFilter, fetchReports]);
+  useEffect(() => {
+    const fetchReports = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await gql(
+          `query($status: String) {
+            adminReports(status: $status) {
+              id type targetId targetName reporterName reason description
+              status adminNotes createdAt resolvedAt resolvedBy
+            }
+          }`,
+          { status: activeFilter === 'all' ? null : activeFilter },
+        );
+        setReports(data.adminReports);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load reports');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
+  }, [activeFilter]);
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
@@ -156,7 +166,9 @@ export default function ReportsPage() {
       );
       setReports((prev) => prev.filter((r) => r.id !== reportId));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to delete and resolve report');
+      setError(
+        e instanceof Error ? e.message : 'Failed to delete and resolve report',
+      );
     } finally {
       setActionInProgress(null);
     }
@@ -167,7 +179,12 @@ export default function ReportsPage() {
   return (
     <Paper
       elevation={0}
-      sx={{ borderRadius: 2, p: 4, border: '1px solid #e5e7eb', bgcolor: '#fff' }}
+      sx={{
+        borderRadius: 2,
+        p: 4,
+        border: '1px solid #e5e7eb',
+        bgcolor: '#fff',
+      }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
         <FlagIcon color="primary" fontSize="large" />
@@ -198,7 +215,10 @@ export default function ReportsPage() {
             variant={activeFilter === f ? 'filled' : 'outlined'}
             color={activeFilter === f ? 'primary' : 'default'}
             onClick={() => handleFilterChange(f)}
-            sx={{ cursor: 'pointer', fontWeight: activeFilter === f ? 700 : 400 }}
+            sx={{
+              cursor: 'pointer',
+              fontWeight: activeFilter === f ? 700 : 400,
+            }}
           />
         ))}
       </Box>
@@ -216,20 +236,36 @@ export default function ReportsPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell><strong>Type</strong></TableCell>
-                <TableCell><strong>Target</strong></TableCell>
-                <TableCell><strong>Reason</strong></TableCell>
-                <TableCell><strong>Reporter</strong></TableCell>
-                <TableCell><strong>Status</strong></TableCell>
-                <TableCell><strong>Date</strong></TableCell>
+                <TableCell>
+                  <strong>Type</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Target</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Reason</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Reporter</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Status</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Date</strong>
+                </TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
               {reports.map((report) => {
-                const chipInfo = STATUS_CHIP[report.status] ?? { label: report.status, color: 'default' as const };
+                const chipInfo = STATUS_CHIP[report.status] ?? {
+                  label: report.status,
+                  color: 'default' as const,
+                };
                 const busy = actionInProgress === report.id;
-                const isActive = report.status === 'open' || report.status === 'investigating';
+                const isActive =
+                  report.status === 'open' || report.status === 'investigating';
                 return (
                   <TableRow key={report.id} hover>
                     <TableCell>
@@ -240,17 +276,37 @@ export default function ReportsPage() {
                         variant="outlined"
                       />
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <TableCell
+                      sx={{
+                        maxWidth: 180,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       <Typography variant="body2" title={report.targetName}>
                         {report.targetName}
                       </Typography>
                       {report.description && (
-                        <Typography variant="caption" color="text.secondary" title={report.description} sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          title={report.description}
+                          sx={{
+                            display: 'block',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: 180,
+                          }}
+                        >
                           {report.description}
                         </Typography>
                       )}
                     </TableCell>
-                    <TableCell>{REASON_LABELS[report.reason] ?? report.reason}</TableCell>
+                    <TableCell>
+                      {REASON_LABELS[report.reason] ?? report.reason}
+                    </TableCell>
                     <TableCell>{report.reporterName}</TableCell>
                     <TableCell>
                       <Chip
@@ -264,7 +320,9 @@ export default function ReportsPage() {
                       {new Date(report.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'nowrap' }}>
+                      <Box
+                        sx={{ display: 'flex', gap: 0.75, flexWrap: 'nowrap' }}
+                      >
                         {report.status === 'open' && (
                           <Button
                             size="small"
@@ -305,7 +363,12 @@ export default function ReportsPage() {
                             Dismiss
                           </Button>
                         )}
-                        {busy && <CircularProgress size={18} sx={{ alignSelf: 'center' }} />}
+                        {busy && (
+                          <CircularProgress
+                            size={18}
+                            sx={{ alignSelf: 'center' }}
+                          />
+                        )}
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -316,18 +379,25 @@ export default function ReportsPage() {
         </TableContainer>
       )}
 
-      <Dialog open={confirmDialog?.open ?? false} onClose={() => setConfirmDialog(null)}>
+      <Dialog
+        open={confirmDialog?.open ?? false}
+        onClose={() => setConfirmDialog(null)}
+      >
         <DialogTitle>Delete and resolve report?</DialogTitle>
         <DialogContent>
           <DialogContentText>
             This will permanently delete{' '}
-            <strong>{confirmDialog?.targetName}</strong> and mark the report as resolved.
-            This action cannot be undone.
+            <strong>{confirmDialog?.targetName}</strong> and mark the report as
+            resolved. This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDialog(null)}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={handleDeleteAndResolve}>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleDeleteAndResolve}
+          >
             Delete &amp; Resolve
           </Button>
         </DialogActions>

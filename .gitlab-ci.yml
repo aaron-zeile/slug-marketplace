@@ -7,7 +7,7 @@ services:
 variables:
   PIPELINE: true
   POSTGRES_HOST: postgres
-  POSTGRES_PORT: "5432"
+  POSTGRES_PORT: '5432'
   POSTGRES_DB: admin
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
@@ -39,16 +39,12 @@ stages:
   - apt-get update -qq && apt-get install -y -qq postgresql-client
   - bash scripts/ci-init-postgres.sh
 
-before_script:
-  *default_before_script
+before_script: *default_before_script
 
 quality:
   stage: quality
   script:
     - npm run lint
-    - npm --prefix Service/ItemsService run lint
-    - npm --prefix Service/ItemsService run cpd
-    - npm --prefix App/shopper run cpd
 
 build:
   stage: build

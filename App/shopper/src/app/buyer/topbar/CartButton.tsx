@@ -31,8 +31,28 @@ export default function CartButton() {
   }, []);
 
   useEffect(() => {
-    void loadItemCount();
-  }, [loadItemCount, pathname]);
+    let active = true;
+
+    void (async () => {
+      const result = await fetchCartItemsAction();
+      if (!active) {
+        return;
+      }
+      if (result.success && result.data) {
+        const count = result.data.reduce(
+          (total, cartItem) => total + cartItem.quantity,
+          0,
+        );
+        setItemCount(count);
+        return;
+      }
+      setItemCount(0);
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const handleCartUpdated = () => {

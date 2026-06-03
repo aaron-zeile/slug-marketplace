@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -60,27 +60,28 @@ export default function ListingsPage() {
     );
   }, [items, searchQuery]);
 
-  const fetchItems = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await gql(`
-        query {
-          adminItems {
-            id name price status createdAt
-            seller { id name }
+  useEffect(() => {
+    const fetchItems = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await gql(`
+          query {
+            adminItems {
+              id name price status createdAt
+              seller { id name }
+            }
           }
-        }
-      `);
-      setItems(data.adminItems);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load listings');
-    } finally {
-      setLoading(false);
-    }
+        `);
+        setItems(data.adminItems);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load listings');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
   }, []);
-
-  useEffect(() => { fetchItems(); }, [fetchItems]);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete listing "${name}"? This cannot be undone.`)) return;
@@ -98,7 +99,12 @@ export default function ListingsPage() {
   return (
     <Paper
       elevation={0}
-      sx={{ borderRadius: 2, p: 4, border: '1px solid #e5e7eb', bgcolor: '#fff' }}
+      sx={{
+        borderRadius: 2,
+        p: 4,
+        border: '1px solid #e5e7eb',
+        bgcolor: '#fff',
+      }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
         <ListAltIcon color="primary" fontSize="large" />
@@ -153,11 +159,21 @@ export default function ListingsPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell><strong>Name</strong></TableCell>
-                <TableCell><strong>Seller</strong></TableCell>
-                <TableCell><strong>Price</strong></TableCell>
-                <TableCell><strong>Status</strong></TableCell>
-                <TableCell><strong>Created</strong></TableCell>
+                <TableCell>
+                  <strong>Name</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Seller</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Price</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Status</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Created</strong>
+                </TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>

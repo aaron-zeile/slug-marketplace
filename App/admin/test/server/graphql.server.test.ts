@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import 'reflect-metadata';
 
 const { mockSql } = vi.hoisted(() => ({ mockSql: vi.fn() }));
@@ -40,7 +40,7 @@ describe('getYoga', () => {
     });
 
     expect(response.status).toBe(200);
-    const body = await response.json() as { data: { health: boolean } };
+    const body = (await response.json()) as { data: { health: boolean } };
     expect(body.data.health).toBe(true);
   });
 
@@ -50,13 +50,17 @@ describe('getYoga', () => {
     ]);
     vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
     vi.mocked(getIronSession).mockImplementation(
-      async (_req, tempResponse: Response) => ({
-        adminId: 0,
-        email: '',
-        save: vi.fn(async () => {
-          tempResponse.headers.append('Set-Cookie', 'admin-session=yoga-test');
-        }),
-      }) as never,
+      async (_req, tempResponse: Response) =>
+        ({
+          adminId: 0,
+          email: '',
+          save: vi.fn(async () => {
+            tempResponse.headers.append(
+              'Set-Cookie',
+              'admin-session=yoga-test',
+            );
+          }),
+        }) as never,
     );
 
     const yoga = await getYoga();
@@ -77,6 +81,8 @@ describe('getYoga', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(response.headers.get('Set-Cookie')).toContain('admin-session=yoga-test');
+    expect(response.headers.get('Set-Cookie')).toContain(
+      'admin-session=yoga-test',
+    );
   });
 });

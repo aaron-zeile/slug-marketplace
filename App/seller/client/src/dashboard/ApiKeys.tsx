@@ -1,7 +1,7 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import DeleteIcon from '@mui/icons-material/Delete'
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Alert,
   Box,
@@ -18,73 +18,74 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from '@mui/material'
+} from '@mui/material';
 
-import type { ApiKeyMetadata, ApiKeyResponse } from '../../../shared'
-import { ErrorContext } from '../error/Context'
-import { createApiKey, listApiKeys, revokeApiKey } from './model'
+import type { ApiKeyMetadata, ApiKeyResponse } from '../../../shared';
+import { ErrorContext } from '../error/Context';
+import { createApiKey, listApiKeys, revokeApiKey } from './model';
 
-const ignoreError = () => {}
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const ignoreError = () => {};
 
 export default function ApiKeys() {
-  const t = useTranslations('ApiKeys')
-  const errorCtx = useContext(ErrorContext)
-  const setError = errorCtx?.setError ?? ignoreError
-  const [name, setName] = useState('Seller dashboard key')
-  const [saving, setSaving] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [revokingId, setRevokingId] = useState<string | undefined>()
-  const [keys, setKeys] = useState<ApiKeyMetadata[]>([])
-  const [apiKey, setApiKey] = useState<ApiKeyResponse | undefined>()
-  const [copied, setCopied] = useState(false)
+  const t = useTranslations('ApiKeys');
+  const errorCtx = useContext(ErrorContext);
+  const setError = errorCtx?.setError ?? ignoreError;
+  const [name, setName] = useState('Seller dashboard key');
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [revokingId, setRevokingId] = useState<string | undefined>();
+  const [keys, setKeys] = useState<ApiKeyMetadata[]>([]);
+  const [apiKey, setApiKey] = useState<ApiKeyResponse | undefined>();
+  const [copied, setCopied] = useState(false);
 
   const loadKeys = useCallback(async () => {
-    setLoading(true)
-    const loaded = await listApiKeys(setError)
-    setKeys(loaded)
-    setLoading(false)
-  }, [setError])
+    setLoading(true);
+    const loaded = await listApiKeys(setError);
+    setKeys(loaded);
+    setLoading(false);
+  }, [setError]);
 
   useEffect(() => {
-    void loadKeys()
-  }, [loadKeys])
+    void loadKeys();
+  }, [loadKeys]);
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const trimmedName = name.trim()
+    event.preventDefault();
+    const trimmedName = name.trim();
     if (!trimmedName) {
-      return
+      return;
     }
 
-    setSaving(true)
-    setCopied(false)
-    const created = await createApiKey(trimmedName, setError)
-    setSaving(false)
+    setSaving(true);
+    setCopied(false);
+    const created = await createApiKey(trimmedName, setError);
+    setSaving(false);
 
     if (created) {
-      setApiKey(created)
-      await loadKeys()
+      setApiKey(created);
+      await loadKeys();
     }
-  }
+  };
 
   const copyKey = async () => {
     if (!apiKey) {
-      return
+      return;
     }
 
-    await navigator.clipboard.writeText(apiKey.key)
-    setCopied(true)
-  }
+    await navigator.clipboard.writeText(apiKey.key);
+    setCopied(true);
+  };
 
   const revoke = async (id: string) => {
-    setRevokingId(id)
-    const revoked = await revokeApiKey(id, setError)
-    setRevokingId(undefined)
+    setRevokingId(id);
+    const revoked = await revokeApiKey(id, setError);
+    setRevokingId(undefined);
 
     if (revoked) {
-      setKeys((current) => current.filter((key) => key.id !== id))
+      setKeys((current) => current.filter((key) => key.id !== id));
     }
-  }
+  };
 
   return (
     <Box sx={{ maxWidth: 760, p: 3 }}>
@@ -93,9 +94,7 @@ export default function ApiKeys() {
           {t('title')}
         </Typography>
 
-        <Alert severity="info">
-          {t('oneTimeNotice')}
-        </Alert>
+        <Alert severity="info">{t('oneTimeNotice')}</Alert>
 
         <Stack
           component="form"
@@ -200,9 +199,7 @@ export default function ApiKeys() {
               {!loading && keys.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={3}>
-                    <Typography color="text.secondary">
-                      {t('empty')}
-                    </Typography>
+                    <Typography color="text.secondary">{t('empty')}</Typography>
                   </TableCell>
                 </TableRow>
               )}
@@ -220,5 +217,5 @@ export default function ApiKeys() {
         </TableContainer>
       </Stack>
     </Box>
-  )
+  );
 }
