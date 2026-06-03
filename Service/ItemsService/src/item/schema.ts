@@ -80,7 +80,7 @@ export class NewItem {
 
   @Field(() => Int, { nullable: true })
   @IsOptional()
-  @Min(1)
+  @Min(0)
   quantity?: number;
 }
 

@@ -12,6 +12,7 @@ let server: http.Server<
 >;
 
 const buyerId = 'buyer-reservation-test';
+const otherBuyerId = 'other-buyer-reservation-test';
 
 beforeAll(async () => {
   stubLoginFetch();
@@ -85,7 +86,7 @@ describe('checkout reservation', () => {
         }`,
         variables: {
           input: {
-            buyerId,
+            buyerId: otherBuyerId,
             items: [{ itemId: reserveLastUnit.id, quantity: 1 }],
           },
         },

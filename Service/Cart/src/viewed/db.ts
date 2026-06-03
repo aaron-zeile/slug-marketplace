@@ -32,42 +32,53 @@ export const getViewedItems = async (
 export const recordViewedItem = async (
   input: RecordViewedItemInput,
 ): Promise<ViewedItem> => {
-  const query = `
-    WITH upserted AS (
-      INSERT INTO viewed_item (member, item)
-      VALUES ($1, $2)
-      ON CONFLICT (member, item)
-      DO UPDATE SET viewed_at = now()
-      RETURNING
-        id,
-        member,
-        item,
-        viewed_at AS "viewedAt"
-    ),
-    trimmed AS (
-      DELETE FROM viewed_item
-      WHERE id IN (
-        SELECT id
-        FROM (
-          SELECT
-            id,
-            row_number() OVER (
-              PARTITION BY member
-              ORDER BY viewed_at DESC, id DESC
-            ) AS view_rank
-          FROM viewed_item
-          WHERE member = $1
-        ) ranked
-        WHERE view_rank > $3
-      )
-    )
-    SELECT * FROM upserted
-  `;
+  const client = await pool.connect();
 
-  const { rows } = await pool.query<ViewedItem>(query, [
-    input.member,
-    input.item,
-    MAX_VIEWED_ITEMS,
-  ]);
-  return rows[0];
+  try {
+    await client.query('BEGIN');
+
+    const upsert = await client.query<ViewedItem>(
+      `
+        INSERT INTO viewed_item (member, item)
+        VALUES ($1, $2)
+        ON CONFLICT (member, item)
+        DO UPDATE SET viewed_at = now()
+        RETURNING
+          id,
+          member,
+          item,
+          viewed_at AS "viewedAt"
+      `,
+      [input.member, input.item],
+    );
+
+    await client.query(
+      `
+        DELETE FROM viewed_item
+        WHERE member = $1
+          AND id NOT IN (
+            SELECT id
+            FROM viewed_item
+            WHERE member = $1
+            ORDER BY viewed_at DESC, id DESC
+            LIMIT $2
+          )
+      `,
+      [input.member, MAX_VIEWED_ITEMS],
+    );
+
+    await client.query('COMMIT');
+
+    const row = upsert.rows[0];
+    if (!row) {
+      throw new Error('Failed to record viewed item');
+    }
+
+    return row;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 };

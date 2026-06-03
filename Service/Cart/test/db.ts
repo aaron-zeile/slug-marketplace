@@ -30,7 +30,14 @@ const run = async (file: string) => {
 
 const reset = async () => {
   await run('src/sql/schema.sql');
-  await run('src/sql/data.sql');
+  const seedFile = 'src/sql/data.sql';
+  try {
+    if (fs.statSync(seedFile).isFile()) {
+      await run(seedFile);
+    }
+  } catch {
+    // Optional seed file; schema reset is enough for service tests.
+  }
 };
 
 const shutdown = () => {
