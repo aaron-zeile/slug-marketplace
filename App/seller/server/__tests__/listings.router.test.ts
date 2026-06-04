@@ -347,6 +347,45 @@ describe('listings router', () => {
     })
   })
 
+  it('rejects discount requests without an authenticated user', async () => {
+    const req = {
+      params: {
+        id: 'item-1',
+      },
+    } as unknown as Request
+    const res = response()
+
+    await getDiscounts(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.getDiscounts.mock.calls,
+    }).toEqual({
+      statusCall: [401],
+      serviceCalls: [],
+    })
+  })
+
+  it('rejects discount requests without an item id', async () => {
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      params: {},
+    } as Request
+    const res = response()
+
+    await getDiscounts(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.getDiscounts.mock.calls,
+    }).toEqual({
+      statusCall: [400],
+      serviceCalls: [],
+    })
+  })
+
   it('creates a discount for an authenticated seller session', async () => {
     serviceMocks.createDiscount.mockResolvedValue(discount)
     const req = {
@@ -406,6 +445,31 @@ describe('listings router', () => {
       serviceCalls: serviceMocks.createDiscount.mock.calls,
     }).toEqual({
       statusCall: [401],
+      serviceCalls: [],
+    })
+  })
+
+  it('rejects create discount requests without an item id', async () => {
+    const req = {
+      user: {
+        id: 'seller-1',
+      },
+      sessionToken: 'session-token',
+      params: {},
+      body: {
+        discountPercent: 15,
+        duration: 7,
+      },
+    } as Request
+    const res = response()
+
+    await postDiscount(req, res)
+
+    expect({
+      statusCall: (res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0],
+      serviceCalls: serviceMocks.createDiscount.mock.calls,
+    }).toEqual({
+      statusCall: [400],
       serviceCalls: [],
     })
   })

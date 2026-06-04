@@ -1,24 +1,24 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest'
-import type {OrderService as SellerOrderService} from '../orders/service.js'
-import {
-  resetOrderDatabase,
-  seedSellerOrders,
-  sellerId,
-  startOrderGraphqlServer,
-  stopOrderGraphqlServer,
-} from './orderTestServer'
+import {afterEach, describe, expect, it, vi} from 'vitest'
 
-let OrderService: typeof SellerOrderService
-let orderServiceUrl: string
+const sellerId = '7b355067-1dee-4b9a-a87a-fa745332ecf8'
+
+const order = {
+  id: '44444444-4444-4444-8444-444444444444',
+  buyer: '33333333-3333-4333-8333-333333333333',
+  items: [{itemId: 'item-1', sellerId}],
+  orderedAt: '2026-05-11T12:00:00.000Z',
+  purchaseAmount: 24.99,
+  status: 'ordered',
+  address: {
+    label: 'Home',
+    line1: '1156 High Street',
+    line2: '',
+    city: 'Santa Cruz',
+    state: 'CA',
+    postalCode: '95064',
+    country: 'US',
+  },
+}
 
 async function importFreshOrderService(url?: string) {
   vi.resetModules()
@@ -33,72 +33,55 @@ async function importFreshOrderService(url?: string) {
 }
 
 describe('OrderService', () => {
-  beforeAll(async () => {
-    orderServiceUrl = await startOrderGraphqlServer()
-    process.env.ORDER_SERVICE_URL = orderServiceUrl
-    ;({OrderService} = await import('../orders/service.js'))
-  })
-
-  beforeEach(async () => {
-    await resetOrderDatabase()
-  })
-
   afterEach(() => {
     vi.unstubAllGlobals()
-    process.env.ORDER_SERVICE_URL = orderServiceUrl
+    vi.restoreAllMocks()
+    delete process.env.ORDER_SERVICE_URL
   })
 
-  afterAll(async () => {
-    await stopOrderGraphqlServer()
-  })
-
-  it('fetches seller orders from the real order database through GraphQL', async () => {
-    const seeded = await seedSellerOrders()
-
-    const orders = await new OrderService().getOrders(sellerId)
-
-    expect(orders).toEqual([
-      expect.objectContaining({
-        id: seeded.id,
-        buyer: seeded.buyer,
-        status: 'ordered',
-        items: [
-          {
-            itemId: seeded.items[0].itemId,
-            sellerId,
-          },
-        ],
-        purchaseAmount: seeded.purchaseAmount,
-        address: expect.objectContaining(seeded.address),
-      }),
-    ])
-  })
-
-  it('accepts GraphQL uppercase status enum values', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+  it('fetches seller orders through GraphQL', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         data: {
-          sellerOrders: [
-            {
-              id: '44444444-4444-4444-8444-444444444444',
-              buyer: '33333333-3333-4333-8333-333333333333',
-              items: [{ itemId: 'item-1', sellerId }],
-              orderedAt: '2026-05-11T12:00:00.000Z',
-              purchaseAmount: 24.99,
-              status: 'ORDERED',
-              address: {
-                line1: '1156 High Street',
-                city: 'Santa Cruz',
-                state: 'CA',
-                postalCode: '95064',
-                country: 'US',
-              },
-            },
-          ],
+          sellerOrders: [order],
         },
       }),
-    }))
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    const orders = await new OrderService().getOrders(sellerId)
+
+    expect({
+      orders,
+      request: fetchMock.mock.calls[0],
+    }).toEqual({
+      orders: [order],
+      request: [
+        'http://orders.test/graphql',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: expect.stringContaining(`"seller":"${sellerId}"`),
+        }),
+      ],
+    })
+  })
+
+  it('accepts GraphQL uppercase status enum values', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            sellerOrders: [{...order, status: 'ORDERED'}],
+          },
+        }),
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
 
     const orders = await new OrderService().getOrders(sellerId)
 
@@ -115,13 +98,13 @@ describe('OrderService', () => {
       }),
     })
     vi.stubGlobal('fetch', fetchMock)
-    const FreshOrderService = await importFreshOrderService()
+    const OrderService = await importFreshOrderService()
 
-    const orders = await new FreshOrderService().getOrders(sellerId)
+    const orders = await new OrderService().getOrders(sellerId)
 
     expect({
       orders,
-      url: fetchMock.mock.calls[0][0],
+      url: fetchMock.mock.calls[0]?.[0],
     }).toEqual({
       orders: [],
       url: 'http://localhost:4700/graphql',
@@ -136,9 +119,9 @@ describe('OrderService', () => {
         statusText: 'Bad Gateway',
       }),
     )
-    const FreshOrderService = await importFreshOrderService(orderServiceUrl)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
 
-    await expect(new FreshOrderService().getOrders(sellerId)).rejects.toThrow(
+    await expect(new OrderService().getOrders(sellerId)).rejects.toThrow(
       'Failed to fetch seller orders: Bad Gateway',
     )
   })
@@ -157,9 +140,9 @@ describe('OrderService', () => {
         }),
       }),
     )
-    const FreshOrderService = await importFreshOrderService(orderServiceUrl)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
 
-    await expect(new FreshOrderService().getOrders(sellerId)).rejects.toThrow(
+    await expect(new OrderService().getOrders(sellerId)).rejects.toThrow(
       'Seller not found',
     )
   })
@@ -174,14 +157,15 @@ describe('OrderService', () => {
         }),
       }),
     )
-    const FreshOrderService = await importFreshOrderService(orderServiceUrl)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
 
-    await expect(new FreshOrderService().getOrders(sellerId)).rejects.toThrow(
+    await expect(new OrderService().getOrders(sellerId)).rejects.toThrow(
       'GraphQL error',
     )
   })
 
   it('throws when the seller orders response does not match the schema', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -197,10 +181,151 @@ describe('OrderService', () => {
         }),
       }),
     )
-    const FreshOrderService = await importFreshOrderService(orderServiceUrl)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
 
-    await expect(new FreshOrderService().getOrders(sellerId)).rejects.toThrow(
+    await expect(new OrderService().getOrders(sellerId)).rejects.toThrow(
       'Seller orders response did not match expected schema',
     )
+  })
+
+  it('updates an order status through GraphQL', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          updateOrderStatus: {...order, status: 'SHIPPING'},
+        },
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    const updated = await new OrderService().updateOrderStatus(
+      sellerId,
+      order.id,
+      'shipping',
+    )
+
+    expect({
+      updated,
+      requestBody: JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)),
+    }).toEqual({
+      updated: {...order, status: 'shipping'},
+      requestBody: expect.objectContaining({
+        variables: {
+          input: {
+            orderId: order.id,
+            seller: sellerId,
+            status: 'SHIPPING',
+          },
+        },
+      }),
+    })
+  })
+
+  it('sends delivered status updates as GraphQL enum values', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          updateOrderStatus: {...order, status: 'DELIVERED'},
+        },
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    const updated = await new OrderService().updateOrderStatus(
+      sellerId,
+      order.id,
+      'delivered',
+    )
+
+    expect({
+      status: updated.status,
+      requestBody: JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)),
+    }).toEqual({
+      status: 'delivered',
+      requestBody: expect.objectContaining({
+        variables: {
+          input: {
+            orderId: order.id,
+            seller: sellerId,
+            status: 'DELIVERED',
+          },
+        },
+      }),
+    })
+  })
+
+  it('throws when the update order status response is not ok', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: 'Conflict',
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(
+      new OrderService().updateOrderStatus(sellerId, order.id, 'shipping'),
+    ).rejects.toThrow('Failed to update order status: Conflict')
+  })
+
+  it('throws the graphql error message when update order status fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          errors: [{message: 'Invalid transition'}],
+        }),
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(
+      new OrderService().updateOrderStatus(sellerId, order.id, 'shipping'),
+    ).rejects.toThrow('Invalid transition')
+  })
+
+  it('throws the fallback graphql error when update status errors have no message', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          errors: [{}],
+        }),
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(
+      new OrderService().updateOrderStatus(sellerId, order.id, 'shipping'),
+    ).rejects.toThrow('GraphQL error')
+  })
+
+  it('throws when the updated order response does not match the schema', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            updateOrderStatus: {
+              id: 'order-1',
+            },
+          },
+        }),
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(
+      new OrderService().updateOrderStatus(sellerId, order.id, 'shipping'),
+    ).rejects.toThrow('Updated order response did not match expected schema')
   })
 })

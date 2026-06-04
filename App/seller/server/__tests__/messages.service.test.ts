@@ -49,7 +49,7 @@ describe('MessageService', () => {
     const body = JSON.parse(request.body)
 
     expect({
-      url: fetchMock.mock.calls[0][0],
+      url: fetchMock.mock.calls[0]?.[0],
       method: request.method,
       headers: request.headers,
       body,

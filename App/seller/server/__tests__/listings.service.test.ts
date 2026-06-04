@@ -384,6 +384,163 @@ describe('ListingService', () => {
     })
   })
 
+  it('returns an empty discount list when the items service omits discounts data', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {},
+      }),
+    })
+
+    await expect(new ListingService().getDiscounts('item-1')).resolves.toEqual([])
+  })
+
+  it('throws when fetching discounts receives a non-ok response', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      statusText: 'Service Unavailable',
+    })
+
+    await expect(
+      new ListingService().getDiscounts('item-1'),
+    ).rejects.toThrow('Failed to fetch discounts: Service Unavailable')
+  })
+
+  it('throws the graphql error message when fetching discounts fails', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [
+          {
+            message: 'Discount query failed',
+          },
+        ],
+      }),
+    })
+
+    await expect(
+      new ListingService().getDiscounts('item-1'),
+    ).rejects.toThrow('Discount query failed')
+  })
+
+  it('throws the fallback graphql error when discount errors have no message', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [{}],
+      }),
+    })
+
+    await expect(
+      new ListingService().getDiscounts('item-1'),
+    ).rejects.toThrow('GraphQL error')
+  })
+
+  it('throws when the discounts response does not match the schema', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          discountsByItem: [
+            {
+              id: 'discount-1',
+            },
+          ],
+        },
+      }),
+    })
+
+    await expect(
+      new ListingService().getDiscounts('item-1'),
+    ).rejects.toThrow('Discounts response did not match expected discount schema')
+  })
+
+  it('throws when create discount receives a non-ok response', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      statusText: 'Bad Request',
+    })
+
+    await expect(
+      new ListingService().createDiscount(
+        {
+          itemId: 'item-1',
+          discountPercent: 15,
+          duration: 7,
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('Failed to create discount: Bad Request')
+  })
+
+  it('throws the graphql error message when create discount fails', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [
+          {
+            message: 'Discount already exists',
+          },
+        ],
+      }),
+    })
+
+    await expect(
+      new ListingService().createDiscount(
+        {
+          itemId: 'item-1',
+          discountPercent: 15,
+          duration: 7,
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('Discount already exists')
+  })
+
+  it('throws the fallback graphql error when create discount errors have no message', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        errors: [{}],
+      }),
+    })
+
+    await expect(
+      new ListingService().createDiscount(
+        {
+          itemId: 'item-1',
+          discountPercent: 15,
+          duration: 7,
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('GraphQL error')
+  })
+
+  it('throws when the create discount response does not match the schema', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          createDiscount: {
+            id: 'discount-1',
+          },
+        },
+      }),
+    })
+
+    await expect(
+      new ListingService().createDiscount(
+        {
+          itemId: 'item-1',
+          discountPercent: 15,
+          duration: 7,
+        },
+        'session-token',
+      ),
+    ).rejects.toThrow('Created discount response did not match expected discount schema')
+  })
+
   it('returns an empty review list when the items service omits reviews data', async () => {
     fetchMock.mockResolvedValue({
       ok: true,

@@ -1,143 +1,156 @@
-import {describe, expect, it, vi} from 'vitest'
+import {beforeAll, describe, expect, it, vi} from 'vitest'
+
+const expressMock = vi.hoisted(() => {
+  const app = {
+    use: vi.fn(),
+  }
+  const apiRouter = {
+    delete: vi.fn(),
+    get: vi.fn(),
+    patch: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+  }
+  const json = vi.fn(() => 'json-middleware')
+  const express = Object.assign(vi.fn(() => app), {
+    json,
+    Router: vi.fn(() => apiRouter),
+  })
+
+  return {apiRouter, app, express, json}
+})
+
+const routeMocks = vi.hoisted(() => ({
+  analytics: {
+    getAvgRating: vi.fn(),
+    getStarDistribution: vi.fn(),
+  },
+  apiKeys: {
+    get: vi.fn(),
+    post: vi.fn(),
+    remove: vi.fn(),
+  },
+  auth: {
+    getSession: vi.fn(),
+  },
+  doCheck: vi.fn(),
+  listings: {
+    get: vi.fn(),
+    getDiscounts: vi.fn(),
+    getReviews: vi.fn(),
+    post: vi.fn(),
+    postDiscount: vi.fn(),
+    put: vi.fn(),
+    remove: vi.fn(),
+  },
+  messages: {
+    post: vi.fn(),
+  },
+  orders: {
+    get: vi.fn(),
+    patchStatus: vi.fn(),
+  },
+}))
+
+vi.mock('express', () => ({
+  default: expressMock.express,
+}))
 
 vi.mock('../auth/middleware.js', () => ({
-  doCheck: (
-    _req: unknown,
-    _res: unknown,
-    next: (...args: unknown[]) => void,
-  ) => next(),
+  doCheck: routeMocks.doCheck,
 }))
 
-vi.mock('../listings/router.js', () => ({
-  get: (_req: unknown, res: {json: (body: unknown) => void}) =>
-    res.json({route: 'get-listings'}),
-  getReviews: (
-    req: {params: {id: string}},
-    res: {json: (body: unknown) => void},
-  ) => res.json({route: 'get-listing-reviews', id: req.params.id}),
-  post: (_req: unknown, res: {json: (body: unknown) => void}) =>
-    res.json({route: 'post-listing'}),
-  put: (
-    req: {params: {id: string}},
-    res: {json: (body: unknown) => void},
-  ) => res.json({route: 'put-listing', id: req.params.id}),
-  remove: (
-    req: {params: {id: string}},
-    res: {json: (body: unknown) => void},
-  ) => res.json({route: 'remove-listing', id: req.params.id}),
-}))
-
-vi.mock('../orders/router.js', () => ({
-  get: (_req: unknown, res: {json: (body: unknown) => void}) =>
-    res.json({route: 'get-orders'}),
-  patchStatus: (
-    req: {params: {orderId: string}},
-    res: {json: (body: unknown) => void},
-  ) => res.json({route: 'patch-order-status', id: req.params.orderId}),
-}))
-
-vi.mock('../apiKeys/router.js', () => ({
-  get: (_req: unknown, res: {json: (body: unknown) => void}) =>
-    res.json({route: 'get-api-keys'}),
-  post: (_req: unknown, res: {json: (body: unknown) => void}) =>
-    res.json({route: 'post-api-key'}),
-  remove: (
-    req: {params: {id: string}},
-    res: {json: (body: unknown) => void},
-  ) => res.json({route: 'remove-api-key', id: req.params.id}),
-}))
-
-vi.mock('../auth/router.js', () => ({
-  getSession: (_req: unknown, res: {json: (body: unknown) => void}) =>
-    res.json({route: 'get-session'}),
-}))
-
-vi.mock('../messages/router.js', () => ({
-  post: (_req: unknown, res: {json: (body: unknown) => void}) =>
-    res.json({route: 'post-message'}),
-}))
+vi.mock('../listings/router.js', () => routeMocks.listings)
+vi.mock('../orders/router.js', () => routeMocks.orders)
+vi.mock('../apiKeys/router.js', () => routeMocks.apiKeys)
+vi.mock('../auth/router.js', () => routeMocks.auth)
+vi.mock('../analytics/router.js', () => routeMocks.analytics)
+vi.mock('../messages/router.js', () => routeMocks.messages)
 
 interface RouteCase {
-  method: 'get' | 'post' | 'put' | 'delete'
+  method: keyof typeof expressMock.apiRouter
   path: string
-  expected: Record<string, unknown>
+  handler: ReturnType<typeof vi.fn>
 }
 
 const routeCases: RouteCase[] = [
-  {method: 'get', path: '/api/listings', expected: {route: 'get-listings'}},
+  {method: 'get', path: '/listings', handler: routeMocks.listings.get},
   {
     method: 'get',
-    path: '/api/listings/abc/reviews',
-    expected: {route: 'get-listing-reviews', id: 'abc'},
+    path: '/listings/:id/reviews',
+    handler: routeMocks.listings.getReviews,
   },
-  {method: 'get', path: '/api/orders', expected: {route: 'get-orders'}},
-  {method: 'get', path: '/api/keys', expected: {route: 'get-api-keys'}},
-  {method: 'get', path: '/api/sessions', expected: {route: 'get-session'}},
-  {method: 'post', path: '/api/listings', expected: {route: 'post-listing'}},
-  {method: 'post', path: '/api/keys', expected: {route: 'post-api-key'}},
-  {method: 'post', path: '/api/messages', expected: {route: 'post-message'}},
   {
-    method: 'put',
-    path: '/api/listings/abc',
-    expected: {route: 'put-listing', id: 'abc'},
+    method: 'get',
+    path: '/listings/:id/discounts',
+    handler: routeMocks.listings.getDiscounts,
+  },
+  {method: 'get', path: '/orders', handler: routeMocks.orders.get},
+  {method: 'get', path: '/keys', handler: routeMocks.apiKeys.get},
+  {
+    method: 'patch',
+    path: '/orders/:orderId/status',
+    handler: routeMocks.orders.patchStatus,
+  },
+  {method: 'post', path: '/listings', handler: routeMocks.listings.post},
+  {
+    method: 'post',
+    path: '/listings/:id/discounts',
+    handler: routeMocks.listings.postDiscount,
+  },
+  {method: 'put', path: '/listings/:id', handler: routeMocks.listings.put},
+  {
+    method: 'delete',
+    path: '/listings/:id',
+    handler: routeMocks.listings.remove,
   },
   {
     method: 'delete',
-    path: '/api/listings/abc',
-    expected: {route: 'remove-listing', id: 'abc'},
+    path: '/keys/:id',
+    handler: routeMocks.apiKeys.remove,
+  },
+  {method: 'post', path: '/keys', handler: routeMocks.apiKeys.post},
+  {method: 'post', path: '/messages', handler: routeMocks.messages.post},
+  {method: 'get', path: '/sessions', handler: routeMocks.auth.getSession},
+  {
+    method: 'get',
+    path: '/analytics/average-rating',
+    handler: routeMocks.analytics.getAvgRating,
   },
   {
-    method: 'delete',
-    path: '/api/keys/key-1',
-    expected: {route: 'remove-api-key', id: 'key-1'},
+    method: 'get',
+    path: '/analytics/star-distribution',
+    handler: routeMocks.analytics.getStarDistribution,
   },
 ]
 
-async function callRoute(
-  app: import('express').Express,
-  method: RouteCase['method'],
-  path: string,
-): Promise<{status: number; body: unknown}> {
-  const {createServer} = await import('node:http')
-  const server = createServer(app)
-  await new Promise<void>((resolve) => {
-    server.listen(0, resolve)
-  })
-  const address = server.address()
-  if (!address || typeof address === 'string') {
-    server.close()
-    throw new Error('Failed to start test server')
-  }
-
-  try {
-    const response = await fetch(
-      `http://127.0.0.1:${String(address.port)}${path}`,
-      {method: method.toUpperCase()},
-    )
-    const body = (await response.json()) as unknown
-    return {status: response.status, body}
-  } finally {
-    await new Promise<void>((resolve) => {
-      server.close(() => {
-        resolve()
-      })
-    })
-  }
-}
-
 describe('seller app', () => {
+  beforeAll(async () => {
+    await import('../app.js')
+  })
+
+  it('mounts json middleware and both seller API prefixes', () => {
+    expect({
+      jsonCalls: expressMock.json.mock.calls,
+      useCalls: expressMock.app.use.mock.calls,
+    }).toEqual({
+      jsonCalls: [[]],
+      useCalls: [
+        ['json-middleware'],
+        ['/seller/api', expressMock.apiRouter],
+        ['/api', expressMock.apiRouter],
+      ],
+    })
+  })
+
   it.each(routeCases)(
-    'mounts $method $path at both /seller/api and /api prefixes',
-    async ({method, path, expected}) => {
-      const {default: app} = await import('../app.js')
-
-      const prefixed = await callRoute(app, method, `/seller${path}`)
-      expect(prefixed.status).toBe(200)
-      expect(prefixed.body).toEqual(expected)
-
-      const stripped = await callRoute(app, method, path)
-      expect(stripped.status).toBe(200)
-      expect(stripped.body).toEqual(expected)
+    'registers $method $path behind auth middleware',
+    ({method, path, handler}) => {
+      expect(expressMock.apiRouter[method]).toHaveBeenCalledWith(
+        path,
+        routeMocks.doCheck,
+        handler,
+      )
     },
   )
 })

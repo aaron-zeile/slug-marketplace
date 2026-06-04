@@ -90,7 +90,7 @@ export class AnalyticsService {
 
     for (const review of reviews.flat()) {
       const bucket = Math.min(Math.max(Math.round(review.rating), 1), 5)
-      distribution[bucket - 1] = (distribution[bucket - 1] ?? 0) + 1
+      distribution[bucket - 1]! += 1
     }
 
     return distribution
