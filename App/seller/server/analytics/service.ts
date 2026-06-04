@@ -1,5 +1,5 @@
-
-const ITEMS_SERVICE_URL = process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
+const ITEMS_SERVICE_URL =
+  process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
 const GET_AVG_RATING = `
   query GetAvgRating($id: String!) {
     getAvgRating(input: {id: $id})
@@ -24,82 +24,80 @@ const GET_REVIEWS_QUERY = `
 
 interface GraphQLErrorResponse {
   errors?: {
-    message?: string
-  }[]
+    message?: string;
+  }[];
 }
 
 type SellerItemsResponse = GraphQLErrorResponse & {
   data?: {
     sellerItems?: {
-      id: string
-    }[]
-  }
-}
+      id: string;
+    }[];
+  };
+};
 
 type ReviewsResponse = GraphQLErrorResponse & {
   data?: {
     reviews?: {
-      rating: number
-    }[]
-  }
-}
+      rating: number;
+    }[];
+  };
+};
 
 const throwGraphQLError = (body: GraphQLErrorResponse) => {
   if (body.errors?.length) {
-    throw new Error(body.errors[0]?.message ?? 'GraphQL error')
+    throw new Error(body.errors[0]?.message ?? 'GraphQL error');
   }
-}
+};
 
-const emptyDistribution = () => [0, 0, 0, 0, 0]
+const emptyDistribution = () => [0, 0, 0, 0, 0];
 
 export class AnalyticsService {
-  public async getAvgRating(sellerId: string):
-  Promise<number> {
+  public async getAvgRating(sellerId: string): Promise<number> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         query: GET_AVG_RATING,
         variables: {
-          id: sellerId
+          id: sellerId,
         },
       }),
     });
     if (!response.ok) {
       throw new Error(`Failed to get average rating: ${response.statusText}`);
     }
-    const body = await response.json() as {
-      data?: {getAvgRating?: number}
-      errors?: {message?: string}[]
-    }
-    return body.data?.getAvgRating ?? 0
+    const body = (await response.json()) as {
+      data?: { getAvgRating?: number };
+      errors?: { message?: string }[];
+    };
+    return body.data?.getAvgRating ?? 0;
   }
 
   public async getStarDistribution(sellerId: string): Promise<number[]> {
     const items = await Promise.all([
       this.getSellerItems(sellerId, 'active'),
       this.getSellerItems(sellerId, 'sold'),
-    ])
-    const itemIds = items.flat().map((item) => item.id)
-    const reviews = await Promise.all(
-      itemIds.map((id) => this.getReviews(id)),
-    )
-    const distribution = emptyDistribution()
+    ]);
+    const itemIds = items.flat().map((item) => item.id);
+    const reviews = await Promise.all(itemIds.map((id) => this.getReviews(id)));
+    const distribution = emptyDistribution();
 
     for (const review of reviews.flat()) {
-      const bucket = Math.min(Math.max(Math.round(review.rating), 1), 5)
-      distribution[bucket - 1]! += 1
+      const bucket = Math.min(Math.max(Math.round(review.rating), 1), 5);
+      const index = bucket - 1;
+      distribution[index] += 1;
     }
 
-    return distribution
+    return distribution;
   }
 
   private async getSellerItems(
     sellerId: string,
     status: 'active' | 'sold',
-  ): Promise<{id: string}[]> {
+  ): Promise<{ id: string }[]> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {
@@ -112,18 +110,18 @@ export class AnalyticsService {
           status,
         },
       }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error(`Failed to get seller items: ${response.statusText}`)
+      throw new Error(`Failed to get seller items: ${response.statusText}`);
     }
 
-    const body = await response.json() as SellerItemsResponse
-    throwGraphQLError(body)
-    return body.data?.sellerItems ?? []
+    const body = (await response.json()) as SellerItemsResponse;
+    throwGraphQLError(body);
+    return body.data?.sellerItems ?? [];
   }
 
-  private async getReviews(itemId: string): Promise<{rating: number}[]> {
+  private async getReviews(itemId: string): Promise<{ rating: number }[]> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',
       headers: {
@@ -137,14 +135,14 @@ export class AnalyticsService {
           },
         },
       }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error(`Failed to get item reviews: ${response.statusText}`)
+      throw new Error(`Failed to get item reviews: ${response.statusText}`);
     }
 
-    const body = await response.json() as ReviewsResponse
-    throwGraphQLError(body)
-    return body.data?.reviews ?? []
+    const body = (await response.json()) as ReviewsResponse;
+    throwGraphQLError(body);
+    return body.data?.reviews ?? [];
   }
 }

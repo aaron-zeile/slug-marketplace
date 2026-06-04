@@ -69,7 +69,11 @@ export default function ApiKeys() {
   };
 
   const copyKey = async () => {
-    await navigator.clipboard.writeText(apiKey!.key);
+    if (!apiKey) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(apiKey.key);
     setCopied(true);
   };
 

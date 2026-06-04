@@ -1,5 +1,11 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Alert,
   Box,
@@ -16,82 +22,82 @@ import {
   TableRow,
   TextField,
   Typography,
-} from '@mui/material'
+} from '@mui/material';
 
-import type { Discount, Listing } from '../../../shared'
-import { ErrorContext } from '../error/Context'
-import { createDiscount, list, listDiscounts } from './model'
+import type { Discount, Listing } from '../../../shared';
+import { ErrorContext } from '../error/Context';
+import { createDiscount, list, listDiscounts } from './model';
 
 const emptyForm = {
   discountPercent: '',
   duration: '',
-}
+};
 
 export default function Discounts() {
-  const locale = useLocale()
-  const t = useTranslations('Discounts')
-  const errorCtx = useContext(ErrorContext)
-  const [listings, setListings] = useState<Listing[]>([])
-  const [discounts, setDiscounts] = useState<Discount[]>([])
-  const [selectedItemId, setSelectedItemId] = useState('')
-  const [form, setForm] = useState(emptyForm)
-  const [loadingListings, setLoadingListings] = useState(true)
-  const [loadingDiscounts, setLoadingDiscounts] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState<string | undefined>()
+  const locale = useLocale();
+  const t = useTranslations('Discounts');
+  const errorCtx = useContext(ErrorContext);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState('');
+  const [form, setForm] = useState(emptyForm);
+  const [loadingListings, setLoadingListings] = useState(true);
+  const [loadingDiscounts, setLoadingDiscounts] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState<string | undefined>();
 
   const setError = useCallback(
     (error: string | undefined) => errorCtx?.setError(error),
     [errorCtx],
-  )
+  );
 
   const selectedListing = useMemo(
     () => listings.find((listing) => listing.id === selectedItemId),
     [listings, selectedItemId],
-  )
-  const percent = Number(form.discountPercent)
-  const duration = Number(form.duration)
+  );
+  const percent = Number(form.discountPercent);
+  const duration = Number(form.duration);
   const percentError =
     form.discountPercent !== '' &&
-    (!Number.isFinite(percent) || percent < 0 || percent > 100)
+    (!Number.isFinite(percent) || percent < 0 || percent > 100);
   const durationError =
-    form.duration !== '' && (!Number.isInteger(duration) || duration < 1)
+    form.duration !== '' && (!Number.isInteger(duration) || duration < 1);
   const submitDisabled =
     saving ||
     selectedItemId === '' ||
     form.discountPercent === '' ||
     form.duration === '' ||
     percentError ||
-    durationError
+    durationError;
 
   useEffect(() => {
     const loadListings = async () => {
-      setLoadingListings(true)
+      setLoadingListings(true);
       await list(setError, (loaded) => {
-        setListings(loaded)
-        setSelectedItemId((current) => current || loaded[0]?.id || '')
-      })
-      setLoadingListings(false)
-    }
+        setListings(loaded);
+        setSelectedItemId((current) => current || loaded[0]?.id || '');
+      });
+      setLoadingListings(false);
+    };
 
-    void loadListings()
-  }, [setError])
+    void loadListings();
+  }, [setError]);
 
   useEffect(() => {
     if (!selectedItemId) {
-      setDiscounts([])
-      return
+      setDiscounts([]);
+      return;
     }
 
     const loadDiscounts = async () => {
-      setLoadingDiscounts(true)
-      const loaded = await listDiscounts(selectedItemId, setError)
-      setDiscounts(loaded)
-      setLoadingDiscounts(false)
-    }
+      setLoadingDiscounts(true);
+      const loaded = await listDiscounts(selectedItemId, setError);
+      setDiscounts(loaded);
+      setLoadingDiscounts(false);
+    };
 
-    void loadDiscounts()
-  }, [selectedItemId, setError])
+    void loadDiscounts();
+  }, [selectedItemId, setError]);
 
   const updateField =
     (field: keyof typeof emptyForm) =>
@@ -99,19 +105,19 @@ export default function Discounts() {
       setForm((current) => ({
         ...current,
         [field]: event.target.value,
-      }))
-      setSuccess(undefined)
-    }
+      }));
+      setSuccess(undefined);
+    };
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
     if (submitDisabled) {
-      return
+      return;
     }
 
-    setSaving(true)
-    setSuccess(undefined)
+    setSaving(true);
+    setSuccess(undefined);
 
     const discount = await createDiscount(
       {
@@ -120,16 +126,18 @@ export default function Discounts() {
         duration,
       },
       setError,
-    )
+    );
 
-    setSaving(false)
+    setSaving(false);
 
     if (discount) {
-      setDiscounts((current) => [discount, ...current])
-      setForm(emptyForm)
-      setSuccess(t('createdSuccess', { name: selectedListing!.name }))
+      setDiscounts((current) => [discount, ...current]);
+      setForm(emptyForm);
+      if (selectedListing) {
+        setSuccess(t('createdSuccess', { name: selectedListing.name }));
+      }
     }
-  }
+  };
 
   return (
     <Box sx={{ maxWidth: 980, p: 3 }}>
@@ -140,15 +148,20 @@ export default function Discounts() {
 
         {success && <Alert severity="success">{success}</Alert>}
 
-        <FormControl fullWidth disabled={loadingListings || listings.length === 0}>
-          <InputLabel id="discount-listing-label">{t('listingLabel')}</InputLabel>
+        <FormControl
+          fullWidth
+          disabled={loadingListings || listings.length === 0}
+        >
+          <InputLabel id="discount-listing-label">
+            {t('listingLabel')}
+          </InputLabel>
           <Select
             labelId="discount-listing-label"
             label={t('listingLabel')}
             value={selectedItemId}
             onChange={(event) => {
-              setSelectedItemId(event.target.value)
-              setSuccess(undefined)
+              setSelectedItemId(event.target.value);
+              setSuccess(undefined);
             }}
           >
             {listings.map((listing) => (
@@ -238,5 +251,5 @@ export default function Discounts() {
         </Table>
       </Box>
     </Box>
-  )
+  );
 }
