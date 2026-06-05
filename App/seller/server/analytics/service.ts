@@ -50,7 +50,9 @@ const throwGraphQLError = (body: GraphQLErrorResponse) => {
   }
 };
 
-const emptyDistribution = () => [0, 0, 0, 0, 0];
+const emptyDistribution = (): [number, number, number, number, number] => [
+  0, 0, 0, 0, 0,
+];
 
 export class AnalyticsService {
   public async getAvgRating(sellerId: string): Promise<number> {
