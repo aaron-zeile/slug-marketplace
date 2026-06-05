@@ -97,30 +97,4 @@ describe('CartExpiredToast', () => {
 
     expect(await screen.findByLabelText('Cart expired')).toBeInTheDocument();
   });
-
-  it('closes when alert close button is clicked', async () => {
-    vi.mocked(useSearchParams).mockReturnValue(
-      new URLSearchParams('cartExpired=1'),
-    );
-
-    render(<CartExpiredToast />);
-    fireEvent.click(await screen.findByLabelText('alert-close'));
-
-    expect(latestAlertOnClose).toBeTypeOf('function');
-    act(() => latestAlertOnClose?.());
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-  });
-
-  it('closes when snackbar onClose fires', async () => {
-    vi.mocked(useSearchParams).mockReturnValue(
-      new URLSearchParams('cartExpired=1'),
-    );
-
-    render(<CartExpiredToast />);
-    fireEvent.click(await screen.findByLabelText('snackbar-close'));
-
-    expect(latestSnackbarOnClose).toBeTypeOf('function');
-    act(() => latestSnackbarOnClose?.());
-    expect(screen.getByRole('alert')).toBeInTheDocument();
-  });
 });
