@@ -89,7 +89,7 @@ export class AnalyticsService {
 
     for (const review of reviews.flat()) {
       const bucket = Math.min(Math.max(Math.round(review.rating), 1), 5);
-      const index = bucket - 1;
+      const index = (bucket - 1) as 0 | 1 | 2 | 3 | 4;
       distribution[index] += 1;
     }
 
