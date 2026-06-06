@@ -123,7 +123,7 @@ export default function ItemCarousel({
           },
           display: 'grid',
           gap: 1.5,
-          gridAutoColumns: 'minmax(168px, 72vw)',
+          gridAutoColumns: 'minmax(168px, 190px)',
           gridAutoFlow: 'column',
           mb: -2.5,
           mt: -2,
