@@ -50,7 +50,6 @@
     "start": "node build/server.js",
     "lint": "eslint src/**/*.[jt]s --fix",
     "cpd": "npx jscpd src test --silent",
-    "test": "vitest run test/__no_db_default__.test.ts --passWithNoTests --no-file-parallelism --testTimeout=3000",
-    "test:integration": "vitest run --no-file-parallelism --testTimeout=3000 --coverage"
+    "test": "vitest run --no-file-parallelism --testTimeout=3000 --coverage"
   }
 }
