@@ -17,6 +17,7 @@ registerItemsServiceHooks();
 
 describe('shopper item service', () => {
   let itemId: string;
+  let taggedSellerId: string;
 
   beforeAll(async () => {
     const created = await seedItemsServiceItem({
@@ -39,13 +40,14 @@ describe('shopper item service', () => {
       price: 18,
     });
 
-    await seedItemsServiceItem({
+    const tagged = await seedItemsServiceItem({
       name: 'Tagged Shopper Book',
       description: 'Only found by category tag.',
       images: ['https://example.com/book.webp'],
       price: 12,
       tags: ['books'],
     });
+    taggedSellerId = tagged.seller.id;
 
     releaseFetchStubForServiceTests();
   });
@@ -63,6 +65,21 @@ describe('shopper item service', () => {
       originalPrice: 42.5,
     });
     expect(result.activeDiscount?.ends_at).toBeDefined();
+  });
+
+  it('returns the original price when no discount is active', async () => {
+    const created = await seedItemsServiceItem({
+      name: 'Shopper Item Without Discount',
+      description: 'Fetched without active discounts.',
+      images: ['https://example.com/no-discount.webp'],
+      price: 19.75,
+    });
+
+    const result = await getItem(created.id);
+
+    expect(result.name).toBe('Shopper Item Without Discount');
+    expect(Number(result.price)).toBe(19.75);
+    expect(result.activeDiscount).toBeNull();
   });
 
   it('sends the item id in the GraphQL variables', async () => {
@@ -92,5 +109,19 @@ describe('shopper item service', () => {
     expect(result.some((entry) => entry.name === 'Tagged Shopper Book')).toBe(
       true,
     );
+  });
+
+  it('fetches filtered items with search, seller, and price bounds', async () => {
+    const result = await getFilteredItems({
+      searchText: 'Tagged Shopper',
+      sellerId: taggedSellerId,
+      minPrice: 10,
+      maxPrice: 15,
+      sortBy: 'priceAsc',
+      limit: 5,
+      status: 'active',
+    });
+
+    expect(result.map((entry) => entry.name)).toContain('Tagged Shopper Book');
   });
 });

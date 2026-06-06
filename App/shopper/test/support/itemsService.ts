@@ -182,6 +182,14 @@ export async function seedItemsServiceDiscount(input: {
   return body.data.createDiscount;
 }
 
+export async function resetItemsServiceDatabaseForTests() {
+  if (!server) {
+    await startItemsServiceForTests();
+  }
+
+  await runInItemsServiceRoot(() => modules.resetSchema());
+}
+
 export const testUser = {
   id: '6a74cd3c-0c10-4507-ab92-a700174f4b15',
   email: 'seller@example.com',

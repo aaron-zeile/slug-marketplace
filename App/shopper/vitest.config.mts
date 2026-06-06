@@ -12,6 +12,7 @@ export default defineConfig({
     testTimeout: 10000, 
     hookTimeout: 20000, 
     setupFiles: ['./vitest.setup.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**'],
     coverage: {
       provider: 'v8',
       reporter: [

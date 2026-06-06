@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run --dir test --no-file-parallelism --testTimeout=15000 --coverage",
+    "test:integration": "vitest run --dir test --no-file-parallelism --testTimeout=15000 --coverage",
     "lint": "eslint",
     "cpd": "npx jscpd src test --silent"
   },

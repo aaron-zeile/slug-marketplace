@@ -167,6 +167,52 @@ describe('ItemService', () => {
     expect(updated.tags).toEqual(['tools', 'electronics']);
   });
 
+  it('creates sold items when quantity is zero', async () => {
+    const created = await new ItemService().createItem(testUser, {
+      name: 'Zero Stock Item',
+      description: 'Created with no stock.',
+      images: [],
+      price: 10,
+      quantity: 0,
+    });
+
+    expect(created).toMatchObject({
+      quantity: 0,
+      status: 'sold',
+    });
+  });
+
+  it('marks updated items sold when quantity is zero', async () => {
+    const created = await new ItemService().createItem(testUser, {
+      name: 'Quantity Update Item',
+      description: 'Will be marked sold.',
+      images: [],
+      price: 10,
+      quantity: 2,
+    });
+
+    const updated = await new ItemService().updateItem(testUser, {
+      id: created.id,
+      name: created.name,
+      description: created.description,
+      images: created.images,
+      price: Number(created.price),
+      quantity: 0,
+    });
+
+    expect(updated).toMatchObject({
+      id: created.id,
+      quantity: 0,
+      status: 'sold',
+    });
+  });
+
+  it('returns no search results for blank search text', async () => {
+    await expect(
+      new ItemService().getSearchItems({ searchText: '   ' }),
+    ).resolves.toEqual([]);
+  });
+
   it('throws when delete item returns no row count', async () => {
     vi.spyOn(pool, 'query').mockResolvedValueOnce({ rowCount: null, rows: [] });
 

@@ -433,6 +433,58 @@ describe('coverage edges', () => {
     });
   });
 
+  it('keeps the edit dialog open when update fails without an error provider', async () => {
+    const onClose = vi.fn();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ reviews: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        statusText: 'Forbidden',
+      });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(
+      <AppProviders>
+        <ListingEditDialog
+          open
+          listing={listing}
+          onClose={onClose}
+          onDeleted={vi.fn()}
+          onUpdated={vi.fn()}
+        />
+      </AppProviders>,
+    );
+    fireEvent.change(await screen.findByLabelText('Image URLs for USB Hub'), {
+      target: {
+        value: ' https://example.com/one.png \n\n https://example.com/two.png ',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Update USB Hub' }));
+
+    await waitFor(() =>
+      expect(fetchMock.mock.calls[1]?.[1]).toEqual(
+        expect.objectContaining({
+          method: 'PUT',
+          body: JSON.stringify({
+            name: listing.name,
+            description: listing.description,
+            price: listing.price,
+            quantity: listing.quantity,
+            images: [
+              'https://example.com/one.png',
+              'https://example.com/two.png',
+            ],
+          }),
+        }),
+      ),
+    );
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('does not render listing fields when dialog has no listing', () => {
     renderWithProviders(
       <ListingEditDialog

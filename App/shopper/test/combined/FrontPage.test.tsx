@@ -7,6 +7,7 @@ import {
   getItemsServiceGraphqlUrl,
   registerItemsServiceHooks,
   releaseFetchStubForServiceTests,
+  resetItemsServiceDatabaseForTests,
   seedItemsServiceItem,
   testUser,
 } from '../support/itemsService';
@@ -287,6 +288,22 @@ describe('FrontPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Carousel Featured items')).toBeDefined();
       expect(screen.queryByLabelText('Carousel Recently viewed')).toBeNull();
+    });
+  });
+
+  it('renders the empty spotlight state when the catalog has no items', async () => {
+    await resetItemsServiceDatabaseForTests();
+    releaseFetchStubForServiceTests();
+
+    render(<FrontPage />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'Our spotlight pick is loading soon. Explore featured items below.',
+        ),
+      ).toBeDefined();
+      expect(screen.queryByLabelText('Carousel Featured items')).toBeNull();
     });
   });
 });

@@ -44,6 +44,7 @@
     "start": "node build/server.js",
     "lint": "eslint src/**/*.[jt]s --fix",
     "cpd": "npx jscpd src --silent",
-    "test": "vitest run --no-file-parallelism --coverage"
+    "test": "vitest run test/statusTransitions.test.ts test/email --no-file-parallelism --coverage",
+    "test:integration": "vitest run --no-file-parallelism --coverage"
   }
 }
