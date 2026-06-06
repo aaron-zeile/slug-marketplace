@@ -6,8 +6,12 @@ vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+const { mockUsePathname } = vi.hoisted(() => ({
+  mockUsePathname: vi.fn(() => '/dashboard' as string | null),
+}));
+
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/dashboard',
+  usePathname: () => mockUsePathname(),
 }));
 
 vi.mock('@/components/dashboard/LogoutButton', () => ({
@@ -25,6 +29,17 @@ import DashboardShell from '@/components/dashboard/DashboardShell';
 describe('DashboardShell', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUsePathname.mockReturnValue('/dashboard');
+  });
+
+  it('marks no nav item active when the pathname is null', async () => {
+    mockUsePathname.mockReturnValue(null);
+    render(<DashboardShell currentLocale="en">content</DashboardShell>);
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: /overview/i })).toBeInTheDocument();
+    });
+    // isActive returns false for every link, so none get the selected class
+    expect(document.querySelector('.Mui-selected')).toBeNull();
   });
 
   it('renders the dashboard title after mounting', async () => {

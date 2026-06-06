@@ -165,4 +165,57 @@ describe('ListingsPage', () => {
     fireEvent.click(screen.getByTitle('Close'));
     expect(screen.queryByText('Some error')).not.toBeInTheDocument();
   });
+
+  it('filters listings by name via the search box', async () => {
+    const otherItem = {
+      ...fakeItem,
+      id: 'item-2',
+      name: 'Vintage Lamp',
+      seller: { id: 'seller-2', name: 'Bob' },
+    };
+    mockFetchItems([fakeItem, otherItem]);
+    render(<ListingsPage />);
+    await waitFor(() => screen.getByText('Test Listing'));
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Search by listing name or seller'),
+      { target: { value: 'vintage' } },
+    );
+
+    expect(screen.getByText('Vintage Lamp')).toBeInTheDocument();
+    expect(screen.queryByText('Test Listing')).not.toBeInTheDocument();
+  });
+
+  it('filters listings by seller name via the search box', async () => {
+    const otherItem = {
+      ...fakeItem,
+      id: 'item-2',
+      name: 'Vintage Lamp',
+      seller: { id: 'seller-2', name: 'Bob' },
+    };
+    mockFetchItems([fakeItem, otherItem]);
+    render(<ListingsPage />);
+    await waitFor(() => screen.getByText('Test Listing'));
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Search by listing name or seller'),
+      { target: { value: 'alice' } },
+    );
+
+    expect(screen.getByText('Test Listing')).toBeInTheDocument();
+    expect(screen.queryByText('Vintage Lamp')).not.toBeInTheDocument();
+  });
+
+  it('shows a no-match message when the search matches nothing', async () => {
+    mockFetchItems([fakeItem]);
+    render(<ListingsPage />);
+    await waitFor(() => screen.getByText('Test Listing'));
+
+    fireEvent.change(
+      screen.getByPlaceholderText('Search by listing name or seller'),
+      { target: { value: 'zzzzz' } },
+    );
+
+    expect(screen.getByText(/No listings match/i)).toBeInTheDocument();
+  });
 });

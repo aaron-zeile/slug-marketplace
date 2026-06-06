@@ -337,15 +337,19 @@ export default function ReviewsPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredItems.map((item) => (
-                <ItemReviewsRow
-                  key={item.id}
-                  item={item}
-                  reviews={reviewsByItem[item.id] ?? []}
-                  onDeleteReview={handleDeleteReview}
-                  deletingId={deletingId}
-                />
-              ))}
+              {filteredItems.map((item) => {
+                /* v8 ignore next -- grouped always seeds every item id, so the fallback is defensive */
+                const itemReviews = reviewsByItem[item.id] ?? [];
+                return (
+                  <ItemReviewsRow
+                    key={item.id}
+                    item={item}
+                    reviews={itemReviews}
+                    onDeleteReview={handleDeleteReview}
+                    deletingId={deletingId}
+                  />
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

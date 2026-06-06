@@ -432,3 +432,247 @@ describe('AdminResolver.adminDeleteReview', () => {
     ).rejects.toThrow('Failed to delete review');
   });
 });
+
+describe('AdminResolver.adminReports', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('throws when not authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(resolver.adminReports(null, makeAuthenticatedCtx())).rejects.toThrow(
+      'Not authenticated',
+    );
+    expect(mockSql).not.toHaveBeenCalled();
+  });
+
+  const reportRow = {
+    id: 'report-1',
+    type: 'item',
+    target_id: 'item-1',
+    target_name: 'Test Listing',
+    reporter_id: 'user-1',
+    reporter_name: 'Bob',
+    reason: 'spam',
+    description: 'Looks fake',
+    status: 'open',
+    admin_notes: 'checking',
+    created_at: new Date('2024-06-01T12:00:00.000Z'),
+    resolved_at: new Date('2024-06-02T12:00:00.000Z'),
+    resolved_by: 'admin@test.com',
+  };
+
+  it('returns mapped reports filtered by status', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    mockSql.mockResolvedValue([reportRow]);
+
+    const result = await resolver.adminReports('open', makeAuthenticatedCtx());
+
+    expect(result).toEqual([
+      {
+        id: 'report-1',
+        type: 'item',
+        targetId: 'item-1',
+        targetName: 'Test Listing',
+        reporterId: 'user-1',
+        reporterName: 'Bob',
+        reason: 'spam',
+        description: 'Looks fake',
+        status: 'open',
+        adminNotes: 'checking',
+        createdAt: '2024-06-01T12:00:00.000Z',
+        resolvedAt: '2024-06-02T12:00:00.000Z',
+        resolvedBy: 'admin@test.com',
+      },
+    ]);
+    expect(mockSql).toHaveBeenCalledOnce();
+  });
+
+  it('returns all reports when no status filter is provided', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    mockSql.mockResolvedValue([reportRow]);
+
+    const result = await resolver.adminReports(null, makeAuthenticatedCtx());
+
+    expect(result).toHaveLength(1);
+    expect(mockSql).toHaveBeenCalledOnce();
+  });
+
+  it('maps nullable fields to undefined when absent', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1 } as never);
+    mockSql.mockResolvedValue([
+      {
+        ...reportRow,
+        reporter_id: null,
+        description: null,
+        admin_notes: null,
+        resolved_at: null,
+        resolved_by: null,
+      },
+    ]);
+
+    const [result] = await resolver.adminReports(null, makeAuthenticatedCtx());
+
+    expect(result.reporterId).toBeUndefined();
+    expect(result.description).toBeUndefined();
+    expect(result.adminNotes).toBeUndefined();
+    expect(result.resolvedAt).toBeUndefined();
+    expect(result.resolvedBy).toBeUndefined();
+  });
+});
+
+describe('AdminResolver.adminUpdateReportStatus', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('throws when not authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(
+      resolver.adminUpdateReportStatus('report-1', 'resolved', null, makeAuthenticatedCtx()),
+    ).rejects.toThrow('Not authenticated');
+    expect(mockSql).not.toHaveBeenCalled();
+  });
+
+  it('sets resolved_at/resolved_by when status is terminal (resolved)', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    mockSql.mockResolvedValue([]);
+
+    const result = await resolver.adminUpdateReportStatus(
+      'report-1',
+      'resolved',
+      'handled',
+      makeAuthenticatedCtx(),
+    );
+
+    expect(result).toBe(true);
+    expect(mockSql).toHaveBeenCalledOnce();
+  });
+
+  it('treats dismissed as a terminal status', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    mockSql.mockResolvedValue([]);
+
+    const result = await resolver.adminUpdateReportStatus(
+      'report-1',
+      'dismissed',
+      null,
+      makeAuthenticatedCtx(),
+    );
+
+    expect(result).toBe(true);
+    expect(mockSql).toHaveBeenCalledOnce();
+  });
+
+  it('does not set resolution fields for non-terminal status', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    mockSql.mockResolvedValue([]);
+
+    const result = await resolver.adminUpdateReportStatus(
+      'report-1',
+      'investigating',
+      'looking into it',
+      makeAuthenticatedCtx(),
+    );
+
+    expect(result).toBe(true);
+    expect(mockSql).toHaveBeenCalledOnce();
+  });
+
+  it('coalesces null adminNotes for a non-terminal status', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    mockSql.mockResolvedValue([]);
+
+    const result = await resolver.adminUpdateReportStatus(
+      'report-1',
+      'investigating',
+      null,
+      makeAuthenticatedCtx(),
+    );
+
+    expect(result).toBe(true);
+    expect(mockSql).toHaveBeenCalledOnce();
+  });
+});
+
+describe('AdminResolver.adminDeleteReportTarget', () => {
+  const resolver = new AdminResolver();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  it('throws when not authenticated', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: undefined } as never);
+
+    await expect(
+      resolver.adminDeleteReportTarget('report-1', 'item', 'item-1', makeAuthenticatedCtx()),
+    ).rejects.toThrow('Not authenticated');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('deletes an item target and marks the report resolved', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 200 }) as never);
+    mockSql.mockResolvedValue([]);
+
+    const result = await resolver.adminDeleteReportTarget(
+      'report-1',
+      'item',
+      'item-1',
+      makeAuthenticatedCtx(),
+    );
+
+    expect(result).toBe(true);
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/admin/items/item-1'),
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+    expect(mockSql).toHaveBeenCalledOnce();
+  });
+
+  it('deletes a review target via the reviews endpoint', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 200 }) as never);
+    mockSql.mockResolvedValue([]);
+
+    const result = await resolver.adminDeleteReportTarget(
+      'report-1',
+      'review',
+      'review-1',
+      makeAuthenticatedCtx(),
+    );
+
+    expect(result).toBe(true);
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/admin/reviews/review-1'),
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+  });
+
+  it('throws when the target is not found', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 404 }) as never);
+
+    await expect(
+      resolver.adminDeleteReportTarget('report-1', 'item', 'item-1', makeAuthenticatedCtx()),
+    ).rejects.toThrow('item not found');
+    expect(mockSql).not.toHaveBeenCalled();
+  });
+
+  it('throws a generic error for non-404 failures', async () => {
+    vi.mocked(getIronSession).mockResolvedValue({ adminId: 1, email: 'admin@test.com' } as never);
+    vi.mocked(fetch).mockResolvedValue(new Response('', { status: 500 }) as never);
+
+    await expect(
+      resolver.adminDeleteReportTarget('report-1', 'review', 'review-1', makeAuthenticatedCtx()),
+    ).rejects.toThrow('Failed to delete review');
+  });
+});

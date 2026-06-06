@@ -153,6 +153,7 @@ export default function ReportsPage() {
   };
 
   const handleDeleteAndResolve = async () => {
+    /* v8 ignore next -- guard is defensive; the confirm button only renders while the dialog is open */
     if (!confirmDialog) return;
     const { reportId, targetType, targetId } = confirmDialog;
     setConfirmDialog(null);

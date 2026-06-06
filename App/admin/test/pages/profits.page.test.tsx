@@ -63,4 +63,18 @@ describe('ProfitsPage', () => {
     expect(screen.getByText('$3,000')).toBeInTheDocument();
     expect(screen.getByText('2024-02')).toBeInTheDocument();
   });
+
+  it('keeps the best month when later months have lower profit', async () => {
+    mockMonthlyProfit([
+      { month: '2024-01', profit: 5000 },
+      { month: '2024-02', profit: 1000 },
+    ]);
+    render(<ProfitsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('2024-01')).toBeInTheDocument();
+    });
+    // best month stays at the first (highest) entry
+    expect(screen.getByText('$5,000')).toBeInTheDocument();
+  });
 });
