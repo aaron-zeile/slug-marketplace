@@ -3,6 +3,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 const serviceMocks = vi.hoisted(() => ({
   getAvgRating: vi.fn(),
+  getSalesStats: vi.fn(),
   getStarDistribution: vi.fn(),
 }))
 
@@ -86,6 +87,44 @@ describe('analytics router', () => {
     const res = response()
 
     await getStarDistribution(req, res)
+
+    expect((res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0]).toEqual([
+      401,
+    ])
+  })
+
+  it('gets the authenticated seller sales stats', async () => {
+    const {getSalesStats} = await import('../analytics/router.js')
+    serviceMocks.getSalesStats.mockResolvedValue([
+      {month: 'Jun 2026', earnings: 42.5, orders: 2},
+    ])
+    const req = {
+      sessionToken: 'session-token',
+      user: {id: 'seller-1'},
+    } as Request
+    const res = response()
+
+    await getSalesStats(req, res)
+
+    expect({
+      serviceCall: serviceMocks.getSalesStats.mock.calls[0],
+      jsonCall: (res.json as ReturnType<typeof vi.fn>).mock.calls[0],
+    }).toEqual({
+      serviceCall: ['seller-1'],
+      jsonCall: [{
+        salesStats: [{month: 'Jun 2026', earnings: 42.5, orders: 2}],
+      }],
+    })
+  })
+
+  it('rejects sales stats requests without a session token', async () => {
+    const {getSalesStats} = await import('../analytics/router.js')
+    const req = {
+      user: {id: 'seller-1'},
+    } as Request
+    const res = response()
+
+    await getSalesStats(req, res)
 
     expect((res.sendStatus as ReturnType<typeof vi.fn>).mock.calls[0]).toEqual([
       401,

@@ -23,6 +23,7 @@ const expressMock = vi.hoisted(() => {
 const routeMocks = vi.hoisted(() => ({
   analytics: {
     getAvgRating: vi.fn(),
+    getSalesStats: vi.fn(),
     getStarDistribution: vi.fn(),
   },
   apiKeys: {
@@ -121,6 +122,11 @@ const routeCases: RouteCase[] = [
     method: 'get',
     path: '/analytics/star-distribution',
     handler: routeMocks.analytics.getStarDistribution,
+  },
+  {
+    method: 'get',
+    path: '/analytics/sales-stats',
+    handler: routeMocks.analytics.getSalesStats,
   },
 ]
 

@@ -32,6 +32,7 @@ apiRouter.post('/messages', doCheck, messages.post);
 apiRouter.get('/sessions', doCheck, auth.getSession);
 apiRouter.get('/analytics/average-rating', doCheck, analytics.getAvgRating)
 apiRouter.get('/analytics/star-distribution', doCheck, analytics.getStarDistribution)
+apiRouter.get('/analytics/sales-stats', doCheck, analytics.getSalesStats)
 
 app.use('/seller/api', apiRouter);
 app.use('/api', apiRouter);

@@ -1,3 +1,5 @@
+import { OrderService } from '../orders/service.js';
+
 const ITEMS_SERVICE_URL =
   process.env.ITEMS_SERVICE_URL || 'http://localhost:4500/graphql';
 const GET_AVG_RATING = `
@@ -55,6 +57,10 @@ const emptyDistribution = (): [number, number, number, number, number] => [
 ];
 
 export class AnalyticsService {
+  public async getSalesStats(sellerId: string) {
+    return new OrderService().getSalesStats(sellerId);
+  }
+
   public async getAvgRating(sellerId: string): Promise<number> {
     const response = await fetch(ITEMS_SERVICE_URL, {
       method: 'POST',

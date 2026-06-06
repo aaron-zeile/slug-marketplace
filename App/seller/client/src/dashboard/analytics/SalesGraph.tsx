@@ -1,18 +1,33 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import {LineChart} from '@mui/x-charts/LineChart'
-import React from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 
-const dataset = [
-  {month: 'Jan', earnings: 420, orders: 8},
-  {month: 'Feb', earnings: 680, orders: 13},
-  {month: 'Mar', earnings: 510, orders: 10},
-  {month: 'Apr', earnings: 940, orders: 18},
-  {month: 'May', earnings: 760, orders: 15},
-  {month: 'Jun', earnings: 1180, orders: 22},
-]
+import type {SalesStat} from '../../../../shared'
+import {ErrorContext} from '../../error/Context'
+import {salesStats} from '../model'
+
+const emptyStats: SalesStat[] = []
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const ignoreError = () => {}
 
 export default function SalesGraph() {
+  const [dataset, setDataset] = useState<SalesStat[]>(emptyStats)
+  const [loading, setLoading] = useState(true)
+  const errorCtx = useContext(ErrorContext)
+  const setError = errorCtx?.setError ?? ignoreError
+
+  useEffect(() => {
+    const loadSalesStats = async () => {
+      setLoading(true)
+      const stats = await salesStats(setError)
+      setDataset(stats ?? emptyStats)
+      setLoading(false)
+    }
+
+    void loadSalesStats()
+  }, [setError])
+
   return (
     <Box
       sx={{
@@ -32,40 +47,46 @@ export default function SalesGraph() {
       >
         Sales trend
       </Typography>
-      <LineChart
-        dataset={dataset}
-        xAxis={[{
-          scaleType: 'point',
-          dataKey: 'month',
-        }]}
-        yAxis={[
-          {id: 'earnings-axis', position: 'left'},
-          {id: 'orders-axis', position: 'right'},
-        ]}
-        series={[
-          {
-            dataKey: 'earnings',
-            label: 'Earnings',
-            color: '#0b5a54',
-            yAxisId: 'earnings-axis',
-            valueFormatter: (value) =>
-              value == null
-                ? ''
-                : new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    maximumFractionDigits: 0,
-                  }).format(value),
-          },
-          {
-            dataKey: 'orders',
-            label: 'Orders',
-            color: '#70aaa4',
-            yAxisId: 'orders-axis',
-          },
-        ]}
-        height={320}
-      />
+      {!loading && dataset.length === 0 ? (
+        <Typography color="text.secondary" sx={{py: 10, textAlign: 'center'}}>
+          No sales yet
+        </Typography>
+      ) : (
+        <LineChart
+          dataset={dataset}
+          xAxis={[{
+            scaleType: 'point',
+            dataKey: 'month',
+          }]}
+          yAxis={[
+            {id: 'earnings-axis', position: 'left'},
+            {id: 'orders-axis', position: 'right'},
+          ]}
+          series={[
+            {
+              dataKey: 'earnings',
+              label: 'Earnings',
+              color: '#0b5a54',
+              yAxisId: 'earnings-axis',
+              valueFormatter: (value) =>
+                value == null
+                  ? ''
+                  : new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      maximumFractionDigits: 0,
+                    }).format(value),
+            },
+            {
+              dataKey: 'orders',
+              label: 'Orders',
+              color: '#70aaa4',
+              yAxisId: 'orders-axis',
+            },
+          ]}
+          height={320}
+        />
+      )}
     </Box>
   )
 }

@@ -96,45 +96,33 @@ export default function ListingEditDialog({
   const updateDraft =
     (field: keyof ListingDraft) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setDraft((current) =>
-        current
-          ? {
-              ...current,
-              [field]: event.target.value,
-            }
-          : current,
-      );
+      setDraft((current) => ({
+        ...current!,
+        [field]: event.target.value,
+      }));
     };
 
   const handleDelete = async () => {
-    if (!listing) {
-      return;
-    }
-
     setDeleting(true);
-    const deleted = await remove(listing.id, setError);
+    const deleted = await remove(listing!.id, setError);
     setDeleting(false);
 
     if (deleted) {
-      onDeleted(listing.id);
+      onDeleted(listing!.id);
       onClose();
     }
   };
 
   const handleSave = async () => {
-    if (!listing || !draft) {
-      return;
-    }
-
     setSaving(true);
     const updated = await update(
-      listing.id,
+      listing!.id,
       {
-        name: draft.name.trim(),
-        description: draft.description.trim(),
+        name: draft!.name.trim(),
+        description: draft!.description.trim(),
         price,
         quantity,
-        images: normalizeImages(draft.images),
+        images: normalizeImages(draft!.images),
       },
       setError,
     );

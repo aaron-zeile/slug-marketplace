@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { OrderSchema, type Order } from '../../shared/index.js';
+import {
+  OrderSchema,
+  SalesStatSchema,
+  type Order,
+  type SalesStat,
+} from '../../shared/index.js';
 
 const ORDER_SERVICE_URL =
   process.env.ORDER_SERVICE_URL || 'http://localhost:4700/graphql';
@@ -25,6 +30,16 @@ const SELLER_ORDERS_QUERY = `
         postalCode
         country
       }
+    }
+  }
+`;
+
+const SELLER_SALES_STATS_QUERY = `
+  query SellerSalesStats($input: SellerOrdersInput!) {
+    sellerSalesStats(input: $input) {
+      month
+      earnings
+      orders
     }
   }
 `;
@@ -73,6 +88,50 @@ export class OrderService {
         parseResult.error.flatten(),
       );
       throw new Error('Seller orders response did not match expected schema');
+    }
+
+    return parseResult.data;
+  }
+
+  public async getSalesStats(sellerId: string): Promise<SalesStat[]> {
+    const response = await fetch(ORDER_SERVICE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: SELLER_SALES_STATS_QUERY,
+        variables: {
+          input: {
+            seller: sellerId,
+          },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch seller sales stats: ${response.statusText}`);
+    }
+
+    const body = await response.json() as {
+      data?: { sellerSalesStats?: unknown }
+      errors?: { message?: string }[]
+    };
+
+    if (body.errors?.length) {
+      throw new Error(body.errors[0]?.message ?? 'GraphQL error');
+    }
+
+    const parseResult = z.array(SalesStatSchema).safeParse(
+      body.data?.sellerSalesStats,
+    );
+
+    if (!parseResult.success) {
+      console.error(
+        '[seller-orders] Sales stats response failed schema validation',
+        parseResult.error.flatten(),
+      );
+      throw new Error('Seller sales stats response did not match expected schema');
     }
 
     return parseResult.data;

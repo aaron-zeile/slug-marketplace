@@ -666,9 +666,46 @@ describe('coverage edges', () => {
   });
 
   it('formats sales graph values', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          salesStats: [{month: 'Jun 2026', earnings: 420, orders: 8}],
+        }),
+      })),
+    );
+
     render(<SalesGraph />);
 
     expect(screen.getByText('$420')).toBeInTheDocument();
+  });
+
+  it('renders the empty sales graph state', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({salesStats: []}),
+      })),
+    );
+
+    renderWithProviders(<SalesGraph />);
+
+    expect(await screen.findByText('No sales yet')).toBeInTheDocument();
+  });
+
+  it('renders the empty sales graph state when loading stats fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('sales unavailable');
+      }),
+    );
+
+    renderWithProviders(<SalesGraph />);
+
+    expect(await screen.findByText('No sales yet')).toBeInTheDocument();
   });
 
   it('renders a high seller rating', async () => {

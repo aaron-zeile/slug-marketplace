@@ -131,6 +131,18 @@ export class Order {
   address!: OrderAddress;
 }
 
+@ObjectType()
+export class SellerSalesStat {
+  @Field(() => String)
+  month!: string;
+
+  @Field(() => Float)
+  earnings!: number;
+
+  @Field(() => Number)
+  orders!: number;
+}
+
 @InputType('CreateOrderInput')
 export class CreateOrderInput {
   @Field(() => String)

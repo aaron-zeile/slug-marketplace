@@ -5,6 +5,7 @@ import {
   CreateOrderInput,
   Order,
   OrderIdInput,
+  SellerSalesStat,
   SellerOrdersInput,
   UpdateOrderStatusInput,
 } from './schema';
@@ -29,6 +30,13 @@ export class OrderResolver {
     @Arg('input', () => SellerOrdersInput) input: SellerOrdersInput,
   ): Promise<Order[]> {
     return new OrderService().getSellerOrders(input);
+  }
+
+  @Query(() => [SellerSalesStat])
+  async sellerSalesStats(
+    @Arg('input', () => SellerOrdersInput) input: SellerOrdersInput,
+  ): Promise<SellerSalesStat[]> {
+    return new OrderService().getSellerSalesStats(input);
   }
 
   @Query(() => Boolean)

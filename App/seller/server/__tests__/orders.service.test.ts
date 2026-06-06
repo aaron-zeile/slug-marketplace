@@ -223,6 +223,107 @@ describe('OrderService', () => {
     })
   })
 
+  it('fetches seller sales stats through GraphQL', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          sellerSalesStats: [
+            {month: 'Jun 2026', earnings: 42.5, orders: 2},
+          ],
+        },
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    const stats = await new OrderService().getSalesStats(sellerId)
+
+    expect({
+      stats,
+      request: fetchMock.mock.calls[0],
+    }).toEqual({
+      stats: [{month: 'Jun 2026', earnings: 42.5, orders: 2}],
+      request: [
+        'http://orders.test/graphql',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: expect.stringContaining('sellerSalesStats'),
+        }),
+      ],
+    })
+  })
+
+  it('throws when seller sales stats receive a non-ok response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: 'Bad Gateway',
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(new OrderService().getSalesStats(sellerId)).rejects.toThrow(
+      'Failed to fetch seller sales stats: Bad Gateway',
+    )
+  })
+
+  it('throws graphql errors from seller sales stats', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          errors: [{message: 'Stats query failed'}],
+        }),
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(new OrderService().getSalesStats(sellerId)).rejects.toThrow(
+      'Stats query failed',
+    )
+  })
+
+  it('throws fallback graphql errors from seller sales stats', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          errors: [{}],
+        }),
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(new OrderService().getSalesStats(sellerId)).rejects.toThrow(
+      'GraphQL error',
+    )
+  })
+
+  it('throws when seller sales stats do not match the schema', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            sellerSalesStats: [{month: 'Jun 2026'}],
+          },
+        }),
+      }),
+    )
+    const OrderService = await importFreshOrderService('http://orders.test/graphql')
+
+    await expect(new OrderService().getSalesStats(sellerId)).rejects.toThrow(
+      'Seller sales stats response did not match expected schema',
+    )
+  })
+
   it('sends delivered status updates as GraphQL enum values', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

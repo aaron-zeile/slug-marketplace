@@ -7,6 +7,7 @@ import {
   ListingsResponseSchema,
   OrdersResponseSchema,
   ReviewsResponseSchema,
+  SalesStatsResponseSchema,
   type ApiKeyMetadata,
   type ApiKeyResponse,
   type Discount,
@@ -15,6 +16,7 @@ import {
   type NewListing,
   type Order,
   type Review,
+  type SalesStat,
 } from '../../../shared'
 
 export const list = async (
@@ -241,6 +243,23 @@ export async function starDistribution(
         ? error.message
         : 'Failed to load rating distribution',
     )
+    return undefined
+  }
+}
+
+export async function salesStats(
+  setError: (error: string | undefined) => void,
+): Promise<SalesStat[] | undefined> {
+  try {
+    const response = await fetch('/seller/api/analytics/sales-stats')
+    if (!response.ok) {
+      throw new Error(response.statusText)
+    }
+    const body = SalesStatsResponseSchema.parse(await response.json())
+    setError(undefined)
+    return body.salesStats
+  } catch (error) {
+    setError(error instanceof Error ? error.message : 'Failed to load sales stats')
     return undefined
   }
 }

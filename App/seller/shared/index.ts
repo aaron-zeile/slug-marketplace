@@ -69,6 +69,16 @@ export const OrdersResponseSchema = z.object({
   orders: z.array(OrderSchema),
 })
 
+export const SalesStatSchema = z.object({
+  month: z.string(),
+  earnings: z.number(),
+  orders: z.number().int().min(0),
+})
+
+export const SalesStatsResponseSchema = z.object({
+  salesStats: z.array(SalesStatSchema),
+})
+
 export const ReviewSchema = z.object({
   id: z.string(),
   user: z.object({ id: z.string(), name: z.string() }),
@@ -121,6 +131,7 @@ export const ApiKeysResponseSchema = z.object({
 export type Listing = z.infer<typeof ListingSchema>;
 export type NewListing = z.infer<typeof NewListingSchema>;
 export type Order = z.infer<typeof OrderSchema>;
+export type SalesStat = z.infer<typeof SalesStatSchema>;
 export type Review = z.infer<typeof ReviewSchema>;
 export type Discount = z.infer<typeof DiscountSchema>;
 export type NewDiscount = z.infer<typeof NewDiscountSchema>;

@@ -16,6 +16,7 @@ import {
   Order,
   OrderIdInput,
   OrderStatus,
+  SellerSalesStat,
   SellerOrdersInput,
   UpdateOrderStatusInput,
 } from './schema';
@@ -44,6 +45,37 @@ export class OrderService {
 
   public async getSellerOrders(input: SellerOrdersInput): Promise<Order[]> {
     return getSellerOrders(input);
+  }
+
+  public async getSellerSalesStats(
+    input: SellerOrdersInput,
+  ): Promise<SellerSalesStat[]> {
+    const orders = await getSellerOrders(input);
+    const byMonth = new Map<string, SellerSalesStat>();
+
+    for (const order of orders) {
+      const orderedAt = new Date(order.orderedAt);
+      const key = `${orderedAt.getUTCFullYear()}-${String(
+        orderedAt.getUTCMonth() + 1,
+      ).padStart(2, '0')}`;
+      const month = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        timeZone: 'UTC',
+        year: 'numeric',
+      }).format(orderedAt);
+      const current = byMonth.get(key) ?? { month, earnings: 0, orders: 0 };
+
+      current.earnings += order.purchaseAmount;
+      current.orders += 1;
+      byMonth.set(key, current);
+    }
+
+    return [...byMonth.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([, stat]) => ({
+        ...stat,
+        earnings: Number(stat.earnings.toFixed(2)),
+      }));
   }
 
   public async buyerHasOrderedItem(

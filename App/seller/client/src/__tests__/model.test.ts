@@ -12,6 +12,7 @@ import {
   listOrders,
   remove,
   revokeApiKey,
+  salesStats,
   starDistribution,
   update,
   updateOrderStatus,
@@ -587,6 +588,60 @@ describe('dashboard model', () => {
     const result = await starDistribution(setError)
 
     expect(result).toEqual([1, 2, 3, 4, 5])
+  })
+
+  it('loads sales stats', async () => {
+    const setError = vi.fn()
+    const stats = [{month: 'Jun 2026', earnings: 42.5, orders: 2}]
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({salesStats: stats}),
+      })),
+    )
+
+    const result = await salesStats(setError)
+
+    expect({result, errorCall: setError.mock.calls[0]}).toEqual({
+      result: stats,
+      errorCall: [undefined],
+    })
+  })
+
+  it('reports sales stats response failures', async () => {
+    const setError = vi.fn()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: false,
+        statusText: 'Unauthorized',
+      })),
+    )
+
+    const result = await salesStats(setError)
+
+    expect({result, errorCall: setError.mock.calls[0]}).toEqual({
+      result: undefined,
+      errorCall: ['Unauthorized'],
+    })
+  })
+
+  it('reports non-error sales stats failures', async () => {
+    const setError = vi.fn()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw 'sales stats failed'
+      }),
+    )
+
+    const result = await salesStats(setError)
+
+    expect({result, errorCall: setError.mock.calls[0]}).toEqual({
+      result: undefined,
+      errorCall: ['Failed to load sales stats'],
+    })
   })
 
   it('reports non-error star distribution failures', async () => {

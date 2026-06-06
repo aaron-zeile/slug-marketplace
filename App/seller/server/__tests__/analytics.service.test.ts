@@ -83,6 +83,31 @@ describe('AnalyticsService', () => {
     })
   })
 
+  it('gets seller sales stats from the order service', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          sellerSalesStats: [
+            {month: 'Jun 2026', earnings: 42.5, orders: 2},
+          ],
+        },
+      }),
+    })
+
+    const stats = await new AnalyticsService().getSalesStats('seller-1')
+
+    expect({
+      stats,
+      queryIncludesSalesStats: JSON.parse(
+        String(fetchMock.mock.calls[0]?.[1]?.body),
+      ).query.includes('sellerSalesStats'),
+    }).toEqual({
+      stats: [{month: 'Jun 2026', earnings: 42.5, orders: 2}],
+      queryIncludesSalesStats: true,
+    })
+  })
+
   it('returns zero when the average rating is omitted', async () => {
     fetchMock.mockResolvedValue({
       ok: true,

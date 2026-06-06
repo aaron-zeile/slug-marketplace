@@ -75,6 +75,17 @@ describe('App', () => {
           }
         }
 
+        if (url.includes('/seller/api/analytics/sales-stats')) {
+          return {
+            ok: true,
+            json: async () => ({
+              salesStats: [
+                {month: 'Jun 2026', earnings: 42.5, orders: 2},
+              ],
+            }),
+          }
+        }
+
         if (url.includes('/seller/api/keys')) {
           return {
             ok: true,
