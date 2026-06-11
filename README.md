@@ -1,15 +1,10 @@
 # Marketplace
 
-## Inital Hello World!
+## Global marketplace modeled after Amazon and eBay
 
-Recommended repo layout
-
-- **App**
-  - **HelloWorld**
-  - Shopper
-  - Seller
-  - Admin
-- Service
-- Spike
-
-Those in **bold** being the ones you need right now
+Group members:
+- Aaron Zeile
+- Pouria Rezaei	
+- Riley Arthur
+- Nathan Skinner
+- Austin Nguyen
